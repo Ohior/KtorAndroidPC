@@ -3,7 +3,11 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="..\:/Developer/IntellijIdea/KtorAndroidPC/app/src/main/res/layout/activity_explorer.xml" value="0.15715579710144928" />
         <entry key="..\:/Developer/IntellijIdea/KtorAndroidPC/app/src/main/res/layout/activity_main.xml" value="0.18" />
+        <entry key="..\:/Developer/IntellijIdea/KtorAndroidPC/app/src/main/res/layout/explorer_item.xml" value="0.15715579710144928" />
+        <entry key="..\:/Developer/IntellijIdea/KtorAndroidPC/app/src/main/res/layout/explorer_item2.xml" value="0.15715579710144928" />
+        <entry key="..\:/Developer/IntellijIdea/KtorAndroidPC/app/src/main/res/xml/file_provider.xml" value="0.1" />
       </map>
     </option>
   </component>

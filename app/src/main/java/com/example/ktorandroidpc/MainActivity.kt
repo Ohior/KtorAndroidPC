@@ -1,20 +1,18 @@
 package com.example.ktorandroidpc
 
+import android.content.Intent
+import android.content.pm.PackageManager
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.os.Environment
 import com.example.ktorandroidpc.databinding.ActivityMainBinding
+import com.example.ktorandroidpc.explorer.FileUtils
 import com.example.ktorandroidpc.plugins.configureRouting
 import com.example.ktorandroidpc.plugins.configureTemplating
-import com.example.ktorandroidpc.utills.Const
-import com.example.ktorandroidpc.utills.Tools
-import io.ktor.server.application.*
+import com.example.ktorandroidpc.utills.*
 import io.ktor.server.engine.*
-import io.ktor.server.freemarker.*
 import io.ktor.server.netty.*
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.cancel
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 
 
 class MainActivity : AppCompatActivity() {
@@ -22,21 +20,69 @@ class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
     private lateinit var coroutineScope: CoroutineScope
     private var connectOrDisconnect = true
+    private val mDirectory by lazy { Environment.getExternalStorageDirectory().absolutePath }
+    private lateinit var mStoreRootFolder: List<FileModel>
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        if (requestCode == Const.PERMISSION &&
+            grantResults.isNotEmpty() &&
+            grantResults[0] == PackageManager.PERMISSION_GRANTED
+        ) {
+            mStoreRootFolder = StoreRootFolder()
+            coroutineScope.launch {
+                DataManager.with(this@MainActivity.application)
+                    .savePreferenceData(mStoreRootFolder, Const.ROOT_FOLDER_KEY)
+            }
+        }
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+    }
+
+    override fun onDestroy() {
+        if (coroutineScope.isActive || ::coroutineScope.isInitialized) {
+            coroutineScope.cancel()
+        }
+        super.onDestroy()
+    }
+
+    override fun onPause() {
+        if (coroutineScope.isActive || ::coroutineScope.isInitialized) {
+            coroutineScope.cancel()
+        }
+        super.onPause()
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        Tools.requestForPermissions(applicationContext, this@MainActivity)
 
         Initiallizers()
 
         ClickListener()
 
-        coroutineScope.launch {
-        embeddedServer(Netty, port = Const.PORT, host = Const.ADDRESS) {
-            configureRouting(this, applicationContext)
-            configureTemplating(this)
-        }.start(wait = false)
+        Executional()
+
+//        coroutineScope.launch {
+//            embeddedServer(Netty, port = Const.PORT, host = Const.ADDRESS) {
+//                configureRouting(this, applicationContext)
+//                configureTemplating(this)
+//            }.start(wait = false)
+//        }
+
+    }
+
+    private fun Executional() {
+        if (Tools.checkForReadExternalStoragePermission(this)) {
+            mStoreRootFolder = StoreRootFolder()
+            coroutineScope.launch {
+                DataManager.with(this@MainActivity.application)
+                    .savePreferenceData(mStoreRootFolder, Const.ROOT_FOLDER_KEY)
+            }
         }
 
     }
@@ -46,7 +92,8 @@ class MainActivity : AppCompatActivity() {
             if (connectOrDisconnect) {
                 coroutineScope.launch {
                     embeddedServer(Netty, port = Const.PORT, host = Const.ADDRESS) {
-                        configureRouting(this)
+                        configureRouting(this, applicationContext)
+                        configureTemplating(this)
                     }.start(wait = false)
                 }
             } else {
@@ -56,9 +103,21 @@ class MainActivity : AppCompatActivity() {
             connectOrDisconnect = !connectOrDisconnect
 
         }
+
+        binding.idBtnConnectWithApplication.setOnClickListener {
+            val intent = Intent(this, ExplorerActivity::class.java)
+            intent.putExtra("files", "mStoreRootFolder")
+            startActivity(intent)
+            coroutineScope.cancel()
+        }
+
     }
 
     private fun Initiallizers() {
         coroutineScope = CoroutineScope(Dispatchers.IO)
+    }
+
+    private fun StoreRootFolder(): List<FileModel> {
+        return FileUtils.getFileModelsFromFiles(FileUtils.getFilesFromPath(mDirectory))
     }
 }

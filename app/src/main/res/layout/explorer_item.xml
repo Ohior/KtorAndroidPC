@@ -1,6 +1,40 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-             android:layout_width="match_parent"
-             android:layout_height="match_parent">
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="10dp"
+    android:orientation="horizontal">
+    <ImageView
+        android:layout_width="0dp"
+        android:layout_height="100dp"
+        android:layout_weight="0.3"
+        android:scaleType="fitXY"
+        android:id="@+id/id_iv_folder_image"
+        android:src="@drawable/noimage"
+        android:contentDescription="@string/icon_image"/>
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="0.7"
+        android:orientation="vertical">
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/id_tv_folder_name"
+            android:layout_marginHorizontal="15dp"
+            android:layout_marginVertical="10dp"
+            android:textStyle="bold"
+            android:text="@string/folder_name"/>
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/id_tv_folder_detail"
+            android:layout_marginHorizontal="15dp"
+            android:layout_marginVertical="10dp"
+            android:textStyle="bold"
+            android:text="@string/folder_name"/>
+    </LinearLayout>
+
+</LinearLayout>

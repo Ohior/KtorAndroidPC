@@ -1,4 +1,7 @@
 <resources>
     <string name="app_name">KtorAndroidPC</string>
     <string name="connect_to_browser">Connect to Browser</string>
+    <string name="folder_name">Folder name</string>
+    <string name="icon_image">icon image</string>
+    <string name="connect_with_app">Connect With App</string>
 </resources>
