@@ -5,9 +5,11 @@ import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.ktorandroidpc.R
+import com.squareup.picasso.Picasso
 
 class RecyclerAdapter: RecyclerView.Adapter<RecyclerAdapter.ViewHolder> {
     // replace all the RecyclerAdapterDataclass reference in this file with your own data class name
@@ -75,6 +77,7 @@ class RecyclerAdapter: RecyclerView.Adapter<RecyclerAdapter.ViewHolder> {
         val arraylist = array_list[position]
         holder.name.text = arraylist.name
         holder.detail.text = arraylist.detail
+        arraylist.drawable?.let { Picasso.get().load(it).into(holder.image) }
     }
 
     override fun getItemCount(): Int {
@@ -102,6 +105,7 @@ class RecyclerAdapter: RecyclerView.Adapter<RecyclerAdapter.ViewHolder> {
         // initialize the item your view holder will hold
         val name: TextView = item_view.findViewById(R.id.id_tv_folder_name)
         val detail: TextView = item_view.findViewById(R.id.id_tv_folder_detail)
+        val image: ImageView = item_view.findViewById(R.id.id_iv_folder_image)
         init {
             item_view.setOnLongClickListener{
                 listener.onLongItemClick(adapterPosition, item_view)

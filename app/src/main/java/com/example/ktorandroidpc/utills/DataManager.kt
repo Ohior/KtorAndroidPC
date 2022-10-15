@@ -1,19 +1,12 @@
 package com.example.ktorandroidpc.utills
 
 
-import android.app.Activity
 import android.app.Application
 import android.content.Context
 import android.content.SharedPreferences
-import android.preference.PreferenceManager
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
-import com.google.gson.JsonObject
-import com.google.gson.JsonSyntaxException
 import org.json.JSONArray
-import org.json.JSONObject
-import java.io.File
-import java.io.FileOutputStream
 
 object DataManager {
     lateinit var sharedPreferences: SharedPreferences
@@ -43,22 +36,31 @@ object DataManager {
     }
 
     fun <T> savePreferenceData(dataclass: T, key: String) {
+        // make the sharedPreferences database editable
         val prefEdit = sharedPreferences.edit()
+        // dataclass holds type of data and gson returns the data been held
         val data = Gson().toJson(dataclass)
+        // store the data and assign a kry to it
         prefEdit.putString(key, data)
+        //save the data
         prefEdit.apply()
     }
 
     fun retrievePreferenceData(key: String): ArrayList<FileModel> {
-        val gs = Gson()
+        // get the jsonfied data from sharedPreferences
         val data = sharedPreferences.getString(key, null)
-        val jobj1 = JSONArray(data)
-        val type = ArrayList<FileModel>()
-        for (i in 0 until  jobj1.length()){
-            val d = jobj1.getJSONObject(i)
-            type.add(gs.fromJson(d.toString(), FileModel::class.java))
-            Tools.debugMessage(d.toString(), "CATCH")
+        // because the json data is stored in list format
+        // convert it to an array of json data
+        val jsonArray = JSONArray(data)
+        val arrayList = ArrayList<FileModel>()
+        // loop through all the jsonArray
+        for (i in 0 until  jsonArray.length()){
+            // get each json and store it inside the arrayList
+            val d = jsonArray.getJSONObject(i)
+            // serialize the json data into the dataclass
+            // (the arg of both json and dataclass are the same)
+            arrayList.add(Gson().fromJson(d.toString(), FileModel::class.java))
         }
-        return type
+        return arrayList
     }
 }

@@ -59,4 +59,6 @@ dependencies {
     //preference
 //    implementation 'androidx.preference:preference:1.2.0'
 
+    // picasso
+    implementation 'com.squareup.picasso:picasso:2.71828'
 }

@@ -22,7 +22,7 @@ class ExplorerActivity : AppCompatActivity() {
     }
 
     override fun onDestroy() {
-        if (coroutineScope.isActive){
+        if (coroutineScope.isActive) {
             coroutineScope.cancel()
         }
         super.onDestroy()
@@ -54,7 +54,17 @@ class ExplorerActivity : AppCompatActivity() {
             val modelList =
                 DataManager.retrievePreferenceData(Const.ROOT_FOLDER_KEY)
             for (i in modelList) {
-                recyclerAdapter.addToAdapter(RecyclerAdapterDataclass(name = i.name, detail = i.path))
+                recyclerAdapter.addToAdapter(
+                    RecyclerAdapterDataclass(
+                        name = i.name,
+                        detail = i.path,
+                        drawable = if (i.extension.isEmpty()) {
+                            R.drawable.folder
+                        } else {
+                            R.drawable.file
+                        }
+                    )
+                )
             }
         }
     }
