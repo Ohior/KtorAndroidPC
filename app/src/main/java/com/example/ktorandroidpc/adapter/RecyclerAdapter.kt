@@ -9,22 +9,24 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.ktorandroidpc.R
+import com.example.ktorandroidpc.utills.FileModel
 import com.squareup.picasso.Picasso
 
 class RecyclerAdapter: RecyclerView.Adapter<RecyclerAdapter.ViewHolder> {
     // replace all the RecyclerAdapterDataclass reference in this file with your own data class name
-    private var array_list: ArrayList<RecyclerAdapterDataclass> = ArrayList()
+    private var arrayList: ArrayList<RecyclerAdapterDataclass> = ArrayList()
     private var context: Context
     private var layout: Int = 0
-    private var recycler_view: RecyclerView
-    private var click_listener:OnItemClickListener? = null
+    private var recyclerView: RecyclerView
+    private var clickListener:OnItemClickListener? = null
+    private lateinit var fileModel: FileModel
 
     constructor(context:Context, recyclerview: RecyclerView, layout: Int, column_count:Int=1) {
         this.context = context
-        this.recycler_view = recyclerview
+        this.recyclerView = recyclerview
         this.layout = layout
-        this.recycler_view.layoutManager = CustomGridLayoutManager(context, column_count)
-        this.recycler_view.adapter = this
+        this.recyclerView.layoutManager = CustomGridLayoutManager(context, column_count)
+        this.recyclerView.adapter = this
     }
 
     constructor(context:Context,
@@ -32,18 +34,18 @@ class RecyclerAdapter: RecyclerView.Adapter<RecyclerAdapter.ViewHolder> {
                 layout:Int,
                 layout_manager: RecyclerView.LayoutManager
     ){
-        this.recycler_view = recyclerview
+        this.recyclerView = recyclerview
         this.context = context
         this.layout = layout
-        this.recycler_view.layoutManager = layout_manager
-        this.recycler_view.adapter = this
+        this.recyclerView.layoutManager = layout_manager
+        this.recyclerView.adapter = this
     }
 
 
     interface OnItemClickListener{
         // inter face for auto loading itemClick and longItemClick
-        fun onItemClick(position: Int, view:View)
-        fun onLongItemClick(position: Int, view:View)
+        fun onItemClick(position: Int, view: View)
+        fun onLongItemClick(position: Int, view: View)
     }
 
     fun onClickListener(listener:OnItemClickListener){
@@ -63,18 +65,18 @@ class RecyclerAdapter: RecyclerView.Adapter<RecyclerAdapter.ViewHolder> {
         // )
         //*********************************************************************
 
-        click_listener = listener
+        clickListener = listener
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val view = LayoutInflater.from(context).inflate(layout, parent, false)
-        return ViewHolder(view, click_listener!!)
+        return ViewHolder(view, clickListener!!)
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         // bind your view holder class with your recycler adapter
         // i.e bind your view holder with your recyclerview
-        val arraylist = array_list[position]
+        val arraylist = this.arrayList[position]
         holder.name.text = arraylist.name
         holder.detail.text = arraylist.detail
         arraylist.drawable?.let { Picasso.get().load(it).into(holder.image) }
@@ -82,37 +84,40 @@ class RecyclerAdapter: RecyclerView.Adapter<RecyclerAdapter.ViewHolder> {
 
     override fun getItemCount(): Int {
         //get the number of item in your recyclerview
-        return array_list.size
+        return arrayList.size
     }
 
     fun emptyAdapter(){
         //remove all item from your recyclerview
-        array_list.clear()
+        arrayList.clear()
     }
 
     fun addToAdapter(element: RecyclerAdapterDataclass){
         // add item to your recyclerview
-        array_list.add(element)
+        arrayList.add(element)
     }
 
     fun addToAdapter(index:Int, element:RecyclerAdapterDataclass){
         // add item to an index spot of your recyclerview
-        array_list.add(index, element)
+        arrayList.add(index, element)
     }
 
 
-    class ViewHolder(item_view: View, listener:OnItemClickListener): RecyclerView.ViewHolder(item_view) {
+    class ViewHolder(
+        itemView: View,
+        listener:OnItemClickListener,
+    ): RecyclerView.ViewHolder(itemView) {
         // initialize the item your view holder will hold
-        val name: TextView = item_view.findViewById(R.id.id_tv_folder_name)
-        val detail: TextView = item_view.findViewById(R.id.id_tv_folder_detail)
-        val image: ImageView = item_view.findViewById(R.id.id_iv_folder_image)
+        val name: TextView = itemView.findViewById(R.id.id_tv_folder_name)
+        val detail: TextView = itemView.findViewById(R.id.id_tv_folder_detail)
+        val image: ImageView = itemView.findViewById(R.id.id_iv_folder_image)
         init {
-            item_view.setOnLongClickListener{
-                listener.onLongItemClick(adapterPosition, item_view)
+            itemView.setOnLongClickListener{
+                listener.onLongItemClick(adapterPosition, itemView)
                 true
             }
-            item_view.setOnClickListener {
-                listener.onItemClick(adapterPosition, item_view)
+            itemView.setOnClickListener {
+                listener.onItemClick(adapterPosition, itemView)
             }
         }
     }

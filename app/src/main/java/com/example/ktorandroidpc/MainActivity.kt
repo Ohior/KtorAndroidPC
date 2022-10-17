@@ -5,6 +5,7 @@ import android.content.pm.PackageManager
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Environment
+import android.os.Looper
 import com.example.ktorandroidpc.databinding.ActivityMainBinding
 import com.example.ktorandroidpc.explorer.FileUtils
 import com.example.ktorandroidpc.plugins.configureRouting
@@ -32,11 +33,7 @@ class MainActivity : AppCompatActivity() {
             grantResults.isNotEmpty() &&
             grantResults[0] == PackageManager.PERMISSION_GRANTED
         ) {
-            mStoreRootFolder = StoreRootFolder()
-            coroutineScope.launch {
-                DataManager.with(this@MainActivity.application)
-                    .savePreferenceData(mStoreRootFolder, Const.ROOT_FOLDER_KEY)
-            }
+            Executional()
         }
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
     }
@@ -65,26 +62,25 @@ class MainActivity : AppCompatActivity() {
 
         ClickListener()
 
-        Executional()
+        if (Tools.checkForReadExternalStoragePermission(this)) {
+            Executional()
+        }
 
-//        coroutineScope.launch {
-//            embeddedServer(Netty, port = Const.PORT, host = Const.ADDRESS) {
-//                configureRouting(this, applicationContext)
-//                configureTemplating(this)
-//            }.start(wait = false)
-//        }
+        coroutineScope.launch {
+            embeddedServer(Netty, port = Const.PORT, host = Const.ADDRESS) {
+                configureRouting(this, applicationContext)
+                configureTemplating(this)
+            }.start(wait = false)
+        }
 
     }
 
     private fun Executional() {
-        if (Tools.checkForReadExternalStoragePermission(this)) {
-            mStoreRootFolder = StoreRootFolder()
-            coroutineScope.launch {
-                DataManager.with(this@MainActivity.application)
-                    .savePreferenceData(mStoreRootFolder, Const.ROOT_FOLDER_KEY)
-            }
+        mStoreRootFolder = StoreRootFolder()
+        coroutineScope.launch {
+            DataManager.with(this@MainActivity.application)
+                .savePreferenceData(mStoreRootFolder, Const.ROOT_FOLDER_KEY)
         }
-
     }
 
     private fun ClickListener() {
@@ -106,7 +102,6 @@ class MainActivity : AppCompatActivity() {
 
         binding.idBtnConnectWithApplication.setOnClickListener {
             val intent = Intent(this, ExplorerActivity::class.java)
-            intent.putExtra("files", "mStoreRootFolder")
             startActivity(intent)
             coroutineScope.cancel()
         }
@@ -118,6 +113,10 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun StoreRootFolder(): List<FileModel> {
-        return FileUtils.getFileModelsFromFiles(FileUtils.getFilesFromPath(mDirectory))
+        return FileUtils.getFileModelsFromFiles(
+            FileUtils.getFilesFromPath(
+                mDirectory
+            )
+        )
     }
 }

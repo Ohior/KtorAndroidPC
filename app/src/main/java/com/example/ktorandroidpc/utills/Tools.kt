@@ -4,6 +4,7 @@ import android.Manifest
 import android.app.Activity
 import android.content.Context
 import android.content.pm.PackageManager
+import android.os.Environment
 import android.util.Log
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
@@ -11,6 +12,10 @@ import androidx.core.content.ContextCompat
 
 
 object Tools {
+
+    fun OpenPath(path: String): String {
+        return Environment.getExternalStorageDirectory().path+path
+    }
 
     fun showToast(context: Context, string: String) {
         Toast.makeText(context, string, Toast.LENGTH_SHORT).show()

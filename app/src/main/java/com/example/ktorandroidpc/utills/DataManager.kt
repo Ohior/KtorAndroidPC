@@ -9,7 +9,7 @@ import com.google.gson.GsonBuilder
 import org.json.JSONArray
 
 object DataManager {
-    lateinit var sharedPreferences: SharedPreferences
+    var sharedPreferences: SharedPreferences? = null
 
     fun with(activity: Application): DataManager {
         sharedPreferences = activity.getSharedPreferences(
@@ -23,12 +23,12 @@ object DataManager {
         //Convert object to JSON String.
         val jsonString = GsonBuilder().create().toJson(`object`)
         //Save that String in SharedPreferences
-        sharedPreferences.edit().putString(key, jsonString).apply()
+        sharedPreferences!!.edit().putString(key, jsonString).apply()
     }
 
     inline fun <reified T> get(key: String): T? {
         //We read JSON String which was saved.
-        val value = sharedPreferences.getString(key, null)
+        val value = sharedPreferences!!.getString(key, null)
         //JSON String was found which means object can be read.
         //We convert this JSON String to model object. Parameter "c" (of
         //type Class < T >" is used to cast.
@@ -36,8 +36,9 @@ object DataManager {
     }
 
     fun <T> savePreferenceData(dataclass: T, key: String) {
+        if (sharedPreferences == null) return
         // make the sharedPreferences database editable
-        val prefEdit = sharedPreferences.edit()
+        val prefEdit = sharedPreferences!!.edit()
         // dataclass holds type of data and gson returns the data been held
         val data = Gson().toJson(dataclass)
         // store the data and assign a kry to it
@@ -47,8 +48,9 @@ object DataManager {
     }
 
     fun retrievePreferenceData(key: String): ArrayList<FileModel> {
-        // get the jsonfied data from sharedPreferences
-        val data = sharedPreferences.getString(key, null)
+        if (sharedPreferences == null) return ArrayList()
+        // get the jsonfyied data from sharedPreferences
+        val data = sharedPreferences!!.getString(key, null)
         // because the json data is stored in list format
         // convert it to an array of json data
         val jsonArray = JSONArray(data)

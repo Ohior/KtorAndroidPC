@@ -5,6 +5,7 @@ import freemarker.cache.ClassTemplateLoader
 import freemarker.core.HTMLOutputFormat
 import io.ktor.server.application.*
 import io.ktor.server.freemarker.*
+import io.ktor.server.routing.*
 
 fun MainActivity.configureTemplating(application: Application){
     application.install(FreeMarker){

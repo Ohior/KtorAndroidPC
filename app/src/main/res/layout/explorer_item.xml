@@ -12,6 +12,7 @@
         android:scaleType="fitXY"
         android:id="@+id/id_iv_folder_image"
         android:src="@drawable/noimage"
+        android:layout_marginStart="5dp"
         android:contentDescription="@string/icon_image"/>
 
     <LinearLayout

@@ -1,12 +1,7 @@
 package com.example.ktorandroidpc.utills
 
-import android.graphics.drawable.ClipDrawable
-import android.graphics.drawable.Drawable
-import android.widget.ImageView
-import com.example.ktorandroidpc.R
+
 import com.example.ktorandroidpc.explorer.FileType
-import com.squareup.picasso.Picasso
-import java.net.URI
 
 
 data class FileModel(
@@ -24,6 +19,7 @@ data class RecyclerAdapterDataclass(
     val name: String,
     val detail: String,
     val drawable: Int? = null,
+    var fileType: FileType? = null
 )
 
 data class FileModelList(var fileModelList: List<FileModel>)

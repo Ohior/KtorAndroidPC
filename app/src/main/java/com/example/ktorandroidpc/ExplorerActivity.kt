@@ -2,31 +2,22 @@ package com.example.ktorandroidpc
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.os.Environment
 import android.view.View
 import androidx.recyclerview.widget.RecyclerView
 import com.example.ktorandroidpc.adapter.RecyclerAdapter
+import com.example.ktorandroidpc.explorer.FileType
+import com.example.ktorandroidpc.explorer.FileUtils
 import com.example.ktorandroidpc.utills.*
-import com.google.gson.Gson
-import kotlinx.coroutines.*
+
 
 class ExplorerActivity : AppCompatActivity() {
-    private lateinit var idRvFolderItems: RecyclerView
     private lateinit var idRvRootFolder: RecyclerView
     private lateinit var recyclerAdapter: RecyclerAdapter
+    private lateinit var fileModelList: ArrayList<FileModel>
+    private val mDirectory by lazy { Environment.getExternalStorageDirectory().absolutePath }
+    private var filePath = ""
 
-    private val coroutineScope by lazy { CoroutineScope(Dispatchers.IO) }
-
-    override fun onBackPressed() {
-        coroutineScope.cancel()
-        super.onBackPressed()
-    }
-
-    override fun onDestroy() {
-        if (coroutineScope.isActive) {
-            coroutineScope.cancel()
-        }
-        super.onDestroy()
-    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -36,12 +27,54 @@ class ExplorerActivity : AppCompatActivity() {
 
         FillRecyclerView()
 
-        RecyclerViewClicklistener()
+        RecyclerViewClickListener()
     }
 
-    private fun RecyclerViewClicklistener() {
+    override fun onBackPressed() {
+        NavigateDirectoryBackward()
+    }
+
+    private fun NavigateDirectoryBackward() {
+        recyclerAdapter.emptyAdapter()
+        fileModelList.clear()
+        val directory = filePath.split("/")
+        val dir = directory.subList(0, directory.size - 1)
+        val path = dir.joinToString("/")
+        val files = StoreDirectoryFolder(mDirectory + path).sortedWith(compareBy { it.name })
+        filePath = path
+        for (file in files) {
+            recyclerAdapter.addToAdapter(
+                RecyclerAdapterDataclass(
+                    name = file.name,
+                    detail = file.path,
+                    drawable = when (file.fileType) {
+                        FileType.FOLDER -> {
+                            R.drawable.folder
+                        }
+                        FileType.AUDIO -> {
+                            R.drawable.audio
+                        }
+                        FileType.IMAGE -> {
+                            R.drawable.image
+                        }
+                        else -> {
+                            R.drawable.file
+                        }
+                    }
+                )
+            )
+            fileModelList.add(file)
+        }
+        recyclerAdapter.notifyDataSetChanged()
+        if (dir.isEmpty()) {
+            super.onBackPressed()
+        }
+    }
+
+    private fun RecyclerViewClickListener() {
         recyclerAdapter.onClickListener(object : RecyclerAdapter.OnItemClickListener {
             override fun onItemClick(position: Int, view: View) {
+                NavigateDirectoryForward(position)
             }
 
             override fun onLongItemClick(position: Int, view: View) {
@@ -49,23 +82,58 @@ class ExplorerActivity : AppCompatActivity() {
         })
     }
 
-    private fun FillRecyclerView() {
-        coroutineScope.launch {
-            val modelList =
-                DataManager.retrievePreferenceData(Const.ROOT_FOLDER_KEY)
-            for (i in modelList) {
+    private fun NavigateDirectoryForward(position: Int) {
+        val fml = fileModelList[position]
+        if (fml.fileType == FileType.FOLDER) {
+            recyclerAdapter.emptyAdapter()
+            fileModelList.clear()
+            filePath += "/${fml.name}"
+            val files = StoreDirectoryFolder(mDirectory + filePath).sortedWith(compareBy { it.name })
+            for (file in files) {
                 recyclerAdapter.addToAdapter(
                     RecyclerAdapterDataclass(
-                        name = i.name,
-                        detail = i.path,
-                        drawable = if (i.extension.isEmpty()) {
-                            R.drawable.folder
-                        } else {
-                            R.drawable.file
+                        name = file.name,
+                        detail = file.path,
+                        drawable = when (file.fileType) {
+                            FileType.FOLDER -> {
+                                R.drawable.folder
+                            }
+                            FileType.AUDIO -> {
+                                R.drawable.audio
+                            }
+                            FileType.IMAGE -> {
+                                R.drawable.image
+                            }
+                            else -> {
+                                R.drawable.file
+                            }
                         }
                     )
                 )
+                fileModelList.add(file)
             }
+            recyclerAdapter.notifyDataSetChanged()
+        }
+    }
+
+    private fun FillRecyclerView() {
+        fileModelList =
+            DataManager.retrievePreferenceData(Const.ROOT_FOLDER_KEY)
+//        coroutineScope.launch {
+        fileModelList.sortWith(compareBy { it.name })
+        for (i in fileModelList) {
+            recyclerAdapter.addToAdapter(
+                RecyclerAdapterDataclass(
+                    name = i.name,
+                    detail = i.path,
+                    drawable = if (i.fileType == FileType.FOLDER) {
+                        R.drawable.folder
+                    } else {
+                        R.drawable.file
+                    }
+                )
+            )
+//            }
         }
     }
 
@@ -73,5 +141,14 @@ class ExplorerActivity : AppCompatActivity() {
         idRvRootFolder = findViewById(R.id.id_rv_root_folder)
 //        idRvFolderItems = findViewById(R.id.id_rv_folder_items)
         recyclerAdapter = RecyclerAdapter(applicationContext, idRvRootFolder, R.layout.explorer_item)
+    }
+
+    private fun StoreDirectoryFolder(path: String): List<FileModel> {
+        return FileUtils.getFileModelsFromFiles(
+            FileUtils.getFilesFromPath(
+                path,
+                showHiddenFiles = true
+            )
+        )
     }
 }

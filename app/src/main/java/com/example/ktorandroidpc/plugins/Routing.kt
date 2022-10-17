@@ -1,7 +1,10 @@
 package com.example.ktorandroidpc.plugins
 
 import android.content.Context
+import com.example.ktorandroidpc.MainActivity
 import com.example.ktorandroidpc.R
+import com.example.ktorandroidpc.utills.Const
+import com.example.ktorandroidpc.utills.DataManager
 import com.example.ktorandroidpc.utills.FolderDataClass
 import com.example.ktorandroidpc.utills.Tools
 import io.ktor.server.application.*
@@ -11,23 +14,11 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import java.io.File
 
-var folders = arrayListOf(
-    FolderDataClass(name = "movies"),
-    FolderDataClass(name = "pictures"),
-    FolderDataClass(name = "music")
-)
+val dir = DataManager.retrievePreferenceData(Const.ROOT_FOLDER_KEY)
 
-fun configureRouting(application: Application, context: Context? = null) {
+fun MainActivity.configureRouting(application: Application, context: Context? = null) {
     application.routing {
-        get("/") {
-//            call.respondText(Tools.readTextFile(context, R.raw.index))
-            call.respondRedirect("home")
-        }
-        route("home") {
-            get {
-                call.respond(FreeMarkerContent("index.ftl", mapOf("folders" to folders)))
-            }
-        }
+
         static("/static") {
             resources("files")
         }
