@@ -42,30 +42,7 @@ class ExplorerActivity : AppCompatActivity() {
         val path = dir.joinToString("/")
         val files = StoreDirectoryFolder(mDirectory + path).sortedWith(compareBy { it.name })
         filePath = path
-        for (file in files) {
-            recyclerAdapter.addToAdapter(
-                RecyclerAdapterDataclass(
-                    name = file.name,
-                    detail = file.path,
-                    drawable = when (file.fileType) {
-                        FileType.FOLDER -> {
-                            R.drawable.folder
-                        }
-                        FileType.AUDIO -> {
-                            R.drawable.audio
-                        }
-                        FileType.IMAGE -> {
-                            R.drawable.image
-                        }
-                        else -> {
-                            R.drawable.file
-                        }
-                    }
-                )
-            )
-            fileModelList.add(file)
-        }
-        recyclerAdapter.notifyDataSetChanged()
+        LoopThroughFiles(files)
         if (dir.isEmpty()) {
             super.onBackPressed()
         }
@@ -89,31 +66,38 @@ class ExplorerActivity : AppCompatActivity() {
             fileModelList.clear()
             filePath += "/${fml.name}"
             val files = StoreDirectoryFolder(mDirectory + filePath).sortedWith(compareBy { it.name })
-            for (file in files) {
-                recyclerAdapter.addToAdapter(
-                    RecyclerAdapterDataclass(
-                        name = file.name,
-                        detail = file.path,
-                        drawable = when (file.fileType) {
-                            FileType.FOLDER -> {
-                                R.drawable.folder
-                            }
-                            FileType.AUDIO -> {
-                                R.drawable.audio
-                            }
-                            FileType.IMAGE -> {
-                                R.drawable.image
-                            }
-                            else -> {
-                                R.drawable.file
-                            }
-                        }
-                    )
-                )
-                fileModelList.add(file)
-            }
-            recyclerAdapter.notifyDataSetChanged()
+            LoopThroughFiles(files)
         }
+    }
+
+    private fun LoopThroughFiles(files: List<FileModel>) {
+        for (file in files) {
+            recyclerAdapter.addToAdapter(
+                RecyclerAdapterDataclass(
+                    name = file.name,
+                    detail = file.path,
+                    drawable = when (file.fileType) {
+                        FileType.FOLDER -> {
+                            R.drawable.folder
+                        }
+                        FileType.AUDIO -> {
+                            R.drawable.audio
+                        }
+                        FileType.IMAGE -> {
+                            R.drawable.image
+                        }
+                        FileType.VIDEO -> {
+                            R.drawable.video
+                        }
+                        else -> {
+                            R.drawable.file
+                        }
+                    }
+                )
+            )
+            fileModelList.add(file)
+        }
+        recyclerAdapter.notifyDataSetChanged()
     }
 
     private fun FillRecyclerView() {
@@ -121,20 +105,32 @@ class ExplorerActivity : AppCompatActivity() {
             DataManager.retrievePreferenceData(Const.ROOT_FOLDER_KEY)
 //        coroutineScope.launch {
         fileModelList.sortWith(compareBy { it.name })
-        for (i in fileModelList) {
+        for (file in fileModelList) {
             recyclerAdapter.addToAdapter(
                 RecyclerAdapterDataclass(
-                    name = i.name,
-                    detail = i.path,
-                    drawable = if (i.fileType == FileType.FOLDER) {
-                        R.drawable.folder
-                    } else {
-                        R.drawable.file
+                    name = file.name,
+                    detail = file.path,
+                    drawable = when (file.fileType) {
+                        FileType.FOLDER -> {
+                            R.drawable.folder
+                        }
+                        FileType.AUDIO -> {
+                            R.drawable.audio
+                        }
+                        FileType.IMAGE -> {
+                            R.drawable.image
+                        }
+                        FileType.VIDEO -> {
+                            R.drawable.video
+                        }
+                        else -> {
+                            R.drawable.file
+                        }
                     }
                 )
             )
-//            }
         }
+//            }
     }
 
     private fun Initializers() {
@@ -150,5 +146,9 @@ class ExplorerActivity : AppCompatActivity() {
                 showHiddenFiles = true
             )
         )
+    }
+
+    private fun DisplayFiles() {
+
     }
 }

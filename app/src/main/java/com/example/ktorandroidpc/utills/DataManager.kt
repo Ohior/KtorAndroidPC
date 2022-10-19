@@ -4,9 +4,11 @@ package com.example.ktorandroidpc.utills
 import android.app.Application
 import android.content.Context
 import android.content.SharedPreferences
+import android.os.Environment
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import org.json.JSONArray
+import java.io.File
 
 object DataManager {
     var sharedPreferences: SharedPreferences? = null
@@ -56,7 +58,7 @@ object DataManager {
         val jsonArray = JSONArray(data)
         val arrayList = ArrayList<FileModel>()
         // loop through all the jsonArray
-        for (i in 0 until  jsonArray.length()){
+        for (i in 0 until jsonArray.length()) {
             // get each json and store it inside the arrayList
             val d = jsonArray.getJSONObject(i)
             // serialize the json data into the dataclass
@@ -64,5 +66,28 @@ object DataManager {
             arrayList.add(Gson().fromJson(d.toString(), FileModel::class.java))
         }
         return arrayList
+    }
+
+    fun getRawData(key: String): List<Any> {
+        if (sharedPreferences == null) return emptyList()
+        // get the jsonfyied data from sharedPreferences
+        val data = sharedPreferences!!.getString(key, null)
+        // because the json data is stored in list format
+        // convert it to an array of json data
+        val jsonArray = JSONArray(data)
+
+        val arrayList = ArrayList<Any>()
+            for (ja in 0 until jsonArray.length()){
+                arrayList.add(jsonArray[ja])
+            }
+        Tools.debugMessage(arrayList.toList().toString(), "JA TO LIST")
+        Tools.debugMessage(data.toString(), "DATA")
+        Tools.debugMessage(jsonArray.toString(), "JSON ARRAY")
+        return  arrayList.toList()
+    }
+
+    fun getListOfData(): String? {
+        return sharedPreferences!!.getString(Const.ROOT_FOLDER_KEY, null)
+
     }
 }

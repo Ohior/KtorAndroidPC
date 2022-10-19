@@ -3,15 +3,21 @@ package com.example.ktorandroidpc.utills
 import android.Manifest
 import android.app.Activity
 import android.content.Context
+import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
+import android.graphics.drawable.Drawable
+import android.net.Uri
 import android.os.Environment
 import android.util.Log
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import com.example.ktorandroidpc.MainActivity
+import java.io.InputStream
 
 
 object Tools {
+    private val mActivity = MainActivity()
 
     fun OpenPath(path: String): String {
         return Environment.getExternalStorageDirectory().path+path
@@ -50,5 +56,10 @@ object Tools {
             requestForPermission(activity)
             false
         }
+    }
+
+    fun getDrawableUri(drawable: Int): InputStream? {
+        val uri = Uri.parse("android.resource://" + mActivity.packageName + "/" + drawable)
+        return mActivity.contentResolver.openInputStream(uri)
     }
 }

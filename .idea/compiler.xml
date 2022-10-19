@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="CompilerConfiguration">
-    <bytecodeTargetLevel target="11" />
+    <bytecodeTargetLevel target="11">
+      <module name="com.example.ktorandroidpc.KtorServer.main" target="1.7" />
+      <module name="com.example.ktorandroidpc.KtorServer.test" target="1.7" />
+    </bytecodeTargetLevel>
   </component>
 </project>

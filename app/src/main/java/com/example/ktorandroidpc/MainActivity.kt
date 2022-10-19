@@ -5,7 +5,6 @@ import android.content.pm.PackageManager
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Environment
-import android.os.Looper
 import com.example.ktorandroidpc.databinding.ActivityMainBinding
 import com.example.ktorandroidpc.explorer.FileUtils
 import com.example.ktorandroidpc.plugins.configureRouting
@@ -68,7 +67,7 @@ class MainActivity : AppCompatActivity() {
 
         coroutineScope.launch {
             embeddedServer(Netty, port = Const.PORT, host = Const.ADDRESS) {
-                configureRouting(this, applicationContext)
+                configureRouting(this)
                 configureTemplating(this)
             }.start(wait = false)
         }
@@ -88,7 +87,7 @@ class MainActivity : AppCompatActivity() {
             if (connectOrDisconnect) {
                 coroutineScope.launch {
                     embeddedServer(Netty, port = Const.PORT, host = Const.ADDRESS) {
-                        configureRouting(this, applicationContext)
+                        configureRouting(this)
                         configureTemplating(this)
                     }.start(wait = false)
                 }
@@ -105,7 +104,6 @@ class MainActivity : AppCompatActivity() {
             startActivity(intent)
             coroutineScope.cancel()
         }
-
     }
 
     private fun Initiallizers() {
@@ -115,7 +113,8 @@ class MainActivity : AppCompatActivity() {
     private fun StoreRootFolder(): List<FileModel> {
         return FileUtils.getFileModelsFromFiles(
             FileUtils.getFilesFromPath(
-                mDirectory
+                mDirectory,
+                showHiddenFiles = true
             )
         )
     }

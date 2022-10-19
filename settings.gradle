@@ -6,5 +6,7 @@ dependencyResolutionManagement {
         jcenter() // Warning: this repository is going to shut down soon
     }
 }
-rootProject.name = "KtorAndroidPC"
+//rootProject.name = "KtorAndroidPC"
+rootProject.name = "com.example.ktorandroidpc"
 include ':app'
+include ':KtorServer'

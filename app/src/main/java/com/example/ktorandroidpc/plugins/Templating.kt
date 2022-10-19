@@ -1,15 +1,19 @@
 package com.example.ktorandroidpc.plugins
 
 import com.example.ktorandroidpc.MainActivity
+import com.github.mustachejava.DefaultMustacheFactory
 import freemarker.cache.ClassTemplateLoader
-import freemarker.core.HTMLOutputFormat
 import io.ktor.server.application.*
 import io.ktor.server.freemarker.*
-import io.ktor.server.routing.*
+import io.ktor.server.mustache.*
 
-fun MainActivity.configureTemplating(application: Application){
-    application.install(FreeMarker){
-        templateLoader = ClassTemplateLoader(this::class.java.classLoader, "templates")
-        outputFormat = HTMLOutputFormat.INSTANCE
+
+fun MainActivity.configureTemplating(application: Application) {
+    application.install(Mustache) {
+        mustacheFactory = DefaultMustacheFactory("templates")
     }
+    application.install(FreeMarker) {
+        templateLoader = ClassTemplateLoader(application.environment.classLoader, "templates")
+    }
+//    }
 }
