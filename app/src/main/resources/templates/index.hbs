@@ -1,7 +1,19 @@
+<!DOCTYPE html>
 <html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>MobilePCTransfer</title>
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="/static/my_style.css">
+</head>
 <body>
-{{#user}}
-    <h1>Hello {{name}} world</h1>
-{{/user}}
+{{#directoryFiles.dirFiles}}
+    <div class="horizontalUnit">
+        <img src="{{staticImage}}" width="100" height="70"><br>
+        <button>{{name}}</button>
+    </div>
+{{/directoryFiles.dirFiles}}
 </body>
 </html>

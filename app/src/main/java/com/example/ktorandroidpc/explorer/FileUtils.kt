@@ -14,8 +14,16 @@ object FileUtils {
 
     fun getFileModelsFromFiles(files: List<File>?): List<FileModel> {
         return files!!.map {
-            FileModel(it.path, FileType.getFileType(it), it.name, convertFileSizeToMB(it.length()), it.extension, it.listFiles()?.size
-                ?: 0)
+            FileModel(
+                path = it.path,
+                fileType = FileType.getFileType(it),
+                name = it.name,
+                sizeInMB = convertFileSizeToMB(it.length()),
+                extension = it.extension,
+                subFiles = it.listFiles()?.size ?: 0,
+                absoluteName = it.absolutePath,
+                fileName = it.absoluteFile
+            )
         }
     }
 

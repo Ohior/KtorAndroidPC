@@ -1,0 +1,7 @@
+body{
+    background-color: darkgoldenrod;
+}
+.horizontalUnit{
+    display: inline-block;
+    float: left;
+}

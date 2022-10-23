@@ -67,7 +67,7 @@ class MainActivity : AppCompatActivity() {
 
         coroutineScope.launch {
             embeddedServer(Netty, port = Const.PORT, host = Const.ADDRESS) {
-                configureRouting(this)
+                configureRouting()
                 configureTemplating(this)
             }.start(wait = false)
         }
@@ -87,7 +87,7 @@ class MainActivity : AppCompatActivity() {
             if (connectOrDisconnect) {
                 coroutineScope.launch {
                     embeddedServer(Netty, port = Const.PORT, host = Const.ADDRESS) {
-                        configureRouting(this)
+                        configureRouting()
                         configureTemplating(this)
                     }.start(wait = false)
                 }

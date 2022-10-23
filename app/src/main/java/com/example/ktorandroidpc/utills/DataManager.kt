@@ -4,11 +4,9 @@ package com.example.ktorandroidpc.utills
 import android.app.Application
 import android.content.Context
 import android.content.SharedPreferences
-import android.os.Environment
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import org.json.JSONArray
-import java.io.File
 
 object DataManager {
     var sharedPreferences: SharedPreferences? = null
@@ -80,9 +78,6 @@ object DataManager {
             for (ja in 0 until jsonArray.length()){
                 arrayList.add(jsonArray[ja])
             }
-        Tools.debugMessage(arrayList.toList().toString(), "JA TO LIST")
-        Tools.debugMessage(data.toString(), "DATA")
-        Tools.debugMessage(jsonArray.toString(), "JSON ARRAY")
         return  arrayList.toList()
     }
 

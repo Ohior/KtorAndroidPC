@@ -13,11 +13,13 @@ import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.example.ktorandroidpc.MainActivity
+import com.example.ktorandroidpc.explorer.FileUtils
 import java.io.InputStream
 
 
 object Tools {
     private val mActivity = MainActivity()
+    private var directoryPath = Environment.getExternalStorageDirectory().absolutePath
 
     fun OpenPath(path: String): String {
         return Environment.getExternalStorageDirectory().path+path
@@ -61,5 +63,15 @@ object Tools {
     fun getDrawableUri(drawable: Int): InputStream? {
         val uri = Uri.parse("android.resource://" + mActivity.packageName + "/" + drawable)
         return mActivity.contentResolver.openInputStream(uri)
+    }
+
+    fun getDirectoryFromPath(path: String): List<FileModel> {
+        directoryPath += path
+        return FileUtils.getFileModelsFromFiles(
+            FileUtils.getFilesFromPath(
+                directoryPath,
+                showHiddenFiles = true
+            )
+        )
     }
 }

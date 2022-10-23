@@ -235,7 +235,8 @@
  }
  
  .fileName {
-     display: inline
+      display:inline-block;
+      float: left;
  }
  
  .fileName {

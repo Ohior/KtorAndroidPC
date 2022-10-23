@@ -2,6 +2,7 @@ package com.example.ktorandroidpc.utills
 
 
 import com.example.ktorandroidpc.explorer.FileType
+import java.io.File
 
 
 data class FileModel(
@@ -10,10 +11,18 @@ data class FileModel(
     val name: String,
     val sizeInMB: Double,
     val extension: String = "",
-    val subFiles: Int = 0
+    val subFiles: Int = 0,
+    val absoluteName: String = "",
+    val fileName: File? = null,
+    var staticImage: String = when(fileType){
+        FileType.FILE -> "/static/file.png"
+        FileType.FOLDER -> "/static/folder.png"
+        FileType.AUDIO -> "/static/audio.png"
+        FileType.IMAGE -> "/static/image.png"
+        FileType.VIDEO -> "/static/video.png"
+    }
 )
 
-data class FolderDataClass(var name: String, var occupied: Boolean = true)
 
 data class RecyclerAdapterDataclass(
     val name: String,
@@ -21,5 +30,3 @@ data class RecyclerAdapterDataclass(
     val drawable: Int? = null,
     var fileType: FileType? = null
 )
-
-data class FileModelList(var fileModelList: List<FileModel>)
