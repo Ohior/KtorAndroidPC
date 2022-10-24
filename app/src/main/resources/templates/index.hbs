@@ -18,7 +18,12 @@
 {{#directoryFiles.dirFiles}}
     <div class="horizontalUnit">
         <img src="{{staticImage}}" width="100" height="70"><br>
-        <label>{{name}}</label>
+        {{#isFile}}
+            <a href="download/{{name}}"><button>Download {{name}}</button></a>
+        {{/isFile}}
+        {{^isFile}}
+            <label>{{name}}</label>
+        {{/isFile}}
     </div>
 {{/directoryFiles.dirFiles}}
 </body>

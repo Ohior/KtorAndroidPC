@@ -2,17 +2,21 @@ package com.example.ktorandroidpc
 
 import android.content.Intent
 import android.content.pm.PackageManager
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Environment
+import androidx.appcompat.app.AppCompatActivity
 import com.example.ktorandroidpc.databinding.ActivityMainBinding
 import com.example.ktorandroidpc.explorer.FileUtils
 import com.example.ktorandroidpc.plugins.configureRouting
 import com.example.ktorandroidpc.plugins.configureTemplating
-import com.example.ktorandroidpc.utills.*
+import com.example.ktorandroidpc.utills.Const
+import com.example.ktorandroidpc.utills.DataManager
+import com.example.ktorandroidpc.utills.FileModel
+import com.example.ktorandroidpc.utills.Tools
 import io.ktor.server.engine.*
 import io.ktor.server.netty.*
 import kotlinx.coroutines.*
+import java.io.File
 
 
 class MainActivity : AppCompatActivity() {
@@ -74,10 +78,10 @@ class MainActivity : AppCompatActivity() {
                 configureTemplating(this)
             }.start(wait = false)
         }
-
     }
 
     private fun Executional() {
+        Tools.createDirectoryIfNonExist()
         mStoreRootFolder = StoreRootFolder()
         coroutineScope.launch {
             DataManager.with(this@MainActivity.application)

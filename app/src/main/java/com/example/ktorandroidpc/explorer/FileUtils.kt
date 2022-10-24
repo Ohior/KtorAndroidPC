@@ -21,8 +21,6 @@ object FileUtils {
                 sizeInMB = convertFileSizeToMB(it.length()),
                 extension = it.extension,
                 subFiles = it.listFiles()?.size ?: 0,
-                absoluteName = it.absolutePath,
-                fileName = it.absoluteFile
             )
         }
     }

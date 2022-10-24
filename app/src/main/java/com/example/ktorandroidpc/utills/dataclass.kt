@@ -12,9 +12,8 @@ data class FileModel(
     val sizeInMB: Double,
     val extension: String = "",
     val subFiles: Int = 0,
-    val absoluteName: String = "",
-    val fileName: File? = null,
-    var staticImage: String = when(fileType){
+    val isFile: Boolean = FileType.FOLDER != fileType,
+    var staticImage: String = when (fileType) {
         FileType.FILE -> "/static/file.png"
         FileType.FOLDER -> "/static/folder.png"
         FileType.AUDIO -> "/static/audio.png"

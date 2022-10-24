@@ -3,5 +3,5 @@ body{
 }
 .horizontalUnit{
     display: inline-block;
-    float: left;
+    /* float: left; */
 }
