@@ -2,6 +2,7 @@ package com.example.ktorandroidpc.utills
 
 import android.Manifest
 import android.app.Activity
+import android.app.Application
 import android.content.Context
 import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
@@ -10,6 +11,7 @@ import android.net.Uri
 import android.os.Environment
 import android.util.Log
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.example.ktorandroidpc.MainActivity
@@ -19,10 +21,15 @@ import java.io.InputStream
 
 object Tools {
     private val mActivity = MainActivity()
-    private var directoryPath = Environment.getExternalStorageDirectory().absolutePath
+    private var directoryPath = Const.ROOT_PATH
+    private val arrayOfPermission = arrayOf(
+        Manifest.permission.READ_EXTERNAL_STORAGE,
+        Manifest.permission.WRITE_EXTERNAL_STORAGE,
+    )
+    private var unGrantedPermission = ArrayList<String>()
 
-    fun OpenPath(path: String): String {
-        return Environment.getExternalStorageDirectory().path+path
+    fun openPath(path: String): String {
+        return Environment.getExternalStorageDirectory().path + path
     }
 
     fun showToast(context: Context, string: String) {
@@ -38,27 +45,60 @@ object Tools {
             .use { it.readText() }
     }
 
-    private fun requestForPermission(activity: Activity) {
+    fun requestForAllPermission(appCompatActivity: AppCompatActivity){
+        unGrantedPermission.clear()
+        for (per in arrayOfPermission){
+            if (!checkForPermission(appCompatActivity, per)){
+                unGrantedPermission.add(per)
+            }
+        }
+        if (unGrantedPermission.isNotEmpty()){
+            requestForPermission(appCompatActivity, unGrantedPermission)
+        }
+    }
+
+    fun checkAllPermission(appCompatActivity: AppCompatActivity):Boolean{
+        for (per in arrayOfPermission){
+            if (!checkForPermission(appCompatActivity, per)){
+                return false
+            }
+        }
+        return true
+    }
+
+    private fun requestForPermission(activity: Activity, unGrantedPermission: MutableList<String>) {
         ActivityCompat.requestPermissions(
             activity,
-            arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE),
+            unGrantedPermission.toTypedArray(),
             Const.PERMISSION
         )
     }
 
-    fun checkForReadExternalStoragePermission(context: Context): Boolean {
-        val result = ContextCompat.checkSelfPermission(context, Manifest.permission.READ_EXTERNAL_STORAGE)
-        return result == PackageManager.PERMISSION_GRANTED
+    private fun requestForPermission(activity: Activity) {
+        ActivityCompat.requestPermissions(
+            activity,
+            arrayOfPermission,
+            Const.PERMISSION
+        )
     }
 
-    fun requestForPermissions(context: Context, activity: Activity): Boolean {
-        return if (checkForReadExternalStoragePermission(context)) {
-            true
-        } else {
-            requestForPermission(activity)
-            false
-        }
+//    fun checkForReadExternalStoragePermission(context: Context): Boolean {
+//        val result = ContextCompat.checkSelfPermission(context, Manifest.permission.READ_EXTERNAL_STORAGE)
+//        return result == PackageManager.PERMISSION_GRANTED
+//    }
+    private fun checkForPermission(context: Context, permission: String): Boolean {
+        val result = ContextCompat.checkSelfPermission(context, permission)
+        return result == PackageManager.PERMISSION_GRANTED
     }
+//
+//    fun requestForPermissions(context: Context, activity: Activity): Boolean {
+//        return if (checkForReadExternalStoragePermission(context)) {
+//            true
+//        } else {
+//            requestForPermission(activity)
+//            false
+//        }
+//    }
 
     fun getDrawableUri(drawable: Int): InputStream? {
         val uri = Uri.parse("android.resource://" + mActivity.packageName + "/" + drawable)

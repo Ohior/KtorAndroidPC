@@ -30,9 +30,12 @@ class MainActivity : AppCompatActivity() {
     ) {
         if (requestCode == Const.PERMISSION &&
             grantResults.isNotEmpty() &&
-            grantResults[0] == PackageManager.PERMISSION_GRANTED
+            grantResults.all { it == PackageManager.PERMISSION_GRANTED}
         ) {
             Executional()
+        }
+        else{
+            Tools.requestForAllPermission(this@MainActivity)
         }
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
     }
@@ -55,13 +58,13 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        Tools.requestForPermissions(applicationContext, this@MainActivity)
+        Tools.requestForAllPermission(this@MainActivity)
 
         Initiallizers()
 
         ClickListener()
 
-        if (Tools.checkForReadExternalStoragePermission(this)) {
+        if (Tools.checkAllPermission(this@MainActivity)) {
             Executional()
         }
 
