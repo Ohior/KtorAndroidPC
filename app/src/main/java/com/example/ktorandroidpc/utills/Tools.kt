@@ -83,14 +83,27 @@ object Tools {
         return appCompatActivity.contentResolver.openInputStream(uri)
     }
 
-    fun getDirectoryFromPath(path: String): List<FileModel> {
+    fun getDirectoryFromPath(path: String, showHiddenFiles:Boolean=true): List<FileModel> {
         directoryPath += path
         return FileUtils.getFileModelsFromFiles(
             FileUtils.getFilesFromPath(
                 directoryPath,
+                showHiddenFiles = showHiddenFiles
+            )
+        )
+    }
+
+    fun getRootFolder(): List<FileModel> {
+        return FileUtils.getFileModelsFromFiles(
+            FileUtils.getFilesFromPath(
+                Const.ROOT_PATH,
                 showHiddenFiles = true
             )
         )
+    }
+
+    fun resetDirectory(){
+        directoryPath = Const.ROOT_PATH
     }
 
     fun createDirectoryIfNonExist(dirName: String = Const.OH_TRANSFER_PATH) {

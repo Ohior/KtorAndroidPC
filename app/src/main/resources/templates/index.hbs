@@ -9,20 +9,31 @@
     <link rel="stylesheet" href="/static/my_style.css">
 </head>
 <body>
-<div>
+<div class="horizontalUnit">
+    <a href=""><button class="button">Go Back</button></a>
+    <a href="/web/root"><button class="button">Root Directory</button></a>
+    {{#ifSDcard}}
+        <a href=""><button class="button">SD Directory</button></a>
+    {{/ifSDcard}}
     <form action="/upload" method="post" enctype="multipart/form-data">
         <input type="file" name="myFile" multiple>
         <input type="submit" value="Upload File">
     </form>
-</div>
+</div><br>
+
 {{#directoryFiles.dirFiles}}
     <div class="horizontalUnit">
-        <img src="{{staticImage}}" width="100" height="70"><br>
         {{#isFile}}
-            <a href="download/{{name}}"><button>Download {{name}}</button></a>
+            <a href="/download/{{name}}">
+                <img src="{{staticImage}}" width="100" height="70"><br>
+                <label><strong>Download </strong>{{name}}</label>
+            </a>
         {{/isFile}}
         {{^isFile}}
-            <label>{{name}}</label>
+            <a href="/web/{{name}}">
+                <img src="{{staticImage}}" width="100" height="70"><br>
+                <label>{{name}}</label>
+            </a>
         {{/isFile}}
     </div>
 {{/directoryFiles.dirFiles}}

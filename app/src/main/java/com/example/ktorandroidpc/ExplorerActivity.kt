@@ -101,8 +101,7 @@ class ExplorerActivity : AppCompatActivity() {
     }
 
     private fun FillRecyclerView() {
-        fileModelList =
-            DataManager.retrievePreferenceData(Const.ROOT_FOLDER_KEY)
+        fileModelList = Tools.getRootFolder() as ArrayList<FileModel>
 //        coroutineScope.launch {
         fileModelList.sortWith(compareBy { it.name })
         for (file in fileModelList) {

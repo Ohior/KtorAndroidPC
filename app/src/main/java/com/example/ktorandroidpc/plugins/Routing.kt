@@ -14,13 +14,11 @@ import io.ktor.server.routing.*
 import kotlinx.coroutines.*
 import java.io.File
 
-data class TemplateData(var dirFiles: List<FileModel>, var function: (() -> Unit)?)
+data class TemplateData(var dirFiles: List<FileModel>, var function: (() -> Unit)? = null)
 
-private val coroutineScope = CoroutineScope(Dispatchers.IO)
 
-val directoryFiles = TemplateData(
+var directoryFiles = TemplateData(
     dirFiles = Tools.getDirectoryFromPath("").sortedWith(compareBy { it.name }),
-    function = null
 )
 
 
@@ -41,6 +39,7 @@ fun Application.configureRouting() {
 
 fun Route.navigateRoute() {
     get("/") {
+        Tools.resetDirectory()
         call.respondRedirect("web")
     }
 
@@ -53,6 +52,23 @@ fun Route.navigateRoute() {
                 )
             )
         }
+    }
+
+    get("web/{name}"){
+        val name = call.parameters["name"]
+        if (name != null){
+            val dirFiles = Tools.getDirectoryFromPath("/$name")
+            directoryFiles = TemplateData(dirFiles = dirFiles)
+            call.respond(
+                MustacheContent(
+                    "index.hbs",
+                    mapOf("directoryFiles" to directoryFiles)
+                )
+            )
+        }
+    }
+    get("web/root"){
+        call.respondRedirect("/")
     }
 }
 
@@ -67,7 +83,6 @@ fun Route.uploadFile() {
                     // upload the data
                     val fileBytes = part.streamProvider().readBytes()
                     val mFile = File(Const.OH_TRANSFER_PATH + part.originalFileName)
-                    Tools.debugMessage(mFile.absoluteFile.toString(), "NAME")
                     mFile.writeBytes(fileBytes)
                 }
                 else -> Unit
@@ -84,7 +99,7 @@ fun Route.downloadFile(){
         // get the File model from the list
         val getFile = directoryFiles.dirFiles.find { it.name == name }
         // check if the file exits
-        if (getFile != null && File(getFile.path).exists()){
+        if (getFile != null){
             val file = File(getFile.path)
             // make the file downloadable and not playable
             call.response.header(

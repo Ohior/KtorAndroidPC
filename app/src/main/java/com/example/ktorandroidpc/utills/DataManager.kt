@@ -19,14 +19,14 @@ object DataManager {
         return this
     }
 
-    fun <T> put(`object`: T, key: String) {
+    fun <T> putPreferenceData(`object`: T, key: String) {
         //Convert object to JSON String.
         val jsonString = GsonBuilder().create().toJson(`object`)
         //Save that String in SharedPreferences
         sharedPreferences!!.edit().putString(key, jsonString).apply()
     }
 
-    inline fun <reified T> get(key: String): T? {
+    inline fun <reified T> getPreferenceData(key: String): T? {
         //We read JSON String which was saved.
         val value = sharedPreferences!!.getString(key, null)
         //JSON String was found which means object can be read.
@@ -64,25 +64,5 @@ object DataManager {
             arrayList.add(Gson().fromJson(d.toString(), FileModel::class.java))
         }
         return arrayList
-    }
-
-    fun getRawData(key: String): List<Any> {
-        if (sharedPreferences == null) return emptyList()
-        // get the jsonfyied data from sharedPreferences
-        val data = sharedPreferences!!.getString(key, null)
-        // because the json data is stored in list format
-        // convert it to an array of json data
-        val jsonArray = JSONArray(data)
-
-        val arrayList = ArrayList<Any>()
-            for (ja in 0 until jsonArray.length()){
-                arrayList.add(jsonArray[ja])
-            }
-        return  arrayList.toList()
-    }
-
-    fun getListOfData(): String? {
-        return sharedPreferences!!.getString(Const.ROOT_FOLDER_KEY, null)
-
     }
 }

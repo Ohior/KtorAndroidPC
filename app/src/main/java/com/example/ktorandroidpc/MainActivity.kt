@@ -82,11 +82,6 @@ class MainActivity : AppCompatActivity() {
 
     private fun Executional() {
         Tools.createDirectoryIfNonExist()
-        mStoreRootFolder = StoreRootFolder()
-        coroutineScope.launch {
-            DataManager.with(this@MainActivity.application)
-                .savePreferenceData(mStoreRootFolder, Const.ROOT_FOLDER_KEY)
-        }
     }
 
     private fun ClickListener() {
@@ -115,14 +110,5 @@ class MainActivity : AppCompatActivity() {
 
     private fun Initiallizers() {
         coroutineScope = CoroutineScope(Dispatchers.IO)
-    }
-
-    private fun StoreRootFolder(): List<FileModel> {
-        return FileUtils.getFileModelsFromFiles(
-            FileUtils.getFilesFromPath(
-                mDirectory,
-                showHiddenFiles = true
-            )
-        )
     }
 }
