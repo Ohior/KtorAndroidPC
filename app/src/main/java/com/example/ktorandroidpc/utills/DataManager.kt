@@ -11,6 +11,14 @@ import org.json.JSONArray
 object DataManager {
     var sharedPreferences: SharedPreferences? = null
 
+    fun setString(key: String, data: String?){
+        sharedPreferences!!.edit().putString(key, data).apply()
+    }
+
+    fun getString(key: String): String? {
+        return sharedPreferences!!.getString(key, null)
+    }
+
     fun with(activity: Application): DataManager {
         sharedPreferences = activity.getSharedPreferences(
             Const.PREFERENCES_FILE_NAME, Context.MODE_PRIVATE

@@ -16,12 +16,10 @@ import java.io.InputStream
 
 
 object Tools {
+    val homeDirectoryPath = Const.ROOT_PATH
     private var directoryPath = Const.ROOT_PATH
     private var unGrantedPermission = ArrayList<String>()
 
-    fun openPath(path: String): String {
-        return Environment.getExternalStorageDirectory().path + path
-    }
 
     fun showToast(context: Context, string: String) {
         Toast.makeText(context, string, Toast.LENGTH_SHORT).show()
@@ -29,11 +27,6 @@ object Tools {
 
     fun debugMessage(message: String, tag: String = "DEBUG-MESSAGE") {
         Log.e(tag, message)
-    }
-
-    fun readTextFile(context: Context?, r: Int): String {
-        return context!!.resources.openRawResource(r).bufferedReader()
-            .use { it.readText() }
     }
 
     fun requestForAllPermission(appCompatActivity: AppCompatActivity) {
@@ -65,14 +58,6 @@ object Tools {
         )
     }
 
-    private fun requestForPermission(activity: Activity) {
-        ActivityCompat.requestPermissions(
-            activity,
-            Const.ARRAY_OF_PERMISSIONS,
-            Const.PERMISSION
-        )
-    }
-
     private fun checkForPermission(context: Context, permission: String): Boolean {
         val result = ContextCompat.checkSelfPermission(context, permission)
         return result == PackageManager.PERMISSION_GRANTED
@@ -83,7 +68,7 @@ object Tools {
         return appCompatActivity.contentResolver.openInputStream(uri)
     }
 
-    fun getDirectoryFromPath(path: String, showHiddenFiles:Boolean=true): List<FileModel> {
+    fun getDirectoryFromPath(path: String, showHiddenFiles: Boolean = true): List<FileModel> {
         directoryPath += path
         return FileUtils.getFileModelsFromFiles(
             FileUtils.getFilesFromPath(
@@ -94,20 +79,36 @@ object Tools {
     }
 
     fun getRootFolder(): List<FileModel> {
+        directoryPath = Const.ROOT_PATH
         return FileUtils.getFileModelsFromFiles(
             FileUtils.getFilesFromPath(
-                Const.ROOT_PATH,
+                directoryPath,
                 showHiddenFiles = true
             )
         )
     }
 
-    fun resetDirectory(){
-        directoryPath = Const.ROOT_PATH
+    fun getPathFolder(path: String): List<FileModel> {
+        directoryPath = path
+        return FileUtils.getFileModelsFromFiles(
+            FileUtils.getFilesFromPath(
+                directoryPath,
+                showHiddenFiles = true
+            )
+        )
     }
 
     fun createDirectoryIfNonExist(dirName: String = Const.OH_TRANSFER_PATH) {
         val file = File(dirName)
-        if (!file.exists())file.mkdir()
+        if (!file.exists()) file.mkdir()
     }
+
+    fun isExternalStorageReadOnly():Boolean{
+        return Environment.MEDIA_MOUNTED_READ_ONLY == Environment.getExternalStorageState()
+    }
+
+    fun isExternalStorageAvailable(): Boolean {
+        return Environment.MEDIA_MOUNTED == Environment.getExternalStorageState()
+    }
+
 }

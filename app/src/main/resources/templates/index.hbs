@@ -9,33 +9,80 @@
     <link rel="stylesheet" href="/static/my_style.css">
 </head>
 <body>
-<div class="horizontalUnit">
-    <a href=""><button class="button">Go Back</button></a>
-    <a href="/web/root"><button class="button">Root Directory</button></a>
-    {{#ifSDcard}}
-        <a href=""><button class="button">SD Directory</button></a>
-    {{/ifSDcard}}
-    <form action="/upload" method="post" enctype="multipart/form-data">
-        <input type="file" name="myFile" multiple>
-        <input type="submit" value="Upload File">
-    </form>
-</div><br>
+<div class="wrapper">
+    <div class="sidebar">
+        <h2>HotSpot Device Explorer</h2>
+        <ul>
 
-{{#directoryFiles.dirFiles}}
-    <div class="horizontalUnit">
-        {{#isFile}}
-            <a href="/download/{{name}}">
-                <img src="{{staticImage}}" width="100" height="70"><br>
-                <label><strong>Download </strong>{{name}}</label>
-            </a>
-        {{/isFile}}
-        {{^isFile}}
-            <a href="/web/{{name}}">
-                <img src="{{staticImage}}" width="100" height="70"><br>
-                <label>{{name}}</label>
-            </a>
-        {{/isFile}}
+            {{#directoryFiles.sdCardActive}}
+                <li><a href="/web/sd/back"><img src="/static/backbutton.png" alt="Go Back" width="200" height="40"></a></li>
+<!--                <li><a href="/web/sd/back">Go Back</a></li>-->
+            {{/directoryFiles.sdCardActive}}
+
+            {{^directoryFiles.sdCardActive}}
+                <li><a href="/web/back"><img src="/static/backbutton.png" alt="Go Back" width="200" height="40"></a></li>
+<!--                <li><a href="/web/back">Go Back</a></li>-->
+            {{/directoryFiles.sdCardActive}}
+
+            <li><a href="/web/root">Root Directory</a></li>
+
+            {{#directoryFiles.ifSdCard}}
+                <li><a href="/web/sd-dir">SD Directory</a></li>
+            {{/directoryFiles.ifSdCard}}
+            <form class="form-layout" action="/upload" method="post" enctype="multipart/form-data">
+                <input type="file" name="myFile" multiple>
+                <input class="save" type="submit" value="Upload File">
+            </form>
+        </ul>
     </div>
-{{/directoryFiles.dirFiles}}
+
+    {{^directoryFiles.showSDCard}}
+        <div class="main-content">
+            <div class="info">
+                {{#directoryFiles.dirFiles}}
+                    <div class="horizontalUnit">
+                        {{#isFile}}
+                            <a href="/download/{{name}}">
+                                <img src="{{staticImage}}" width="100" height="70"><br>
+                                <label><strong>Download </strong>{{name}}</label>
+                            </a>
+                        {{/isFile}}
+                        {{^isFile}}
+                            <a href="/web/{{name}}">
+                                <img src="{{staticImage}}" width="100" height="70"><br>
+                                <label>{{name}}</label>
+                            </a>
+                        {{/isFile}}
+                    </div>
+                {{/directoryFiles.dirFiles}}
+            </div>
+        </div>
+
+
+    {{/directoryFiles.showSDCard}}
+
+    {{#directoryFiles.showSDCard}}
+        <div class="main-content">
+            <div class="info">
+                {{#directoryFiles.sdDirFiles}}
+                    <div class="horizontalUnit">
+                        {{#isFile}}
+                            <a href="/download/sd/{{name}}">
+                                <img src="{{staticImage}}" width="100" height="70"><br>
+                                <label><strong>Download </strong>{{name}}</label>
+                            </a>
+                        {{/isFile}}
+                        {{^isFile}}
+                            <a href="/web/sd/{{name}}">
+                                <img src="{{staticImage}}" width="100" height="70"><br>
+                                <label>{{name}}</label>
+                            </a>
+                        {{/isFile}}
+                    </div>
+                {{/directoryFiles.sdDirFiles}}
+            </div>
+        </div>
+    {{/directoryFiles.showSDCard}}
+</div>
 </body>
 </html>

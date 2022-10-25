@@ -1,12 +1,13 @@
 package com.example.ktorandroidpc
 
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
 import android.os.Environment
 import androidx.appcompat.app.AppCompatActivity
 import com.example.ktorandroidpc.databinding.ActivityMainBinding
-import com.example.ktorandroidpc.explorer.FileUtils
 import com.example.ktorandroidpc.plugins.configureRouting
 import com.example.ktorandroidpc.plugins.configureTemplating
 import com.example.ktorandroidpc.utills.Const
@@ -24,8 +25,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
     private lateinit var coroutineScope: CoroutineScope
     private var connectOrDisconnect = true
-    private val mDirectory by lazy { Environment.getExternalStorageDirectory().absolutePath }
-    private lateinit var mStoreRootFolder: List<FileModel>
+    private var sdDirectory: String? = null
 
     override fun onRequestPermissionsResult(
         requestCode: Int,
@@ -34,11 +34,10 @@ class MainActivity : AppCompatActivity() {
     ) {
         if (requestCode == Const.PERMISSION &&
             grantResults.isNotEmpty() &&
-            grantResults.all { it == PackageManager.PERMISSION_GRANTED}
+            grantResults.all { it == PackageManager.PERMISSION_GRANTED }
         ) {
             Executional()
-        }
-        else{
+        } else {
             Tools.requestForAllPermission(this@MainActivity)
         }
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
@@ -62,13 +61,13 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        Tools.requestForAllPermission(this@MainActivity)
+        Tools.requestForAllPermission(this)
 
         Initiallizers()
 
         ClickListener()
 
-        if (Tools.checkAllPermission(this@MainActivity)) {
+        if (Tools.checkAllPermission(this)) {
             Executional()
         }
 
@@ -110,5 +109,37 @@ class MainActivity : AppCompatActivity() {
 
     private fun Initiallizers() {
         coroutineScope = CoroutineScope(Dispatchers.IO)
+        sdDirectory = if (Tools.isExternalStorageAvailable() || Tools.isExternalStorageReadOnly()) {
+            GetExternalSDCardRootDirectory()
+        } else null
+        DataManager.with(application).setString(Const.SD_DIRECTORY_KEY, sdDirectory)
     }
+
+    private fun GetExternalSDCardRootDirectory(): String? {
+        val storageManager = this.getSystemService(Context.STORAGE_SERVICE)
+        try {
+            val storageVolume = Class.forName("android.os.storage.StorageVolume")
+            val volumeList = storageManager.javaClass.getMethod("getVolumeList")
+            val path = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                storageVolume.getMethod("getDirectory")
+            } else {
+                storageVolume.getMethod("getPath")
+            }
+            val isRemovable = storageVolume.getMethod("isRemovable")
+            val result = volumeList.invoke(storageManager) as Array<*>
+            result.forEach {
+                if (isRemovable.invoke(it) as Boolean) {
+                    return when (val invokeRquest = path.invoke(it)) {
+                        is File -> invokeRquest.absolutePath
+                        is String -> invokeRquest
+                        else -> null
+                    }
+                }
+            }
+        } catch (e: Throwable) {
+            e.printStackTrace()
+        }
+        return null
+    }
+
 }
