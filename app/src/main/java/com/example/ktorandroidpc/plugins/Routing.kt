@@ -71,7 +71,6 @@ fun Route.navigateSDHomeDirectory() {
     }
 }
 
-
 private fun Route.navigateHomeDirectory() {
     get("/") {
         directoryPath = homeDirectoryPath
