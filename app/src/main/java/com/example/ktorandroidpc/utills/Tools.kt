@@ -78,6 +78,15 @@ object Tools {
         )
     }
 
+    fun getFilesFromPath(path: String, showHiddenFiles: Boolean = true): List<FileModel> {
+        return FileUtils.getFileModelsFromFiles(
+            FileUtils.getFilesFromPath(
+                path,
+                showHiddenFiles = showHiddenFiles
+            )
+        )
+    }
+
     fun getRootFolder(): List<FileModel> {
         directoryPath = Const.ROOT_PATH
         return FileUtils.getFileModelsFromFiles(

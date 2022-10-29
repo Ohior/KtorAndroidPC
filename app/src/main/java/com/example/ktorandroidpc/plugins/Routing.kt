@@ -14,17 +14,22 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import java.io.File
 
+
+
 data class TemplateData(
     var dirFiles: List<FileModel>,
-    var sdDirFiles: List<FileModel>? = null,
-    var ifSdCard: Boolean = sdDirFiles != null,
-    var showSDCard: Boolean = false,
-    var sdCardActive: Boolean = false
+    val ifSdCard: Boolean = Tools.isExternalStorageReadOnly() || Tools.isExternalStorageAvailable(),
 )
 
-var directoryFiles: TemplateData? = null
+var templateData: TemplateData? = null
 
-private val sdDirFiles = DataManager.getString(Const.SD_DIRECTORY_KEY)?.let { Tools.getPathFolder(it) }
+private val homeDirectoryPath = Const.ROOT_PATH
+
+private var directoryPath = Const.ROOT_PATH
+
+private var rootDirectory = homeDirectoryPath
+
+private val sdDirectoryPath = DataManager.getString(Const.SD_DIRECTORY_KEY)
 
 
 fun Application.configureRouting() {
@@ -36,17 +41,11 @@ fun Application.configureRouting() {
 
         navigateBackward()
 
-        uploadFile()
-
         downloadFile()
 
+        uploadFile()
+
         navigateSDHomeDirectory()
-
-        navigateSDForward()
-
-        navigateSDBackward()
-
-        downloadSDFile()
 
         static("/static") {
             resources("files")
@@ -54,13 +53,32 @@ fun Application.configureRouting() {
     }
 }
 
+fun Route.navigateSDHomeDirectory() {
+    get("web/sd-dir") {
+        Tools.debugMessage("SD path")
+        directoryPath = sdDirectoryPath!!
+        rootDirectory = sdDirectoryPath
+        templateData = TemplateData(
+            dirFiles = Tools.getFilesFromPath(directoryPath).sortedWith(compareBy { it.name }),
+        )
+        // load home page
+        call.respond(
+            MustacheContent(
+                "index.hbs",
+                mapOf("templateData" to templateData)
+            )
+        )
+    }
+}
+
+
 private fun Route.navigateHomeDirectory() {
     get("/") {
+        directoryPath = homeDirectoryPath
+        rootDirectory = homeDirectoryPath
         // get home page directory
-        directoryFiles = TemplateData(
+        templateData = TemplateData(
             dirFiles = Tools.getRootFolder().sortedWith(compareBy { it.name }),
-            sdDirFiles = sdDirFiles,
-            sdCardActive = false
         )
         call.respondRedirect("web")
     }
@@ -71,7 +89,7 @@ private fun Route.navigateHomeDirectory() {
             call.respond(
                 MustacheContent(
                     "index.hbs",
-                    mapOf("directoryFiles" to directoryFiles)
+                    mapOf("templateData" to templateData)
                 )
             )
         }
@@ -83,31 +101,6 @@ private fun Route.navigateHomeDirectory() {
     }
 }
 
-private fun Route.navigateBackward() {
-    get("web/back") {
-        val dirPath = directoryFiles!!
-            .dirFiles[0]
-            .path
-            .split("/")
-            .dropLastWhile { it != "0" }
-            .joinToString("/")
-        // navigate into the folder and get directories
-        val dirFiles = Tools.getPathFolder(dirPath).sortedWith(compareBy { it.name })
-        // update directory files
-        directoryFiles = TemplateData(
-            dirFiles = dirFiles,
-            sdDirFiles = sdDirFiles
-        )
-        // open page
-        call.respond(
-            MustacheContent(
-                "index.hbs",
-                mapOf("directoryFiles" to directoryFiles)
-            )
-        )
-    }
-}
-
 private fun Route.navigateForward() {
     get("web/{name}") {
         // get folder name
@@ -115,20 +108,66 @@ private fun Route.navigateForward() {
         val name = call.parameters["name"]
         // make sure folder name is valid
         if (name != null) {
+            directoryPath += "/$name"
             // navigate into the folder and get directories
-            val dirFiles = Tools.getDirectoryFromPath("/$name")
+            val dirFiles = Tools.getFilesFromPath(directoryPath)
             // update directory files
-            directoryFiles = TemplateData(
+            templateData = TemplateData(
                 dirFiles = dirFiles,
-                sdDirFiles = sdDirFiles
             )
             // open page
             call.respond(
                 MustacheContent(
                     "index.hbs",
-                    mapOf("directoryFiles" to directoryFiles)
+                    mapOf("templateData" to templateData)
                 )
             )
+        }
+    }
+}
+
+private fun Route.navigateBackward() {
+    get("web/back") {
+        val dirPath = directoryPath
+            .split("/")
+        if (dirPath.last()!= rootDirectory.split("/").last()){
+            directoryPath = dirPath.dropLast(1).joinToString("/")
+        }
+        // navigate into the folder and get directories
+        val dirFiles = Tools.getFilesFromPath(directoryPath).sortedWith(compareBy { it.name })
+        // update directory files
+        templateData = TemplateData(
+            dirFiles = dirFiles,
+        )
+        // open page
+        call.respond(
+            MustacheContent(
+                "index.hbs",
+                mapOf("templateData" to templateData)
+            )
+        )
+    }
+}
+
+private fun Route.downloadFile() {
+    get("download/{name}") {
+        //get data been pass to the server
+        val name = call.parameters["name"]
+        // get the File model from the list
+        val getFile = templateData!!.dirFiles.find { it.name == name }
+        // check if the file exits
+        if (getFile != null) {
+            val file = File(getFile.path)
+            // make the file downloadable and not playable
+            call.response.header(
+                HttpHeaders.ContentDisposition,
+                ContentDisposition.Attachment.withParameter(
+                    ContentDisposition.Parameters.FileName,
+                    getFile.name
+                ).toString()
+            )
+            // actually download the file
+            call.respondFile(file)
         }
     }
 }
@@ -153,29 +192,6 @@ private fun Route.uploadFile() {
             call.respondRedirect("web")
         } catch (e: Exception) {
             call.respondRedirect("web")
-        }
-    }
-}
-
-private fun Route.downloadFile() {
-    get("download/{name}") {
-        //get data been pass to the server
-        val name = call.parameters["name"]
-        // get the File model from the list
-        val getFile = directoryFiles!!.dirFiles.find { it.name == name }
-        // check if the file exits
-        if (getFile != null) {
-            val file = File(getFile.path)
-            // make the file downloadable and not playable
-            call.response.header(
-                HttpHeaders.ContentDisposition,
-                ContentDisposition.Attachment.withParameter(
-                    ContentDisposition.Parameters.FileName,
-                    getFile.name
-                ).toString()
-            )
-            // actually download the file
-            call.respondFile(file)
         }
     }
 }
