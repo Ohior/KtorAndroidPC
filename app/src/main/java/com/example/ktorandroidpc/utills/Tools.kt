@@ -1,11 +1,14 @@
 package com.example.ktorandroidpc.utills
 
 import android.app.Activity
+import android.app.AlertDialog
 import android.content.Context
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Environment
 import android.util.Log
+import android.view.LayoutInflater
+import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
@@ -112,12 +115,28 @@ object Tools {
         if (!file.exists()) file.mkdir()
     }
 
-    fun isExternalStorageReadOnly():Boolean{
+    fun isExternalStorageReadOnly(): Boolean {
         return Environment.MEDIA_MOUNTED_READ_ONLY == Environment.getExternalStorageState()
     }
 
     fun isExternalStorageAvailable(): Boolean {
         return Environment.MEDIA_MOUNTED == Environment.getExternalStorageState()
+    }
+
+    fun popUpWindow(
+        context: Context,
+        title: String,
+        layout: Int,
+        lambda: ((View, AlertDialog) -> Unit)? = null
+    ) {
+        val view = LayoutInflater.from(context)
+            .inflate(layout, null)
+        AlertDialog.Builder(context).apply {
+            this.setCancelable(false)
+            this.setTitle(title)
+            this.setView(view)
+            lambda!!(view, this.show())
+        }.show()
     }
 
 }

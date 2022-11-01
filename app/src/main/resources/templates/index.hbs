@@ -7,6 +7,36 @@
     <meta name="description" content="">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="/static/my_style.css">
+    <script>
+function postFile() {
+    var formdata = new FormData();
+
+    formdata.append('file1', document.getElementById('file1').files[0]);
+
+    var request = new XMLHttpRequest();
+
+    request.upload.addEventListener('progress', function (e) {
+        var file1Size = document.getElementById('file1').files[0].size;
+        console.log(file1Size);
+
+        if (e.loaded <= file1Size) {
+            var percent = Math.round(e.loaded / file1Size * 100);
+            document.getElementById('progress-bar-file1').style.width = percent + '%';
+            document.getElementById('progress-bar-file1').innerHTML = percent + '%';
+        }
+
+        if(e.loaded == e.total){
+            document.getElementById('progress-bar-file1').style.width = '100%';
+            document.getElementById('progress-bar-file1').innerHTML = '100%';
+        }
+    });
+
+    request.open('post', '/echo/html/');
+    request.timeout = 45000;
+    request.send(formdata);
+}
+</script>
+
 </head>
 <body>
 <table class="styled-table">
@@ -17,14 +47,18 @@
 
                     <h2>HotSpot Device Explorer</h2>
                     <ul>
-                        <li><a href="/web/back" class="menu"><img src="/static/backbutton.png" alt="" width="200px" height="40"></a></li>
-                        <li><a  class="atag" href="/web/root">Root Directory</a></li>
+                        <li><a href="/web/back" class="menu"><img src="/static/backbutton.png" alt="" width="200px"
+                                                                  height="40"></a></li>
+                        <li><a class="atag" href="/web/root">Root Directory</a></li>
                         {{^ifSDcard}}
                             <li><a class="atag" href="/web/sd-dir">SD Directory</a></li>
                         {{/ifSDcard}}
-                        <form class="form-layout" action="/upload" method="post" enctype="multipart/form-data">
-                            <input type="file" name="myFile" multiple>
-                            <input class="save" type="submit" value="Upload File">
+                        <form class="form-layout" id="form1" action="/upload" method="post" enctype="multipart/form-data">
+                            <input id="file1" type="file" name="myFile" multiple>
+                            <input class="save" type="submit" value="Upload File" onclick="postFile()">
+                            <div class="progress-wrapper">
+                                <div id="progress-bar-file1" class="progress"></div>
+                            </div>
                         </form>
                     </ul>
                 </div>
@@ -50,83 +84,13 @@
         </tr>
     </div>
 </table>
+
 </body>
 </html>
 
-<!--<div class="wrapper">-->
-<!--    <div class="sidebar">-->
-<!--        <h2>HotSpot Device Explorer</h2>-->
-<!--        <ul>-->
 
-        <!--            {{#directoryFiles.sdCardActive}}-->
-<!--                <li><a href="/web/sd/back"><img src="/static/backbutton.png" alt="Go Back" width="200" height="40"></a>-->
-<!--                </li>-->
-<!--                &lt;!&ndash;                <li><a href="/web/sd/back">Go Back</a></li>&ndash;&gt;-->
-        <!--            {{/directoryFiles.sdCardActive}}-->
-
-        <!--            {{^directoryFiles.sdCardActive}}-->
-<!--                <li><a href="/web/back"><img src="/static/backbutton.png" alt="Go Back" width="200" height="40"></a>-->
-<!--                </li>-->
-<!--                &lt;!&ndash;                <li><a href="/web/back">Go Back</a></li>&ndash;&gt;-->
-        <!--            {{/directoryFiles.sdCardActive}}-->
-
-<!--            <li><a href="/web/root">Root Directory</a></li>-->
-
-        <!--            {{#directoryFiles.ifSdCard}}-->
-<!--                <li><a href="/web/sd-dir">SD Directory</a></li>-->
-        <!--            {{/directoryFiles.ifSdCard}}-->
-<!--            <form class="form-layout" action="/upload" method="post" enctype="multipart/form-data">-->
-<!--                <input type="file" name="myFile" multiple>-->
-<!--                <input class="save" type="submit" value="Upload File">-->
-<!--            </form>-->
-<!--        </ul>-->
-<!--    </div>-->
-
-        <!--    {{^directoryFiles.showSDCard}}-->
-<!--        <div class="main-content">-->
-<!--            <div class="info">-->
-        <!--                {{#directoryFiles.dirFiles}}-->
-<!--                    <div class="horizontalUnit">-->
-        <!--                        {{#isFile}}-->
-<!--                            <a href="/download/{{name}}">-->
-<!--                                <img src="{{staticImage}}" width="100" height="70"><br>-->
-<!--                                <label><strong>Download </strong>{{name}}</label>-->
-<!--                            </a>-->
-        <!--                        {{/isFile}}-->
-        <!--                        {{^isFile}}-->
-<!--                            <a href="/web/{{name}}">-->
-<!--                                <img src="{{staticImage}}" width="100" height="70"><br>-->
-<!--                                <label>{{name}}</label>-->
-<!--                            </a>-->
-        <!--                        {{/isFile}}-->
-<!--                    </div>-->
-        <!--                {{/directoryFiles.dirFiles}}-->
-<!--            </div>-->
-<!--        </div>-->
+<!DOCTYPE html>
 
 
-        <!--    {{/directoryFiles.showSDCard}}-->
-
-        <!--    {{#directoryFiles.showSDCard}}-->
-<!--        <div class="main-content">-->
-<!--            <div class="info">-->
-        <!--                {{#directoryFiles.sdDirFiles}}-->
-<!--                    <div class="horizontalUnit">-->
-        <!--                        {{#isFile}}-->
-<!--                            <a href="/download/sd/{{name}}">-->
-<!--                                <img src="{{staticImage}}" width="100" height="70"><br>-->
-<!--                                <label><strong>Download </strong>{{name}}</label>-->
-<!--                            </a>-->
-        <!--                        {{/isFile}}-->
-        <!--                        {{^isFile}}-->
-<!--                            <a href="/web/sd/{{name}}">-->
-<!--                                <img src="{{staticImage}}" width="100" height="70"><br>-->
-<!--                                <label>{{name}}</label>-->
-<!--                            </a>-->
-        <!--                        {{/isFile}}-->
-<!--                    </div>-->
-        <!--                {{/directoryFiles.sdDirFiles}}-->
-<!--            </div>-->
-<!--        </div>-->
-        <!--    {{/directoryFiles.showSDCard}}-->
-<!--</div>-->
+</head>
+</html>

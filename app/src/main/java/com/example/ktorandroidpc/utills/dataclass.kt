@@ -19,7 +19,9 @@ data class FileModel(
         FileType.IMAGE -> "/static/image.png"
         FileType.VIDEO -> "/static/video.png"
     }
-)
+){
+    val fileFolder get() = path.split("/").let { it.elementAt(it.lastIndex-1) }
+}
 
 
 data class RecyclerAdapterDataclass(
@@ -27,4 +29,10 @@ data class RecyclerAdapterDataclass(
     val detail: String,
     val drawable: Int? = null,
     var fileType: FileType? = null
+)
+
+data class ProgressDataClass(
+    val dataSize: Int,
+    val dataName:String,
+    val dataPath:String
 )

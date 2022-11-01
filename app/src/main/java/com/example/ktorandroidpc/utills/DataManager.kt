@@ -34,6 +34,14 @@ object DataManager {
         sharedPreferences!!.edit().putString(key, jsonString).apply()
     }
 
+    fun clearAllSharedPreference(){
+        sharedPreferences!!.edit().clear().apply()
+    }
+
+    fun clearSharedPreferenceKey(key: String){
+        sharedPreferences!!.edit().remove(key).apply()
+    }
+
     inline fun <reified T> getPreferenceData(key: String): T? {
         //We read JSON String which was saved.
         val value = sharedPreferences!!.getString(key, null)

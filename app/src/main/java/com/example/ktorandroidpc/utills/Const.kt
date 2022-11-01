@@ -13,6 +13,7 @@ object Const {
     const val SD_DIRECTORY_KEY = "SD_DIRECTORY_KEY"
     const val ADDRESS = "192.168.43.1"
     const val PORT = 8181
+    const val FULL_ADDRESS = "$ADDRESS:$PORT"
     const val PERMISSION = 101
     const val AUTHORITY = "com.example.ktorandroidpc.fileprovider"
     const val ROOT_FOLDER_KEY = "ROOT_FOLDER_KEY"
@@ -21,6 +22,7 @@ object Const {
     val ROOT_PATH: String = Environment.getExternalStorageDirectory().absolutePath
     private const val OH_TRANSFER = "OH-Transfer"
     val OH_TRANSFER_PATH = "$ROOT_PATH/$OH_TRANSFER/"
+    const val PROGRESS_KEY = "PROGRESS_KEY"
     val ARRAY_OF_PERMISSIONS = arrayOf(
         Manifest.permission.READ_EXTERNAL_STORAGE,
         Manifest.permission.WRITE_EXTERNAL_STORAGE,

@@ -1,27 +1,73 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
+<FrameLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:keepScreenOn="true"
+    android:id="@+id/id_root_view"
     tools:context=".MainActivity">
-    <Button
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="100dp"
-        android:id="@+id/id_btn_connect2browser"
-        android:layout_margin="10dp"
-        android:text="@string/connect_to_browser"
-        android:textAllCaps="false"
-        android:textSize="25sp"/>
-    <Button
-        android:layout_width="match_parent"
-        android:layout_height="100dp"
-        android:id="@+id/id_btn_connect_with_application"
-        android:layout_margin="10dp"
-        android:text="@string/connect_with_app"
-        android:textAllCaps="false"
-        android:textSize="25sp"/>
+        android:layout_height="match_parent"
+        android:id="@+id/id_gif_ll"
+        android:orientation="vertical"
+        android:gravity="top">
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="300dp"
+            android:id="@+id/id_git_image"
+            android:src="@drawable/gifimage"
+            android:layout_gravity="top"
+            android:contentDescription="@string/connection_gif"/>
+        <TextView
+            android:layout_marginVertical="10dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:scrollbars="vertical"
+            android:scrollbarSize="5dp"
+            android:textAlignment="center"
+            android:padding="10dp"
+            android:textSize="20sp"
+            android:fontFamily="cursive"
+            android:text="@string/connect_PC_info"/>
+    </LinearLayout>
 
-</LinearLayout>
+    <androidx.recyclerview.widget.RecyclerView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/id_recycler_view"
+        android:visibility="gone"
+        tools:listitem="@layout/explorer_item"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:id="@+id/id_btn_connect_layout"
+        android:layout_gravity="bottom">
+
+        <Button
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.5"
+            android:id="@+id/id_btn_connect2browser"
+            android:text="@string/connect_PC"
+            android:textAllCaps="false"
+            tools:drawableStart="@drawable/ic_mobile"
+            android:textSize="25sp"/>
+        <Button
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.5"
+            android:id="@+id/id_btn_connect_with_application"
+            android:text="@string/connect_with_app"
+            android:layout_marginHorizontal="10dp"
+            android:textAllCaps="false"
+            android:visibility="gone"
+            android:textSize="25sp"/>
+
+    </LinearLayout>
+
+</FrameLayout>

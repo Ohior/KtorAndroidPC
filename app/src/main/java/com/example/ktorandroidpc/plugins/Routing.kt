@@ -1,9 +1,12 @@
 package com.example.ktorandroidpc.plugins
 
-import com.example.ktorandroidpc.utills.Const
-import com.example.ktorandroidpc.utills.DataManager
-import com.example.ktorandroidpc.utills.FileModel
-import com.example.ktorandroidpc.utills.Tools
+
+import com.example.ktorandroidpc.utills.*
+import io.ktor.client.*
+import io.ktor.client.call.*
+import io.ktor.client.plugins.*
+import io.ktor.client.request.*
+import io.ktor.client.statement.*
 import io.ktor.http.*
 import io.ktor.http.content.*
 import io.ktor.server.application.*
@@ -12,8 +15,8 @@ import io.ktor.server.mustache.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import kotlinx.coroutines.runBlocking
 import java.io.File
-
 
 
 data class TemplateData(
@@ -55,9 +58,10 @@ fun Application.configureRouting() {
 
 fun Route.navigateSDHomeDirectory() {
     get("web/sd-dir") {
-        Tools.debugMessage("SD path")
+        // Reset root directory to SD card
         directoryPath = sdDirectoryPath!!
         rootDirectory = sdDirectoryPath
+        // initialize the template data
         templateData = TemplateData(
             dirFiles = Tools.getFilesFromPath(directoryPath).sortedWith(compareBy { it.name }),
         )
@@ -74,8 +78,9 @@ fun Route.navigateSDHomeDirectory() {
 private fun Route.navigateHomeDirectory() {
     get("/") {
         directoryPath = homeDirectoryPath
+        // Reset root directory to SD card
         rootDirectory = homeDirectoryPath
-        // get home page directory
+        // initialize the template data
         templateData = TemplateData(
             dirFiles = Tools.getRootFolder().sortedWith(compareBy { it.name }),
         )
@@ -129,7 +134,8 @@ private fun Route.navigateBackward() {
     get("web/back") {
         val dirPath = directoryPath
             .split("/")
-        if (dirPath.last()!= rootDirectory.split("/").last()){
+
+        if (dirPath.last() != rootDirectory.split("/").last()) {
             directoryPath = dirPath.dropLast(1).joinToString("/")
         }
         // navigate into the folder and get directories
@@ -182,15 +188,28 @@ private fun Route.uploadFile() {
                     is PartData.FileItem -> {
                         // upload the data
                         val fileBytes = part.streamProvider().readBytes()
+//                        val mFile = File(Const.OH_TRANSFER_PATH + part.originalFileName)
+//                        mFile.writeBytes(fileBytes)
                         val mFile = File(Const.OH_TRANSFER_PATH + part.originalFileName)
-                        mFile.writeBytes(fileBytes)
+                        part.streamProvider().use { inputStream ->
+                            mFile.outputStream().buffered().use {
+                                DataManager.putPreferenceData(ProgressDataClass(
+                                    dataName = part.originalFileName.toString(),
+                                    dataSize = 0,
+                                    dataPath = ""
+                                ), Const.PROGRESS_KEY)
+                                inputStream.copyTo(it)
+                            }
+                        }
+//                    call.respondRedirect("web")
+//                        part.dispose()
                     }
                     else -> Unit
                 }
             }
-            call.respondRedirect("web")
         } catch (e: Exception) {
-            call.respondRedirect("web")
+//            call.respondRedirect("web")
         }
+        call.respondRedirect("web")
     }
 }

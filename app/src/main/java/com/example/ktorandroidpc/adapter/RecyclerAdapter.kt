@@ -44,8 +44,8 @@ class RecyclerAdapter: RecyclerView.Adapter<RecyclerAdapter.ViewHolder> {
 
     interface OnItemClickListener{
         // inter face for auto loading itemClick and longItemClick
-        fun onItemClick(position: Int, view: View)
-        fun onLongItemClick(position: Int, view: View)
+        fun onItemClick(position: Int, view: View){}
+        fun onLongItemClick(position: Int, view: View){}
     }
 
     fun onClickListener(listener:OnItemClickListener){
