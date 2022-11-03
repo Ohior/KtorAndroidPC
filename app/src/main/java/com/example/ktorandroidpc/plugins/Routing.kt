@@ -1,12 +1,8 @@
 package com.example.ktorandroidpc.plugins
 
 
+import com.example.ktorandroidpc.fragments.ConnectPcFragment
 import com.example.ktorandroidpc.utills.*
-import io.ktor.client.*
-import io.ktor.client.call.*
-import io.ktor.client.plugins.*
-import io.ktor.client.request.*
-import io.ktor.client.statement.*
 import io.ktor.http.*
 import io.ktor.http.content.*
 import io.ktor.server.application.*
@@ -15,8 +11,12 @@ import io.ktor.server.mustache.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import java.io.File
+import java.io.InputStream
+import java.io.OutputStream
 
 
 data class TemplateData(
@@ -34,8 +34,7 @@ private var rootDirectory = homeDirectoryPath
 
 private val sdDirectoryPath = DataManager.getString(Const.SD_DIRECTORY_KEY)
 
-
-fun Application.configureRouting() {
+fun Application.configureRouting( connectPcFragment: ConnectPcFragment) {
     routing {
 
         navigateHomeDirectory()
@@ -46,7 +45,7 @@ fun Application.configureRouting() {
 
         downloadFile()
 
-        uploadFile()
+        uploadFile(connectPcFragment)
 
         navigateSDHomeDirectory()
 
@@ -177,7 +176,7 @@ private fun Route.downloadFile() {
     }
 }
 
-private fun Route.uploadFile() {
+private fun Route.uploadFile(connectPcFragment: ConnectPcFragment) {
     post("upload") {
         try {
             // get the data been pass the server by the form
@@ -187,18 +186,17 @@ private fun Route.uploadFile() {
                 when (part) {
                     is PartData.FileItem -> {
                         // upload the data
-                        val fileBytes = part.streamProvider().readBytes()
+//                        val fileBytes = part.streamProvider().readBytes()
 //                        val mFile = File(Const.OH_TRANSFER_PATH + part.originalFileName)
 //                        mFile.writeBytes(fileBytes)
                         val mFile = File(Const.OH_TRANSFER_PATH + part.originalFileName)
                         part.streamProvider().use { inputStream ->
                             mFile.outputStream().buffered().use {
-                                DataManager.putPreferenceData(ProgressDataClass(
-                                    dataName = part.originalFileName.toString(),
-                                    dataSize = 0,
-                                    dataPath = ""
-                                ), Const.PROGRESS_KEY)
-                                inputStream.copyTo(it)
+                                inputStream.copyTo(it) { totalBytes, byteCopied ->
+                                    CoroutineScope(Dispatchers.Main).launch {
+                                        connectPcFragment.displayRecyclerView(totalBytes, byteCopied)
+                                    }
+                                }
                             }
                         }
 //                    call.respondRedirect("web")
@@ -212,4 +210,17 @@ private fun Route.uploadFile() {
         }
         call.respondRedirect("web")
     }
+}
+
+private fun InputStream.copyTo(out: OutputStream, onCopy: ((totalBytes: Long, byteCopied: Int) -> Any)): Long {
+    var bytesCopied: Long = 0
+    val buffer = ByteArray(4096)
+    var bytes = read(buffer)
+    while (bytes >= 0) {
+        out.write(buffer, 0, bytes)
+        bytesCopied += bytes
+        onCopy(bytesCopied, bytes)
+        bytes = read(buffer)
+    }
+    return bytesCopied
 }

@@ -1,15 +1,18 @@
 package com.example.ktorandroidpc.explorer
 
 import com.example.ktorandroidpc.utills.FileModel
+import com.example.ktorandroidpc.utills.Tools
 import java.io.File
 
 object FileUtils {
     fun getFilesFromPath(path: String, showHiddenFiles: Boolean = false, onlyFolders: Boolean = false): List<File> {
         val file = File(path)
-        return file.listFiles()!!
-            .filter { showHiddenFiles || !it.name.startsWith(".") }
-            .filter { !onlyFolders || it.isDirectory }
-            .toList()
+        return if (file.listFiles() != null) {
+            file.listFiles()!!
+                .filter { showHiddenFiles || !it.name.startsWith(".") }
+                .filter { !onlyFolders || it.isDirectory }
+                .toList()
+        }else emptyList()
     }
 
     fun getFileModelsFromFiles(files: List<File>?): List<FileModel> {

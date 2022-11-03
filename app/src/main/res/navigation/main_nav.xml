@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+            xmlns:app="http://schemas.android.com/apk/res-auto"
+            xmlns:tools="http://schemas.android.com/tools" android:id="@+id/main_nav"
+            app:startDestination="@id/connectPcFragment">
+
+    <fragment android:id="@+id/connectPcFragment" android:name="com.example.ktorandroidpc.fragments.ConnectPcFragment"
+              android:label="fragment_connect_pc" tools:layout="@layout/fragment_connect_pc">
+        <action android:id="@+id/connectPcFragment_to_explorerFragment" app:destination="@id/explorerFragment"
+                app:enterAnim="@anim/nav_default_pop_enter_anim" app:exitAnim="@anim/nav_default_pop_exit_anim"/>
+        <action android:id="@+id/connectPcFragment_to_sdExplorerFragment"
+                app:destination="@id/sdExplorerFragment"/>
+    </fragment>
+    <fragment android:id="@+id/explorerFragment" android:name="com.example.ktorandroidpc.fragments.ExplorerFragment"
+              android:label="fragment_explorer" tools:layout="@layout/fragment_explorer">
+        <action android:id="@+id/explorerFragment_to_connectPcFragment" app:destination="@id/connectPcFragment"
+                app:exitAnim="@anim/nav_default_exit_anim" app:popExitAnim="@anim/nav_default_pop_exit_anim"/>
+        <action android:id="@+id/explorerFragment_to_sdExplorerFragment"
+                app:destination="@id/sdExplorerFragment"/>
+    </fragment>
+    <fragment android:id="@+id/sdExplorerFragment" android:name="com.example.ktorandroidpc.fragments.SdExplorerFragment"
+              android:label="fragment_sd_explorer" tools:layout="@layout/fragment_sd_explorer">
+        <action android:id="@+id/sdExplorerFragment_to_explorerFragment" app:destination="@id/explorerFragment"/>
+        <action android:id="@+id/sdExplorerFragment_to_connectPcFragment"
+                app:destination="@id/connectPcFragment"/>
+    </fragment>
+</navigation>

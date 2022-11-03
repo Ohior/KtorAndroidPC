@@ -20,8 +20,8 @@ object Const {
     const val PRESENT_FOLDER_KEY = "PRESENT_FOLDER_KEY"
     const val PREFERENCES_FILE_NAME = "PREFERENCES_FILE_NAME"
     val ROOT_PATH: String = Environment.getExternalStorageDirectory().absolutePath
-    private const val OH_TRANSFER = "OH-Transfer"
-    val OH_TRANSFER_PATH = "$ROOT_PATH/$OH_TRANSFER/"
+    const val OH_TRANSFER = "OH-Transfer"
+    var OH_TRANSFER_PATH = "$ROOT_PATH/$OH_TRANSFER/"
     const val PROGRESS_KEY = "PROGRESS_KEY"
     val ARRAY_OF_PERMISSIONS = arrayOf(
         Manifest.permission.READ_EXTERNAL_STORAGE,

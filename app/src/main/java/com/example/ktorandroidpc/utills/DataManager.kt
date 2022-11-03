@@ -1,6 +1,7 @@
 package com.example.ktorandroidpc.utills
 
 
+import android.app.Activity
 import android.app.Application
 import android.content.Context
 import android.content.SharedPreferences
@@ -19,7 +20,7 @@ object DataManager {
         return sharedPreferences!!.getString(key, null)
     }
 
-    fun with(activity: Application): DataManager {
+    fun with(activity: Activity): DataManager {
         sharedPreferences = activity.getSharedPreferences(
             Const.PREFERENCES_FILE_NAME, Context.MODE_PRIVATE
         )

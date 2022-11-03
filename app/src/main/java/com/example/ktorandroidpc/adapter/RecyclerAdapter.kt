@@ -8,9 +8,10 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
 import com.example.ktorandroidpc.R
 import com.example.ktorandroidpc.utills.FileModel
-import com.squareup.picasso.Picasso
+import kotlinx.coroutines.GlobalScope
 
 class RecyclerAdapter: RecyclerView.Adapter<RecyclerAdapter.ViewHolder> {
     // replace all the RecyclerAdapterDataclass reference in this file with your own data class name
@@ -79,7 +80,7 @@ class RecyclerAdapter: RecyclerView.Adapter<RecyclerAdapter.ViewHolder> {
         val arraylist = this.arrayList[position]
         holder.name.text = arraylist.name
         holder.detail.text = arraylist.detail
-        arraylist.drawable?.let { Picasso.get().load(it).into(holder.image) }
+        arraylist.drawable?.let { Glide.with(context).load(it).into(holder.image) }
     }
 
     override fun getItemCount(): Int {

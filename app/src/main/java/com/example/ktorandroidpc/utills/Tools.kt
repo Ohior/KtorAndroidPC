@@ -19,7 +19,6 @@ import java.io.InputStream
 
 
 object Tools {
-    val homeDirectoryPath = Const.ROOT_PATH
     private var directoryPath = Const.ROOT_PATH
     private var unGrantedPermission = ArrayList<String>()
 
@@ -32,21 +31,21 @@ object Tools {
         Log.e(tag, message)
     }
 
-    fun requestForAllPermission(appCompatActivity: AppCompatActivity) {
+    fun requestForAllPermission(activity: Activity) {
         unGrantedPermission.clear()
         for (per in Const.ARRAY_OF_PERMISSIONS) {
-            if (!checkForPermission(appCompatActivity, per)) {
+            if (!checkForPermission(activity, per)) {
                 unGrantedPermission.add(per)
             }
         }
         if (unGrantedPermission.isNotEmpty()) {
-            requestForPermission(appCompatActivity, unGrantedPermission)
+            requestForPermission(activity, unGrantedPermission)
         }
     }
 
-    fun checkAllPermission(appCompatActivity: AppCompatActivity): Boolean {
+    fun checkAllPermission(activity: Activity): Boolean {
         for (per in Const.ARRAY_OF_PERMISSIONS) {
-            if (!checkForPermission(appCompatActivity, per)) {
+            if (!checkForPermission(activity, per)) {
                 return false
             }
         }

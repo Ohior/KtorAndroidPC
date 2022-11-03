@@ -1,0 +1,18 @@
+<PreferenceScreen
+    xmlns:app="http://schemas.android.com/apk/res-auto" xmlns:android="http://schemas.android.com/apk/res/android">
+    <PreferenceCategory app:title="Basic">
+        <SwitchPreferenceCompat
+            app:key="downloadFolder"
+            app:title="Download Folder"
+            app:summary="Save files to Download?"/>
+    </PreferenceCategory>
+    <PreferenceCategory android:title="Theme">
+        <ListPreference
+            app:title="App Theme"
+            app:key="appTheme"
+            app:useSimpleSummaryProvider="true"
+            android:defaultValue="1"
+            android:entries="@array/theme_entries"
+            android:entryValues="@array/theme_entries_values"/>
+    </PreferenceCategory>
+</PreferenceScreen>

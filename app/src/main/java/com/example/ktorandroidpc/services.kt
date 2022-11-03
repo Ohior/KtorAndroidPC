@@ -8,11 +8,11 @@ fun View.displaySnackBar(message: String) {
 }
 
 fun View.displaySnackBar(message: String, actionStr: String = "dismiss", function: () -> Unit) {
-    Snackbar.make(this@displaySnackBar, message, Snackbar.LENGTH_LONG)
-        .also { snackbar ->
-            snackbar.setAction(actionStr) {
+    Snackbar.make(this@displaySnackBar, message, Snackbar.ANIMATION_MODE_SLIDE)
+        .also { sb ->
+            sb.setAction(actionStr) {
                 function()
-                snackbar.dismiss()
+                sb.dismiss()
             }
         }.show()
 }
