@@ -2,6 +2,7 @@ package com.example.ktorandroidpc.utills
 
 
 import com.example.ktorandroidpc.explorer.FileType
+import java.io.File
 
 
 data class FileModel(
@@ -18,15 +19,15 @@ data class FileModel(
         FileType.AUDIO -> "/static/audio.png"
         FileType.IMAGE -> "/static/image.png"
         FileType.VIDEO -> "/static/video.png"
-    }
+    },
+    val file: File = File(path)
 ){
     val fileFolder get() = path.split("/").let { it.elementAt(it.lastIndex-1) }
 }
 
 
 data class RecyclerAdapterDataclass(
-    val name: String,
-    val detail: String,
+    val fileModel: FileModel,
     val drawable: Int? = null,
     var fileType: FileType? = null
 )

@@ -3,8 +3,8 @@ package com.example.ktorandroidpc.explorer
 import java.io.File
 
 
-private val audioExtensions = listOf("mp3", "ogg")
-private val videoExtensions = listOf("mp4", "mkv", "webm")
+private val audioExtensions = listOf("mp3", "ogg", "m4a")
+private val videoExtensions = listOf("mp4", "mkv", "webm", "avi")
 private val imageExtensions = listOf("png", "jpg")
 
 enum class FileType {

@@ -21,7 +21,7 @@ class DownloadAdapter(val activity: Activity, recyclerView: RecyclerView):Recycl
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        val arraylist = this.arrayList[position]
+        val array = this.arrayList[position]
     }
 
     override fun getItemCount(): Int {

@@ -3,6 +3,8 @@ package com.example.ktorandroidpc.fragments
 import android.os.Bundle
 import android.os.Environment
 import android.view.*
+import android.widget.TextView
+import android.widget.Toolbar
 import androidx.fragment.app.Fragment
 import androidx.navigation.Navigation
 import androidx.recyclerview.widget.RecyclerView
@@ -19,12 +21,15 @@ class ExplorerFragment : Fragment() {
     private lateinit var idRvRootFolder: RecyclerView
     private lateinit var recyclerAdapter: RecyclerAdapter
     private lateinit var fileModelList: ArrayList<FileModel>
+    private lateinit var idToolbarTextView: TextView
     private val mDirectory by lazy { Environment.getExternalStorageDirectory().absolutePath }
     private var filePath = ""
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
+        idToolbarTextView = requireActivity().findViewById(R.id.id_tv_toolbar)
+        idToolbarTextView.text = requireActivity().getString(R.string.format_string, "Local Storage")
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
@@ -35,7 +40,7 @@ class ExplorerFragment : Fragment() {
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        return when(item.itemId){
+        return when (item.itemId) {
             R.id.id_menu_computer -> {
                 Navigation.findNavController(fragmentView).navigate(R.id.explorerFragment_to_connectPcFragment)
                 true
@@ -57,30 +62,41 @@ class ExplorerFragment : Fragment() {
         // Inflate the layout for this fragment
         fragmentView = inflater.inflate(R.layout.fragment_explorer, container, false)
 
+
         Initializers()
 
-        FillRecyclerView()
+        FragmentExecutable()
 
         RecyclerViewClickListener()
 
         return fragmentView
     }
-        private fun NavigateDirectoryBackward() {
-            recyclerAdapter.emptyAdapter()
-            fileModelList.clear()
-            val directory = filePath.split("/")
-            val dir = directory.subList(0, directory.size - 1)
-            val path = dir.joinToString("/")
-            val files = Tools.getFilesFromPath(mDirectory + path).sortedWith(compareBy { it.name })
-            filePath = path
-            LoopThroughFiles(files)
-            if (dir.isEmpty()) {
-                Navigation.findNavController(fragmentView).navigate(R.id.explorerFragment_to_connectPcFragment)
-            }
-        }
 
+    private fun FragmentExecutable() {
+        idToolbarTextView.setCompoundDrawablesRelativeWithIntrinsicBounds(R.drawable.ic_arrow_left, 0,0,0)
+        idToolbarTextView.setOnClickListener {
+            NavigateDirectoryBackward()
+        }
+    }
+
+    private fun NavigateDirectoryBackward() {
+        recyclerAdapter.emptyAdapter()
+        fileModelList.clear()
+        val directory = filePath.split("/")
+        val dir = directory.subList(0, directory.size - 1)
+        val path = dir.joinToString("/")
+        val files = Tools.getFilesFromPath(mDirectory + path).sortedWith(compareBy { it.name })
+        filePath = path
+        LoopThroughFiles(files)
+        if (dir.isEmpty()) {
+            Navigation.findNavController(fragmentView).navigate(R.id.explorerFragment_to_connectPcFragment)
+        }
+    }
 
     private fun RecyclerViewClickListener() {
+        fileModelList = Tools.getRootFolder() as ArrayList<FileModel>
+        fileModelList.sortWith(compareBy { it.name })
+        LoopThroughFiles(fileModelList.toList())
         recyclerAdapter.onClickListener(object : RecyclerAdapter.OnItemClickListener {
             override fun onItemClick(position: Int, view: View) {
                 NavigateDirectoryForward(position)
@@ -106,9 +122,8 @@ class ExplorerFragment : Fragment() {
         for (file in files) {
             recyclerAdapter.addToAdapter(
                 RecyclerAdapterDataclass(
-                    name = file.name,
-                    detail = file.path,
-                    drawable = getDrawableFileType (file.fileType)
+                    fileModel = file,
+                    drawable = getDrawableFileType(file.fileType)
                 )
             )
             fileModelList.add(file)
@@ -116,27 +131,10 @@ class ExplorerFragment : Fragment() {
         recyclerAdapter.notifyDataSetChanged()
     }
 
-    private fun FillRecyclerView() {
-        fileModelList = Tools.getRootFolder() as ArrayList<FileModel>
-//        coroutineScope.launch {
-        fileModelList.sortWith(compareBy { it.name })
-        LoopThroughFiles(fileModelList.toList())
-//            }
-    }
-
     private fun Initializers() {
-        idRvRootFolder = fragmentView.findViewById(R.id.id_rv_root_folder)
+        idRvRootFolder = fragmentView.findViewById(R.id.id_rv_folder)
 //        idRvFolderItems = findViewById(R.id.id_rv_folder_items)
         recyclerAdapter = RecyclerAdapter(requireContext(), idRvRootFolder, R.layout.explorer_item)
-    }
-
-    private fun StoreDirectoryFolder(path: String): List<FileModel> {
-        return FileUtils.getFileModelsFromFiles(
-            FileUtils.getFilesFromPath(
-                path,
-                showHiddenFiles = true
-            )
-        )
     }
 
     private fun getDrawableFileType(fileType: FileType): Int {

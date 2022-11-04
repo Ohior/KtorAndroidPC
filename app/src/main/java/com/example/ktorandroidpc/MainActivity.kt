@@ -43,7 +43,7 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
         SettingsActivity.appSettings(this)
         setSupportActionBar(findViewById(R.id.id_toolbar))
-        val customTitle = findViewById<TextView>(R.id.id_tv_toolbar)
+//        val customTitle = findViewById<TextView>(R.id.id_tv_toolbar)
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {

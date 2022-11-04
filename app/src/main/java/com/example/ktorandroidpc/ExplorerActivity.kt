@@ -74,8 +74,7 @@ class ExplorerActivity : AppCompatActivity() {
         for (file in files) {
             recyclerAdapter.addToAdapter(
                 RecyclerAdapterDataclass(
-                    name = file.name,
-                    detail = file.path,
+                    fileModel = file,
                     drawable = when (file.fileType) {
                         FileType.FOLDER -> {
                             R.drawable.folder
@@ -107,8 +106,7 @@ class ExplorerActivity : AppCompatActivity() {
         for (file in fileModelList) {
             recyclerAdapter.addToAdapter(
                 RecyclerAdapterDataclass(
-                    name = file.name,
-                    detail = file.path,
+                    fileModel = file,
                     drawable = when (file.fileType) {
                         FileType.FOLDER -> {
                             R.drawable.folder

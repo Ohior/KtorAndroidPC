@@ -5,10 +5,10 @@
              android:layout_height="match_parent"
              tools:context=".fragments.SdExplorerFragment">
 
-    <!-- TODO: Update blank fragment layout -->
-    <TextView
+    <androidx.recyclerview.widget.RecyclerView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:text="@string/hello_blank_fragment"/>
+        android:id="@+id/id_rv_folder"
+        tools:listitem="@layout/explorer_item"/>
 
 </FrameLayout>

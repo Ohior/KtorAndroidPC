@@ -11,18 +11,15 @@
         android:id="@+id/id_menu_mobile"
         android:title="@string/mobile_transfer"
         android:icon="@drawable/ic_mobile"
-        android:visible="false"
-        app:showAsAction="ifRoom"/>
+        android:visible="false"/>
     <item
         android:id="@+id/id_menu_computer"
         android:title="@string/connect_PC"
         android:icon="@drawable/ic_computer"
-        android:visible="false"
-        app:showAsAction="ifRoom"/>
+        android:visible="false"/>
     <item
         android:id="@+id/id_menu_sd"
         android:title="@string/sd_card"
-        android:icon="@drawable/ic_micro_sd"
-        app:showAsAction="ifRoom"/>
+        android:icon="@drawable/ic_micro_sd"/>
 
 </menu>

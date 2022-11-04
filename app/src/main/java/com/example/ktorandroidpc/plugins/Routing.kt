@@ -34,28 +34,45 @@ private var rootDirectory = homeDirectoryPath
 
 private val sdDirectoryPath = DataManager.getString(Const.SD_DIRECTORY_KEY)
 
-fun Application.configureRouting( connectPcFragment: ConnectPcFragment) {
+fun Application.configureRouting(function: (Routing) -> Unit) {
     routing {
-
         navigateHomeDirectory()
 
         navigateForward()
 
         navigateBackward()
 
-        downloadFile()
-
-        uploadFile(connectPcFragment)
-
         navigateSDHomeDirectory()
+
+        function(this)
 
         static("/static") {
             resources("files")
         }
     }
 }
+//fun Application.configureRouting() {
+//    routing {
+//        navigateHomeDirectory()
+//
+//        navigateForward()
+//
+//        navigateBackward()
+//
+//        navigateSDHomeDirectory()
 
-fun Route.navigateSDHomeDirectory() {
+//        downloadFile()
+//
+//        uploadFile()
+//
+//
+//        static("/static") {
+//            resources("files")
+//        }
+//    }
+//}
+
+private fun Route.navigateSDHomeDirectory() {
     get("web/sd-dir") {
         // Reset root directory to SD card
         directoryPath = sdDirectoryPath!!
@@ -153,7 +170,7 @@ private fun Route.navigateBackward() {
     }
 }
 
-private fun Route.downloadFile() {
+fun Route.downloadFile() {
     get("download/{name}") {
         //get data been pass to the server
         val name = call.parameters["name"]
@@ -176,8 +193,9 @@ private fun Route.downloadFile() {
     }
 }
 
-private fun Route.uploadFile(connectPcFragment: ConnectPcFragment) {
+fun Route.uploadFile(function: (() -> Unit)? = null) {
     post("upload") {
+        getUploadDownloadProgress()
         try {
             // get the data been pass the server by the form
             val multipartData = call.receiveMultipart()
@@ -192,11 +210,7 @@ private fun Route.uploadFile(connectPcFragment: ConnectPcFragment) {
                         val mFile = File(Const.OH_TRANSFER_PATH + part.originalFileName)
                         part.streamProvider().use { inputStream ->
                             mFile.outputStream().buffered().use {
-                                inputStream.copyTo(it) { totalBytes, byteCopied ->
-                                    CoroutineScope(Dispatchers.Main).launch {
-                                        connectPcFragment.displayRecyclerView(totalBytes, byteCopied)
-                                    }
-                                }
+                                inputStream.copyTo(it)
                             }
                         }
 //                    call.respondRedirect("web")
@@ -212,15 +226,3 @@ private fun Route.uploadFile(connectPcFragment: ConnectPcFragment) {
     }
 }
 
-private fun InputStream.copyTo(out: OutputStream, onCopy: ((totalBytes: Long, byteCopied: Int) -> Any)): Long {
-    var bytesCopied: Long = 0
-    val buffer = ByteArray(4096)
-    var bytes = read(buffer)
-    while (bytes >= 0) {
-        out.write(buffer, 0, bytes)
-        bytesCopied += bytes
-        onCopy(bytesCopied, bytes)
-        bytes = read(buffer)
-    }
-    return bytesCopied
-}
