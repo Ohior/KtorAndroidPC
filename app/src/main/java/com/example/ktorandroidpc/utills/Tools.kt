@@ -4,6 +4,9 @@ import android.app.Activity
 import android.app.AlertDialog
 import android.content.Context
 import android.content.pm.PackageManager
+import android.content.res.Configuration
+import android.graphics.ColorMatrixColorFilter
+import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.os.Environment
 import android.util.Log
@@ -136,6 +139,13 @@ object Tools {
             this.setView(view)
             lambda!!(view, this.show())
         }.show()
+    }
+
+    fun isThemeDark(context: Context):Boolean{
+        return when (context.resources?.configuration?.uiMode?.and(Configuration.UI_MODE_NIGHT_MASK)) {
+            Configuration.UI_MODE_NIGHT_YES -> true
+            else -> false
+        }
     }
 
 }

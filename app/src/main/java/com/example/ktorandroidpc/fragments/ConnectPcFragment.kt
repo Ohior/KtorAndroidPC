@@ -12,16 +12,21 @@ import android.widget.Button
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
+import androidx.core.view.isVisible
 import androidx.navigation.Navigation
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.ktorandroidpc.R
 import com.example.ktorandroidpc.adapter.RecyclerAdapter
 import com.example.ktorandroidpc.displaySnackBar
+import com.example.ktorandroidpc.explorer.FileType
+import com.example.ktorandroidpc.explorer.FileUtils
 import com.example.ktorandroidpc.plugins.*
 import com.example.ktorandroidpc.utills.*
 import io.ktor.server.engine.*
 import io.ktor.server.netty.*
+import io.ktor.server.routing.*
+import io.ktor.util.debug.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -30,14 +35,14 @@ import java.lang.reflect.Method
 
 class ConnectPcFragment : Fragment() {
     private lateinit var fragmentView: View
-    private lateinit var idGifLinearLayout: LinearLayout
+    lateinit var idGifLinearLayout: LinearLayout
     private lateinit var idGifImageView: ImageView
     private lateinit var idRecyclerView: RecyclerView
     private lateinit var idBtnConnectBrowser: Button
     private lateinit var coroutineScope: CoroutineScope
     private var connectDevice = true
     private var sdDirectory: String? = null
-    private lateinit var recyclerAdapter: RecyclerAdapter
+    lateinit var recyclerAdapter: RecyclerAdapter
     private lateinit var nettyEngine: NettyApplicationEngine
     private lateinit var idToolbarTextView: TextView
 
@@ -45,8 +50,6 @@ class ConnectPcFragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
-        idToolbarTextView = requireActivity().findViewById(R.id.id_tv_toolbar)
-        idToolbarTextView.text = requireActivity().getString(R.string.app_name)
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
@@ -92,6 +95,8 @@ class ConnectPcFragment : Fragment() {
 
         Tools.requestForAllPermission(requireActivity())
 
+        requireActivity().findViewById<TextView>(R.id.id_tv_toolbar).isClickable = false
+
         Initializers()
 
         ClickListener()
@@ -128,14 +133,15 @@ class ConnectPcFragment : Fragment() {
                 if (connectDevice) {
                     coroutineScope.launch {
                         nettyEngine = embeddedServer(Netty, port = Const.PORT, host = Const.ADDRESS) {
-//                            configureRouting()
 
                             configureRouting {
-                                it.uploadFile()
-                                it.downloadFile()
+                                it.uploadFile {
+                                    displayRecyclerView(it)
+                                }
                             }
 
                             configureTemplating(this)
+
                         }
                         nettyEngine.start(wait = true)
                     }
@@ -153,11 +159,14 @@ class ConnectPcFragment : Fragment() {
     }
 
     private fun Initializers() {
+        idToolbarTextView = requireActivity().findViewById(R.id.id_tv_toolbar)
+        idToolbarTextView.text = requireActivity().getString(R.string.app_name)
         idGifImageView = fragmentView.findViewById(R.id.id_gif_image)
         idGifLinearLayout = fragmentView.findViewById(R.id.id_gif_ll)
         idRecyclerView = fragmentView.findViewById(R.id.id_recycler_view)
         idBtnConnectBrowser = fragmentView.findViewById(R.id.id_btn_connect_browser)
         coroutineScope = CoroutineScope(Dispatchers.IO)
+        idToolbarTextView.setCompoundDrawablesRelativeWithIntrinsicBounds(R.drawable.ic_icon, 0, 0, 0)
         recyclerAdapter = RecyclerAdapter(
             requireContext(),
             idRecyclerView,
@@ -213,8 +222,25 @@ class ConnectPcFragment : Fragment() {
         return invoke == 13
     }
 
-    fun displayRecyclerView(totalBytes: Long) {
-        val size = String.format("%dm", totalBytes / 1024 / 1024)
+    private fun displayRecyclerView(file: File) {
+        CoroutineScope(Dispatchers.Main).launch {
+            if (idGifLinearLayout.isVisible) {
+                idRecyclerView.visibility = RecyclerView.VISIBLE
+                idGifLinearLayout.visibility = LinearLayout.GONE
+            }
+            recyclerAdapter.addToAdapter(
+                RecyclerAdapterDataclass(
+                    fileModel = FileModel(
+                        name = file.name,
+                        fileType = FileType.getFileType(file),
+                        path = file.path,
+                        sizeInMB = FileUtils.convertFileSizeToMB(file.length())
+                    ),
+                )
+            )
+            recyclerAdapter.notifyDataSetChanged()
+        }
     }
 
 }
+

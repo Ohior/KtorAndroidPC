@@ -28,7 +28,7 @@ class SdExplorerFragment : Fragment() {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
         idToolbarTextView = requireActivity().findViewById(R.id.id_tv_toolbar)
-        idToolbarTextView.text = requireActivity().getString(R.string.format_string, "Local Storage")
+        idToolbarTextView.text = requireActivity().getString(R.string.format_string, "SD Storage")
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
@@ -126,7 +126,6 @@ class SdExplorerFragment : Fragment() {
             recyclerAdapter.addToAdapter(
                 RecyclerAdapterDataclass(
                     fileModel = file,
-                    drawable = getDrawableFileType(file.fileType)
                 )
             )
             fileModelList.add(file)
@@ -138,7 +137,6 @@ class SdExplorerFragment : Fragment() {
         idRvRootFolder = fragmentView.findViewById(R.id.id_rv_folder)
 //        idRvFolderItems = findViewById(R.id.id_rv_folder_items)
         recyclerAdapter = RecyclerAdapter(requireContext(), idRvRootFolder, R.layout.explorer_item)
-        Tools.debugMessage(mDirectory.toString(), "mDirectory")
     }
 
     private fun getDrawableFileType(fileType: FileType): Int {

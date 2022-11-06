@@ -3,13 +3,18 @@ package com.example.ktorandroidpc
 import android.app.Activity
 import android.content.Intent
 import android.content.SharedPreferences
+import android.content.res.Configuration
+import android.graphics.ColorMatrixColorFilter
+import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.os.PersistableBundle
+import android.view.Menu
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.PreferenceManager
 import com.example.ktorandroidpc.utills.Const
+import io.ktor.util.reflect.*
 
 class SettingsActivity : AppCompatActivity(), SharedPreferences.OnSharedPreferenceChangeListener {
 
@@ -43,6 +48,13 @@ class SettingsActivity : AppCompatActivity(), SharedPreferences.OnSharedPreferen
     override fun onSharedPreferenceChanged(pref: SharedPreferences?, key: String?) {
         if (key == "appTheme") {
             val appTheme = pref?.getString(key, "1")
+            switchTheme(appTheme)
+        }
+    }
+
+
+    companion object {
+        private fun switchTheme(appTheme:String?){
             when (appTheme?.toInt()) {
                 1 -> {
                     AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)
@@ -58,14 +70,11 @@ class SettingsActivity : AppCompatActivity(), SharedPreferences.OnSharedPreferen
                 }
             }
         }
-    }
-
-    private fun ThemeSwitch(appTheme: String?) {
-    }
-
-    companion object {
         fun appSettings(activity: Activity) {
             val preferenceManager = PreferenceManager.getDefaultSharedPreferences(activity)
+            val appTheme = preferenceManager.getString("appTheme","1")
+            switchTheme(appTheme)
+
             val downloadFolder = preferenceManager.getBoolean("downloadFolder", false)
             if (downloadFolder) {
                 Const.OH_TRANSFER_PATH = Const.ROOT_PATH + "/Download/"
@@ -74,4 +83,5 @@ class SettingsActivity : AppCompatActivity(), SharedPreferences.OnSharedPreferen
             }
         }
     }
+
 }

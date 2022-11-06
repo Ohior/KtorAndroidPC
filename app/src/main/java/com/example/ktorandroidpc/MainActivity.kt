@@ -1,16 +1,15 @@
 package com.example.ktorandroidpc
 
+
 import android.content.Intent
 import android.content.pm.PackageManager
+
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
-import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
-import androidx.navigation.findNavController
-import com.example.ktorandroidpc.fragments.ExplorerFragment
+import androidx.core.view.children
 import com.example.ktorandroidpc.utills.*
-import io.ktor.util.reflect.*
 import java.lang.reflect.Method
 
 
@@ -76,6 +75,7 @@ class MainActivity : AppCompatActivity() {
             }
             else -> super.onOptionsItemSelected(item)
         }
+
     }
 
 }

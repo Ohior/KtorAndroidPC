@@ -1,8 +1,13 @@
 package com.example.ktorandroidpc.plugins
 
 
+import android.view.View
+import android.widget.LinearLayout
 import com.example.ktorandroidpc.fragments.ConnectPcFragment
-import com.example.ktorandroidpc.utills.*
+import com.example.ktorandroidpc.utills.Const
+import com.example.ktorandroidpc.utills.DataManager
+import com.example.ktorandroidpc.utills.FileModel
+import com.example.ktorandroidpc.utills.Tools
 import io.ktor.http.*
 import io.ktor.http.content.*
 import io.ktor.server.application.*
@@ -11,12 +16,9 @@ import io.ktor.server.mustache.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.io.File
-import java.io.InputStream
-import java.io.OutputStream
 
 
 data class TemplateData(
@@ -34,7 +36,7 @@ private var rootDirectory = homeDirectoryPath
 
 private val sdDirectoryPath = DataManager.getString(Const.SD_DIRECTORY_KEY)
 
-fun Application.configureRouting(function: (Routing) -> Unit) {
+fun Application.configureRouting(function: (Route)->Unit) {
     routing {
         navigateHomeDirectory()
 
@@ -44,6 +46,8 @@ fun Application.configureRouting(function: (Routing) -> Unit) {
 
         navigateSDHomeDirectory()
 
+        downloadFile()
+
         function(this)
 
         static("/static") {
@@ -51,26 +55,6 @@ fun Application.configureRouting(function: (Routing) -> Unit) {
         }
     }
 }
-//fun Application.configureRouting() {
-//    routing {
-//        navigateHomeDirectory()
-//
-//        navigateForward()
-//
-//        navigateBackward()
-//
-//        navigateSDHomeDirectory()
-
-//        downloadFile()
-//
-//        uploadFile()
-//
-//
-//        static("/static") {
-//            resources("files")
-//        }
-//    }
-//}
 
 private fun Route.navigateSDHomeDirectory() {
     get("web/sd-dir") {
@@ -170,7 +154,7 @@ private fun Route.navigateBackward() {
     }
 }
 
-fun Route.downloadFile() {
+private fun Route.downloadFile() {
     get("download/{name}") {
         //get data been pass to the server
         val name = call.parameters["name"]
@@ -193,36 +177,70 @@ fun Route.downloadFile() {
     }
 }
 
-fun Route.uploadFile(function: (() -> Unit)? = null) {
+fun Route.uploadFile(function: (File) -> Unit) {
     post("upload") {
-        getUploadDownloadProgress()
+        try {
+
+//            // get the data been pass the server by the form
+        val multipartData = call.receiveMultipart()
+        withContext(Dispatchers.IO) {
+            withContext(Dispatchers.IO) {
+                multipartData.forEachPart { part ->
+                    // check which data part is
+                    when (part) {
+                        is PartData.FileItem -> {
+                            // upload the data
+                            val inputStream = part.streamProvider()
+                            val fileBytes = inputStream.readBytes()
+                            val mFile = File(Const.OH_TRANSFER_PATH + part.originalFileName)
+                            mFile.writeBytes(fileBytes)
+                            function(mFile)
+                        }
+                        else -> Unit
+                    }
+                    call.respondRedirect("web")
+                    part.dispose()
+                }
+            }
+        }
+        }catch (e:Exception){
+        call.respondRedirect("web")
+
+        }
+
+    }
+}
+
+fun Route.uploadFile(name: String) {
+    post("upload") {
         try {
             // get the data been pass the server by the form
             val multipartData = call.receiveMultipart()
+
             multipartData.forEachPart { part ->
                 // check which data part is
                 when (part) {
                     is PartData.FileItem -> {
                         // upload the data
-//                        val fileBytes = part.streamProvider().readBytes()
-//                        val mFile = File(Const.OH_TRANSFER_PATH + part.originalFileName)
-//                        mFile.writeBytes(fileBytes)
+                        val inputStream = part.streamProvider()
+                        val fileBytes = inputStream.readBytes()
                         val mFile = File(Const.OH_TRANSFER_PATH + part.originalFileName)
-                        part.streamProvider().use { inputStream ->
-                            mFile.outputStream().buffered().use {
-                                inputStream.copyTo(it)
-                            }
-                        }
-//                    call.respondRedirect("web")
-//                        part.dispose()
+                        mFile.writeBytes(fileBytes)
+//                        val mFile = File(Const.OH_TRANSFER_PATH + part.originalFileName)
+//                        part.streamProvider().use { inputStream ->
+//                            mFile.outputStream().buffered().use {
+//                                inputStream.copyTo(it)
+//                            }
+//                        }
                     }
                     else -> Unit
                 }
+                call.respondRedirect("web")
+                part.dispose()
             }
-        } catch (e: Exception) {
 //            call.respondRedirect("web")
+        } catch (e: Exception) {
+            call.respondRedirect("web")
         }
-        call.respondRedirect("web")
     }
 }
-

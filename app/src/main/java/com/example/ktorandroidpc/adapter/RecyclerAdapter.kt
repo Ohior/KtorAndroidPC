@@ -82,7 +82,7 @@ class RecyclerAdapter(
         if (bitmap != null){
             Glide.with(mContext).load(bitmap).into(holder.image)
         }else {
-            array.drawable?.let { Glide.with(mContext).load(it).into(holder.image) }
+            Glide.with(mContext).load(array.fileModel.drawable).into(holder.image)
         }
     }
 

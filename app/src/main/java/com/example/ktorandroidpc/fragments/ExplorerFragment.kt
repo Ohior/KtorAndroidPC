@@ -1,10 +1,16 @@
 package com.example.ktorandroidpc.fragments
 
+import android.annotation.SuppressLint
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.os.Environment
+import android.provider.MediaStore
 import android.view.*
+import android.webkit.MimeTypeMap
 import android.widget.TextView
 import android.widget.Toolbar
+import androidx.core.net.toUri
 import androidx.fragment.app.Fragment
 import androidx.navigation.Navigation
 import androidx.recyclerview.widget.RecyclerView
@@ -73,7 +79,7 @@ class ExplorerFragment : Fragment() {
     }
 
     private fun FragmentExecutable() {
-        idToolbarTextView.setCompoundDrawablesRelativeWithIntrinsicBounds(R.drawable.ic_arrow_left, 0,0,0)
+        idToolbarTextView.setCompoundDrawablesRelativeWithIntrinsicBounds(R.drawable.ic_arrow_left, 0, 0, 0)
         idToolbarTextView.setOnClickListener {
             NavigateDirectoryBackward()
         }
@@ -115,6 +121,12 @@ class ExplorerFragment : Fragment() {
             filePath += "/${fml.name}"
             val files = Tools.getFilesFromPath(mDirectory + filePath)//.sortedWith(compareBy { it.name })
             LoopThroughFiles(files)
+        } else {
+            val uri = Uri.fromFile(fml.file)
+            val dat = uri.toString().replaceFirst("file", "content")
+            val intent =  Intent(Intent.ACTION_VIEW);
+            intent.setDataAndType(dat.toUri(), "*/*");
+            startActivity(intent);
         }
     }
 
@@ -123,7 +135,6 @@ class ExplorerFragment : Fragment() {
             recyclerAdapter.addToAdapter(
                 RecyclerAdapterDataclass(
                     fileModel = file,
-                    drawable = getDrawableFileType(file.fileType)
                 )
             )
             fileModelList.add(file)

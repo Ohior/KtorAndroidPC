@@ -11,8 +11,9 @@ object FileUtils {
             file.listFiles()!!
                 .filter { showHiddenFiles || !it.name.startsWith(".") }
                 .filter { !onlyFolders || it.isDirectory }
+                .filter { !it.name.contains("%") }
                 .toList()
-        }else emptyList()
+        } else emptyList()
     }
 
     fun getFileModelsFromFiles(files: List<File>?): List<FileModel> {
