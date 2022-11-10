@@ -43,6 +43,7 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:id="@+id/id_tv_menu_item"
         android:text="&#8942;"
         android:textStyle="bold"
         android:textSize="20sp"

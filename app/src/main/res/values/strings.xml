@@ -24,4 +24,6 @@
     <string name="header_image">Header image</string>
     <string name="mobile_connect">Mobile Connect</string>
     <string name="sd_card">SD Card</string>
+    <string name="delete">delete</string>
+    <string name="open">open</string>
 </resources>

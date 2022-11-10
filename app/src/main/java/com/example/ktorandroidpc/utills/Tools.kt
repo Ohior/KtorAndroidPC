@@ -8,6 +8,8 @@ import android.content.res.Configuration
 import android.graphics.ColorMatrixColorFilter
 import android.graphics.drawable.Drawable
 import android.net.Uri
+import android.os.Build
+import android.os.Bundle
 import android.os.Environment
 import android.util.Log
 import android.view.LayoutInflater
@@ -68,11 +70,6 @@ object Tools {
         return result == PackageManager.PERMISSION_GRANTED
     }
 
-    fun getDrawableUri(drawable: Int, appCompatActivity: AppCompatActivity): InputStream? {
-        val uri = Uri.parse("android.resource://" + appCompatActivity.packageName + "/" + drawable)
-        return appCompatActivity.contentResolver.openInputStream(uri)
-    }
-
     fun getDirectoryFromPath(path: String, showHiddenFiles: Boolean = true): List<FileModel> {
         directoryPath += path
         return FileUtils.getFileModelsFromFiles(
@@ -102,16 +99,6 @@ object Tools {
         )
     }
 
-    fun getPathFolder(path: String): List<FileModel> {
-        directoryPath = path
-        return FileUtils.getFileModelsFromFiles(
-            FileUtils.getFilesFromPath(
-                directoryPath,
-                showHiddenFiles = true
-            )
-        )
-    }
-
     fun createDirectoryIfNonExist(dirName: String = Const.OH_TRANSFER_PATH) {
         val file = File(dirName)
         if (!file.exists()) file.mkdir()
@@ -125,27 +112,34 @@ object Tools {
         return Environment.MEDIA_MOUNTED == Environment.getExternalStorageState()
     }
 
-    fun popUpWindow(
-        context: Context,
-        title: String,
-        layout: Int,
-        lambda: ((View, AlertDialog) -> Unit)? = null
-    ) {
-        val view = LayoutInflater.from(context)
-            .inflate(layout, null)
-        AlertDialog.Builder(context).apply {
-            this.setCancelable(false)
-            this.setTitle(title)
-            this.setView(view)
-            lambda!!(view, this.show())
-        }.show()
-    }
-
-    fun isThemeDark(context: Context):Boolean{
-        return when (context.resources?.configuration?.uiMode?.and(Configuration.UI_MODE_NIGHT_MASK)) {
-            Configuration.UI_MODE_NIGHT_YES -> true
-            else -> false
+    fun getExternalSDCardRootDirectory(activity: Activity): String? {
+        if (Tools.isExternalStorageAvailable() || Tools.isExternalStorageReadOnly()) {
+            val storageManager = activity.getSystemService(Context.STORAGE_SERVICE)
+            try {
+                val storageVolume = Class.forName("android.os.storage.StorageVolume")
+                val volumeList = storageManager.javaClass.getMethod("getVolumeList")
+                val path = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                    storageVolume.getMethod("getDirectory")
+                } else {
+                    storageVolume.getMethod("getPath")
+                }
+                val isRemovable = storageVolume.getMethod("isRemovable")
+                val result = volumeList.invoke(storageManager) as Array<*>
+                result.forEach {
+                    if (isRemovable.invoke(it) as Boolean) {
+                        return when (val invokeRequest = path.invoke(it)) {
+                            is File -> invokeRequest.absolutePath
+                            is String -> invokeRequest
+                            else -> null
+                        }
+                    }
+                }
+            } catch (e: Throwable) {
+                e.printStackTrace()
+            }
+            return null
         }
+        return null
     }
 
 }

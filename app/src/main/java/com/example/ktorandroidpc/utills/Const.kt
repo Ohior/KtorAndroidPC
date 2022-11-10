@@ -10,6 +10,7 @@ import io.ktor.server.application.*
 import java.io.File
 
 object Const {
+    const val FRAGMENT_DATA_KEY: String = "FRAGMENT_DATA_KEY"
     const val SD_DIRECTORY_KEY = "SD_DIRECTORY_KEY"
     const val ADDRESS = "192.168.43.1"
     const val PORT = 8181

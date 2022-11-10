@@ -44,3 +44,8 @@ data class ProgressDataClass(
     val dataName:String,
     val dataPath:String
 )
+
+data class StorageDataClass(
+    val rootDirectory:String,
+    val isSdStorage:Boolean
+)

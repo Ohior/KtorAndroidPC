@@ -31,8 +31,8 @@ class RecyclerAdapter(
     column_count: Int = 1
 ) : RecyclerView.Adapter<RecyclerAdapter.ViewHolder>() {
     // replace all the RecyclerAdapterDataclass reference in this file with your own data class name
-    private var arrayList: ArrayList<RecyclerAdapterDataclass> = ArrayList()
-    private var clickListener:OnItemClickListener? = null
+    var arrayList: ArrayList<RecyclerAdapterDataclass> = ArrayList()
+    private var clickListener: OnItemClickListener? = null
     private lateinit var mediaStoreCursor: Cursor
 
     init {
@@ -41,13 +41,14 @@ class RecyclerAdapter(
     }
 
 
-    interface OnItemClickListener{
+    interface OnItemClickListener {
         // inter face for auto-loading itemClick and longItemClick
-        fun onItemClick(position: Int, view: View){}
-        fun onLongItemClick(position: Int, view: View){}
+        fun onItemClick(position: Int, view: View) {}
+        fun onLongItemClick(position: Int, view: View) {}
+        fun onMenuClick(fileModel: FileModel, view: View)
     }
 
-    fun onClickListener(listener:OnItemClickListener){
+    fun onClickListener(listener: OnItemClickListener) {
         // This function handle's click and long click.
         // Do not use this function if you are not sure what to do.
         // Use this function like this in your fragment or activity file
@@ -79,9 +80,9 @@ class RecyclerAdapter(
         holder.name.text = array.fileModel.name
         holder.detail.text = array.fileModel.path
         val bitmap = getBitmapFromMediaStore(array.fileModel)
-        if (bitmap != null){
+        if (bitmap != null) {
             Glide.with(mContext).load(bitmap).into(holder.image)
-        }else {
+        } else {
             Glide.with(mContext).load(array.fileModel.drawable).into(holder.image)
         }
     }
@@ -91,27 +92,27 @@ class RecyclerAdapter(
         return arrayList.size
     }
 
-    fun emptyAdapter(){
+    fun emptyAdapter() {
         //remove all item from your recyclerview
         arrayList.clear()
     }
 
-    fun addToAdapter(element: RecyclerAdapterDataclass){
+    fun addToAdapter(element: RecyclerAdapterDataclass) {
         // add item to your recyclerview
         arrayList.add(element)
     }
 
-    fun addToAdapter(index:Int, element:RecyclerAdapterDataclass){
+    fun addToAdapter(index: Int, element: RecyclerAdapterDataclass) {
         // add item to an index spot of your recyclerview
         arrayList.add(index, element)
     }
 
     private fun getBitmapFromMediaStore(fileModel: FileModel): Uri? {
-        return when(fileModel.fileType){
-            FileType.VIDEO ->{
+        return when (fileModel.fileType) {
+            FileType.VIDEO -> {
                 Uri.fromFile(fileModel.file)
             }
-            FileType.IMAGE ->{
+            FileType.IMAGE -> {
                 Uri.fromFile(fileModel.file)
             }
             else -> {
@@ -121,21 +122,26 @@ class RecyclerAdapter(
     }
 
 
-    class ViewHolder(
+    inner class ViewHolder(
         itemView: View,
-        listener:OnItemClickListener,
-    ): RecyclerView.ViewHolder(itemView) {
+        listener: OnItemClickListener,
+    ) : RecyclerView.ViewHolder(itemView) {
         // initialize the item your view holder will hold
         val name: TextView = itemView.findViewById(R.id.id_tv_folder_name)
         val detail: TextView = itemView.findViewById(R.id.id_tv_folder_detail)
         val image: ImageView = itemView.findViewById(R.id.id_iv_folder_image)
+        val menu: TextView = itemView.findViewById(R.id.id_tv_menu_item)
+
         init {
-            itemView.setOnLongClickListener{
+            itemView.setOnLongClickListener {
                 listener.onLongItemClick(adapterPosition, itemView)
                 true
             }
             itemView.setOnClickListener {
                 listener.onItemClick(adapterPosition, itemView)
+            }
+            menu.setOnClickListener {
+                listener.onMenuClick(arrayList[adapterPosition].fileModel, it)
             }
         }
     }

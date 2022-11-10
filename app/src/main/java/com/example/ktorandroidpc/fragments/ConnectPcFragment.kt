@@ -7,12 +7,9 @@ import android.net.wifi.WifiManager
 import android.os.Build
 import android.os.Bundle
 import android.view.*
-import androidx.fragment.app.Fragment
-import android.widget.Button
-import android.widget.ImageView
-import android.widget.LinearLayout
-import android.widget.TextView
+import android.widget.*
 import androidx.core.view.isVisible
+import androidx.fragment.app.Fragment
 import androidx.navigation.Navigation
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
@@ -22,11 +19,10 @@ import com.example.ktorandroidpc.displaySnackBar
 import com.example.ktorandroidpc.explorer.FileType
 import com.example.ktorandroidpc.explorer.FileUtils
 import com.example.ktorandroidpc.plugins.*
+import com.example.ktorandroidpc.popupMenu
 import com.example.ktorandroidpc.utills.*
 import io.ktor.server.engine.*
 import io.ktor.server.netty.*
-import io.ktor.server.routing.*
-import io.ktor.util.debug.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -65,11 +61,23 @@ class ConnectPcFragment : Fragment() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             R.id.id_menu_mobile -> {
+                DataManager.with(requireActivity()).putPreferenceData(
+                    StorageDataClass(
+                        rootDirectory = Const.ROOT_PATH,
+                        isSdStorage = false
+                    ), Const.FRAGMENT_DATA_KEY
+                )
                 Navigation.findNavController(fragmentView).navigate(R.id.connectPcFragment_to_explorerFragment)
                 true
             }
             R.id.id_menu_sd -> {
-                Navigation.findNavController(fragmentView).navigate(R.id.connectPcFragment_to_sdExplorerFragment)
+                DataManager.with(requireActivity()).putPreferenceData(
+                    StorageDataClass(
+                        rootDirectory = GetExternalSDCardRootDirectory().toString(),
+                        isSdStorage = true
+                    ), Const.FRAGMENT_DATA_KEY
+                )
+                Navigation.findNavController(fragmentView).navigate(R.id.connectPcFragment_to_explorerFragment)
                 true
             }
             else -> super.onOptionsItemSelected(item)
@@ -122,7 +130,9 @@ class ConnectPcFragment : Fragment() {
 
     private fun DownloadAdapterFunction() {
         recyclerAdapter.onClickListener(object : RecyclerAdapter.OnItemClickListener {
-
+            override fun onMenuClick(fileModel: FileModel, view: View) {
+                view.popupMenu(fileModel, requireContext())
+            }
         })
 
     }
@@ -134,8 +144,8 @@ class ConnectPcFragment : Fragment() {
                     coroutineScope.launch {
                         nettyEngine = embeddedServer(Netty, port = Const.PORT, host = Const.ADDRESS) {
 
-                            configureRouting {
-                                it.uploadFile {
+                            configureRouting { it1 ->
+                                it1.uploadFile {
                                     displayRecyclerView(it)
                                 }
                             }
@@ -175,7 +185,7 @@ class ConnectPcFragment : Fragment() {
         sdDirectory = GetExternalSDCardRootDirectory()
     }
 
-    private fun GetExternalSDCardRootDirectory(): String? {
+    fun GetExternalSDCardRootDirectory(): String? {
         if (Tools.isExternalStorageAvailable() || Tools.isExternalStorageReadOnly()) {
             val storageManager = requireActivity().getSystemService(Context.STORAGE_SERVICE)
             try {
