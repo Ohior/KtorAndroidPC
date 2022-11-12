@@ -1,4 +1,4 @@
-package com.example.ktorandroidpc
+package ng.ohis.ktorandroidpc
 
 import org.junit.Test
 

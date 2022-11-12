@@ -1,4 +1,4 @@
-package com.example.ktorandroidpc.fragments
+package ng.ohis.ktorandroidpc.fragments
 
 import android.app.Activity
 import android.app.AlertDialog
@@ -18,11 +18,14 @@ import androidx.core.net.toFile
 import androidx.fragment.app.Fragment
 import androidx.navigation.Navigation
 import androidx.recyclerview.widget.RecyclerView
-import com.example.ktorandroidpc.BuildConfig
-import com.example.ktorandroidpc.R
-import com.example.ktorandroidpc.adapter.RecyclerAdapter
-import com.example.ktorandroidpc.openFileWithDefaultApp
-import com.example.ktorandroidpc.utills.*
+import ng.ohis.ktorandroidpc.BuildConfig
+import ng.ohis.ktorandroidpc.R
+import ng.ohis.ktorandroidpc.adapter.RecyclerAdapter
+import ng.ohis.ktorandroidpc.openFileWithDefaultApp
+import ng.ohis.ktorandroidpc.utills.*
+import ng.ohis.ktorandroidpc.utills.Const
+import ng.ohis.ktorandroidpc.utills.DataManager
+import ng.ohis.ktorandroidpc.utills.Tools
 import java.io.File
 
 class ExplorerFragment : Fragment(), ExplorerInterface {
@@ -186,7 +189,6 @@ class ExplorerFragment : Fragment(), ExplorerInterface {
 //        val uri = Uri.fromFile(file)
         val uri = FileProvider.getUriForFile(requireContext(), BuildConfig.APPLICATION_ID + ".provider", file)
         try {
-            Tools.debugMessage(uri.path.toString(), "URI")
             File(file.absolutePath).deleteRecursively()
 //            context?.contentResolver?.delete(uri, null, null)
         } catch (e: SecurityException) {

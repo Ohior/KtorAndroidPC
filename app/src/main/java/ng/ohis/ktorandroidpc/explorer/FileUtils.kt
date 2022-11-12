@@ -1,7 +1,6 @@
-package com.example.ktorandroidpc.explorer
+package ng.ohis.ktorandroidpc.explorer
 
-import com.example.ktorandroidpc.utills.FileModel
-import com.example.ktorandroidpc.utills.Tools
+import ng.ohis.ktorandroidpc.utills.FileModel
 import java.io.File
 
 object FileUtils {

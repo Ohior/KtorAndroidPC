@@ -1,13 +1,13 @@
-package com.example.ktorandroidpc.fragments
+package ng.ohis.ktorandroidpc.fragments
 
 import android.content.Context
-import com.example.ktorandroidpc.R
-import com.example.ktorandroidpc.adapter.RecyclerAdapter
-import com.example.ktorandroidpc.explorer.FileType
-import com.example.ktorandroidpc.openFileWithDefaultApp
-import com.example.ktorandroidpc.utills.FileModel
-import com.example.ktorandroidpc.utills.RecyclerAdapterDataclass
-import com.example.ktorandroidpc.utills.Tools
+import ng.ohis.ktorandroidpc.R
+import ng.ohis.ktorandroidpc.adapter.RecyclerAdapter
+import ng.ohis.ktorandroidpc.explorer.FileType
+import ng.ohis.ktorandroidpc.openFileWithDefaultApp
+import ng.ohis.ktorandroidpc.utills.FileModel
+import ng.ohis.ktorandroidpc.utills.RecyclerAdapterDataclass
+import ng.ohis.ktorandroidpc.utills.Tools
 
 interface ExplorerInterface {
     fun getDrawableFileType(fileType: FileType): Int {

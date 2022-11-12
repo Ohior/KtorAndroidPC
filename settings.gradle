@@ -7,6 +7,6 @@ dependencyResolutionManagement {
     }
 }
 //rootProject.name = "KtorAndroidPC"
-rootProject.name = "com.example.ktorandroidpc"
+rootProject.name = "ng.ohis.ktorandroidpc"
 include ':app'
 include ':KtorServer'

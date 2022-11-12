@@ -1,30 +1,14 @@
-package com.example.ktorandroidpc
+package ng.ohis.ktorandroidpc
 
 
-import android.app.Activity
-import android.app.RecoverableSecurityException
-import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.graphics.Color
-import android.media.MediaScannerConnection
-import android.net.Uri
-import android.os.Build
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
-import android.provider.MediaStore
 import android.view.Menu
 import android.view.MenuItem
-import androidx.activity.result.ActivityResultLauncher
-import androidx.activity.result.IntentSenderRequest
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
-import com.example.ktorandroidpc.utills.*
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
-import java.io.File
+import ng.ohis.ktorandroidpc.utills.Const
+import ng.ohis.ktorandroidpc.utills.Tools
 import java.lang.reflect.Method
 
 //This activity is the host for explorer fragment and connect pc fragment

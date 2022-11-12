@@ -1,7 +1,6 @@
-package com.example.ktorandroidpc.fragments
+package ng.ohis.ktorandroidpc.fragments
 
 import android.app.Activity
-import android.app.AlertDialog
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
@@ -20,17 +19,29 @@ import androidx.fragment.app.Fragment
 import androidx.navigation.Navigation
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
-import com.example.ktorandroidpc.*
-import com.example.ktorandroidpc.adapter.RecyclerAdapter
-import com.example.ktorandroidpc.explorer.FileType
-import com.example.ktorandroidpc.explorer.FileUtils
-import com.example.ktorandroidpc.plugins.*
-import com.example.ktorandroidpc.utills.*
+import ng.ohis.ktorandroidpc.utills.FileModel
+import ng.ohis.ktorandroidpc.utills.RecyclerAdapterDataclass
+import ng.ohis.ktorandroidpc.utills.StorageDataClass
+import ng.ohis.ktorandroidpc.*
+import ng.ohis.ktorandroidpc.adapter.RecyclerAdapter
+import ng.ohis.ktorandroidpc.explorer.FileType
+import ng.ohis.ktorandroidpc.explorer.FileUtils
+import ng.ohis.ktorandroidpc.utills.*
 import io.ktor.server.engine.*
 import io.ktor.server.netty.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import ng.ohis.ktorandroidpc.displaySnackBar
+import ng.ohis.ktorandroidpc.openFileWithDefaultApp
+import ng.ohis.ktorandroidpc.plugins.configureRouting
+import ng.ohis.ktorandroidpc.plugins.configureTemplating
+import ng.ohis.ktorandroidpc.plugins.uploadFile
+import ng.ohis.ktorandroidpc.popUpWindow
+import ng.ohis.ktorandroidpc.popupMenu
+import ng.ohis.ktorandroidpc.utills.Const
+import ng.ohis.ktorandroidpc.utills.DataManager
+import ng.ohis.ktorandroidpc.utills.Tools
 import java.io.File
 import java.lang.reflect.Method
 

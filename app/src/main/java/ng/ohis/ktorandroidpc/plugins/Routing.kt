@@ -1,13 +1,10 @@
-package com.example.ktorandroidpc.plugins
+package ng.ohis.ktorandroidpc.plugins
 
 
-import android.view.View
-import android.widget.LinearLayout
-import com.example.ktorandroidpc.fragments.ConnectPcFragment
-import com.example.ktorandroidpc.utills.Const
-import com.example.ktorandroidpc.utills.DataManager
-import com.example.ktorandroidpc.utills.FileModel
-import com.example.ktorandroidpc.utills.Tools
+import ng.ohis.ktorandroidpc.utills.Const
+import ng.ohis.ktorandroidpc.utills.DataManager
+import ng.ohis.ktorandroidpc.utills.FileModel
+import ng.ohis.ktorandroidpc.utills.Tools
 import io.ktor.http.*
 import io.ktor.http.content.*
 import io.ktor.server.application.*

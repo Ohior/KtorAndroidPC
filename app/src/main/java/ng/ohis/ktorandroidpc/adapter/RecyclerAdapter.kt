@@ -1,28 +1,19 @@
-package com.example.ktorandroidpc.adapter
+package ng.ohis.ktorandroidpc.adapter
 
-import com.example.ktorandroidpc.utills.RecyclerAdapterDataclass
+import ng.ohis.ktorandroidpc.utills.RecyclerAdapterDataclass
 import android.content.Context
 import android.database.Cursor
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
-import android.media.ThumbnailUtils
 import android.net.Uri
-import android.os.Build
-import android.provider.MediaStore
-import android.util.Size
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
-import androidx.annotation.RequiresApi
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
-import com.bumptech.glide.load.model.ResourceLoader
-import com.example.ktorandroidpc.R
-import com.example.ktorandroidpc.explorer.FileType
-import com.example.ktorandroidpc.utills.FileModel
-import java.io.File
+import ng.ohis.ktorandroidpc.R
+import ng.ohis.ktorandroidpc.explorer.FileType
+import ng.ohis.ktorandroidpc.utills.FileModel
 
 class RecyclerAdapter(
     private val mContext: Context,

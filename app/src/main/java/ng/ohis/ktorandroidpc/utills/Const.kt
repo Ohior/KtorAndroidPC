@@ -1,14 +1,7 @@
-package com.example.ktorandroidpc.utills
+package ng.ohis.ktorandroidpc.utills
 
 import android.Manifest
-import android.content.Context
-import android.os.Build
 import android.os.Environment
-import androidx.appcompat.app.AppCompatActivity
-import com.example.ktorandroidpc.MainActivity
-import com.example.ktorandroidpc.R
-import io.ktor.server.application.*
-import java.io.File
 
 object Const {
     const val FRAGMENT_DATA_KEY: String = "FRAGMENT_DATA_KEY"
@@ -17,7 +10,7 @@ object Const {
     const val PORT = 8181
     const val FULL_ADDRESS = "$ADDRESS:$PORT"
     const val PERMISSION = 101
-    const val AUTHORITY = "com.example.ktorandroidpc.fileprovider"
+    const val AUTHORITY = "ng.ohis.ktorandroidpc.fileprovider"
     const val ROOT_FOLDER_KEY = "ROOT_FOLDER_KEY"
     const val PRESENT_FOLDER_KEY = "PRESENT_FOLDER_KEY"
     const val PREFERENCES_FILE_NAME = "PREFERENCES_FILE_NAME"

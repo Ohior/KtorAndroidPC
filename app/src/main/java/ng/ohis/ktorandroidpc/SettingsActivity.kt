@@ -1,16 +1,16 @@
-package com.example.ktorandroidpc
+package ng.ohis.ktorandroidpc
 
 import android.app.Activity
 import android.content.SharedPreferences
 import android.os.Bundle
-import android.os.Environment
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.PreferenceManager
-import com.example.ktorandroidpc.utills.Const
-import com.example.ktorandroidpc.utills.DataManager
-import com.example.ktorandroidpc.utills.Tools
+import ng.ohis.ktorandroidpc.R
+import ng.ohis.ktorandroidpc.utills.Const
+import ng.ohis.ktorandroidpc.utills.DataManager
+import ng.ohis.ktorandroidpc.utills.Tools
 
 //setting activity controls the settings for this app
 class SettingsActivity : AppCompatActivity(), SharedPreferences.OnSharedPreferenceChangeListener {
@@ -68,7 +68,9 @@ class SettingsActivity : AppCompatActivity(), SharedPreferences.OnSharedPreferen
             }
         }
         fun appSettings(activity: Activity) {
-            DataManager.with(activity).setString(Const.SD_DIRECTORY_KEY,Tools.getExternalSDCardRootDirectory(activity)?:"")
+            DataManager.with(activity).setString(
+                Const.SD_DIRECTORY_KEY,
+                Tools.getExternalSDCardRootDirectory(activity)?:"")
             val preferenceManager = PreferenceManager.getDefaultSharedPreferences(activity)
             val appTheme = preferenceManager.getString("appTheme","1")
             switchTheme(appTheme)

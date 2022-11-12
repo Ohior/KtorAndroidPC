@@ -1,9 +1,9 @@
-package com.example.ktorandroidpc.adapter
+package ng.ohis.ktorandroidpc.adapter
 
 import android.content.Context
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.example.ktorandroidpc.utills.Tools
+import ng.ohis.ktorandroidpc.utills.Tools
 
 class CustomGridLayoutManager(val context: Context, column_count: Int)
     : GridLayoutManager(context, column_count, VERTICAL, false) {

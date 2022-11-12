@@ -1,9 +1,8 @@
-package com.example.ktorandroidpc.utills
+package ng.ohis.ktorandroidpc.utills
 
 
-import android.graphics.drawable.Drawable
-import com.example.ktorandroidpc.R
-import com.example.ktorandroidpc.explorer.FileType
+import ng.ohis.ktorandroidpc.R
+import ng.ohis.ktorandroidpc.explorer.FileType
 import java.io.File
 
 

@@ -1,6 +1,5 @@
-package com.example.ktorandroidpc
+package ng.ohis.ktorandroidpc
 
-import android.app.Activity
 import android.app.AlertDialog
 import android.content.ActivityNotFoundException
 import android.content.ContentValues
@@ -9,23 +8,13 @@ import android.content.Intent
 import android.content.res.Configuration
 import android.net.Uri
 import android.os.Build
-import android.os.Bundle
 import android.provider.MediaStore
 import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
 import android.widget.PopupMenu
 import androidx.core.content.FileProvider
-import androidx.core.net.toUri
-import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentManager
-import com.example.ktorandroidpc.fragments.ExplorerFragment
-import com.example.ktorandroidpc.utills.FileModel
-import com.example.ktorandroidpc.utills.Tools
 import com.google.android.material.snackbar.Snackbar
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import java.io.File
 
 

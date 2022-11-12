@@ -1,10 +1,10 @@
-package com.example.ktorandroidpc.utills
+package ng.ohis.ktorandroidpc.utills
 
 
 import android.app.Activity
-import android.app.Application
 import android.content.Context
 import android.content.SharedPreferences
+import ng.ohis.ktorandroidpc.utills.FileModel
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import org.json.JSONArray

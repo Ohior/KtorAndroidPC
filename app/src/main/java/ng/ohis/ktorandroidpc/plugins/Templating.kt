@@ -1,4 +1,4 @@
-package com.example.ktorandroidpc.plugins
+package ng.ohis.ktorandroidpc.plugins
 
 import com.github.mustachejava.DefaultMustacheFactory
 import io.ktor.server.application.*

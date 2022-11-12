@@ -4,7 +4,7 @@
     <string name="folder_name">Folder name</string>
     <string name="icon_image">icon image</string>
     <string name="connect_with_app">Connect With App</string>
-    <string name="connect_PC_info">Open your browser on your laptop or desktop and enter this address <b>\"
+    <string name="connect_PC_info">Open the browser on your laptop or desktop and enter this address <b>\"
         192.168.43.1:8181\"</b>. Make sure you mobile hotspot (Wi-Fi Hotspot) is switch on, and your laptop or PC is
         connected to the hotspot before connecting to the address.
     </string>

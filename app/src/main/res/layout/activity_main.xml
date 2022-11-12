@@ -8,7 +8,7 @@
     android:orientation="vertical"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/my_drawer_layout"
-    tools:context=".MainActivity">
+    tools:context="ng.ohis.ktorandroidpc.MainActivity">
     <androidx.appcompat.widget.Toolbar
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

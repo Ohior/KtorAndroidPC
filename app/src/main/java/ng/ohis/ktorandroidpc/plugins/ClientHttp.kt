@@ -1,4 +1,4 @@
-package com.example.ktorandroidpc.plugins
+package ng.ohis.ktorandroidpc.plugins
 
 
 class ClientHttp{
@@ -9,8 +9,8 @@ class ClientHttp{
     }
 }
 
-//import com.example.ktorandroidpc.utills.Const
-//import com.example.ktorandroidpc.utills.Tools
+//import ng.ohis.ktorandroidpc.Const
+//import ng.ohis.ktorandroidpc.Tools
 //import okhttp3.ResponseBody
 //import retrofit2.Call
 //import retrofit2.Callback
