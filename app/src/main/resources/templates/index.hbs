@@ -3,7 +3,8 @@
 <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title>MobilePCTransfer</title>
+    <link rel="icon" href="/static/ktorandlogo.png">
+    <title>Chransver</title>
     <meta name="description" content="">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="/static/my_style.css">
@@ -20,12 +21,12 @@ function postFile() {
         console.log(file1Size);
 
         if (e.loaded <= file1Size) {
-            var percent = Math.round(e.loaded / file1Size * 100);
+            var percent = Math.round(e.loaded / file1Size * 95);
             document.getElementById('progress-bar-file1').style.width = percent + '%';
             document.getElementById('progress-bar-file1').innerHTML = percent + '%';
         }
 
-        if(e.loaded == e.total){
+        if(e.loaded == e.total*2){
             document.getElementById('progress-bar-file1').style.width = '100%';
             document.getElementById('progress-bar-file1').innerHTML = '100%';
         }
@@ -45,7 +46,7 @@ function postFile() {
             <td style="width: 30%;">
                 <div class="sidebar">
 
-                    <h2>HotSpot Device Explorer</h2>
+                    <h2>Chransver</h2>
                     <ul>
                         <li><a href="/web/back" class="menu"><img src="/static/backbutton.png" alt="" width="200px"
                                                                   height="40"></a></li>

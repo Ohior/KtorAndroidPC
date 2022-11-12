@@ -1,21 +1,18 @@
 package com.example.ktorandroidpc
 
 import android.app.Activity
-import android.content.Intent
 import android.content.SharedPreferences
-import android.content.res.Configuration
-import android.graphics.ColorMatrixColorFilter
-import android.graphics.drawable.Drawable
 import android.os.Bundle
-import android.os.PersistableBundle
-import android.view.Menu
+import android.os.Environment
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.PreferenceManager
 import com.example.ktorandroidpc.utills.Const
-import io.ktor.util.reflect.*
+import com.example.ktorandroidpc.utills.DataManager
+import com.example.ktorandroidpc.utills.Tools
 
+//setting activity controls the settings for this app
 class SettingsActivity : AppCompatActivity(), SharedPreferences.OnSharedPreferenceChangeListener {
 
     override fun onDestroy() {
@@ -71,15 +68,16 @@ class SettingsActivity : AppCompatActivity(), SharedPreferences.OnSharedPreferen
             }
         }
         fun appSettings(activity: Activity) {
+            DataManager.with(activity).setString(Const.SD_DIRECTORY_KEY,Tools.getExternalSDCardRootDirectory(activity)?:"")
             val preferenceManager = PreferenceManager.getDefaultSharedPreferences(activity)
             val appTheme = preferenceManager.getString("appTheme","1")
             switchTheme(appTheme)
 
             val downloadFolder = preferenceManager.getBoolean("downloadFolder", false)
             if (downloadFolder) {
-                Const.OH_TRANSFER_PATH = Const.ROOT_PATH + "/Download/"
+                Const.UPLOAD_PATH = Const.DOWNLOAD_DIR
             } else {
-                Const.OH_TRANSFER_PATH = "${Const.ROOT_PATH}/${Const.OH_TRANSFER}/"
+                Const.UPLOAD_PATH = Const.CHRANSVER_DIR
             }
         }
     }

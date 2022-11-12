@@ -6,6 +6,7 @@ import android.os.Build
 import android.os.Environment
 import androidx.appcompat.app.AppCompatActivity
 import com.example.ktorandroidpc.MainActivity
+import com.example.ktorandroidpc.R
 import io.ktor.server.application.*
 import java.io.File
 
@@ -21,8 +22,9 @@ object Const {
     const val PRESENT_FOLDER_KEY = "PRESENT_FOLDER_KEY"
     const val PREFERENCES_FILE_NAME = "PREFERENCES_FILE_NAME"
     val ROOT_PATH: String = Environment.getExternalStorageDirectory().absolutePath
-    const val OH_TRANSFER = "OH-Transfer"
-    var OH_TRANSFER_PATH = "$ROOT_PATH/$OH_TRANSFER/"
+    val CHRANSVER_DIR = "$ROOT_PATH/Chransver/"
+    val DOWNLOAD_DIR = "$ROOT_PATH/Download/"
+    var UPLOAD_PATH = CHRANSVER_DIR
     const val PROGRESS_KEY = "PROGRESS_KEY"
     val ARRAY_OF_PERMISSIONS = arrayOf(
         Manifest.permission.READ_EXTERNAL_STORAGE,

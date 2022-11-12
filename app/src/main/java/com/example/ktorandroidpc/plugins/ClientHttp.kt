@@ -54,7 +54,7 @@ class ClientHttp{
 //
 //    private fun writeToRoDisk(body: ResponseBody): Boolean {
 //        try {
-//            val mFile = File(Const.OH_TRANSFER_PATH)
+//            val mFile = File(Const.OH_UPLOAD_PATH)
 //            var inputStream: InputStream? = null
 //            var outputStream: OutputStream? = null
 //            try {

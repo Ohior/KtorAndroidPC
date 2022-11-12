@@ -174,6 +174,7 @@ private fun Route.downloadFile() {
             // actually download the file
             call.respondFile(file)
         }
+        call.respondRedirect("web")
     }
 }
 
@@ -192,7 +193,7 @@ fun Route.uploadFile(function: (File) -> Unit) {
                             // upload the data
                             val inputStream = part.streamProvider()
                             val fileBytes = inputStream.readBytes()
-                            val mFile = File(Const.OH_TRANSFER_PATH + part.originalFileName)
+                            val mFile = File(Const.UPLOAD_PATH + part.originalFileName)
                             mFile.writeBytes(fileBytes)
                             function(mFile)
                         }
@@ -224,9 +225,9 @@ fun Route.uploadFile(name: String) {
                         // upload the data
                         val inputStream = part.streamProvider()
                         val fileBytes = inputStream.readBytes()
-                        val mFile = File(Const.OH_TRANSFER_PATH + part.originalFileName)
+                        val mFile = File(Const.UPLOAD_PATH + part.originalFileName)
                         mFile.writeBytes(fileBytes)
-//                        val mFile = File(Const.OH_TRANSFER_PATH + part.originalFileName)
+//                        val mFile = File(Const.OH_UPLOAD_PATH + part.originalFileName)
 //                        part.streamProvider().use { inputStream ->
 //                            mFile.outputStream().buffered().use {
 //                                inputStream.copyTo(it)
@@ -244,3 +245,4 @@ fun Route.uploadFile(name: String) {
         }
     }
 }
+

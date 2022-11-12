@@ -2,7 +2,9 @@ package com.example.ktorandroidpc.utills
 
 import android.app.Activity
 import android.app.AlertDialog
+import android.app.RecoverableSecurityException
 import android.content.Context
+import android.content.IntentSender
 import android.content.pm.PackageManager
 import android.content.res.Configuration
 import android.graphics.ColorMatrixColorFilter
@@ -11,13 +13,18 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.Environment
+import android.provider.MediaStore
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.Toast
+import androidx.activity.result.IntentSenderRequest
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.PopupMenu
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.core.content.FileProvider
+import com.example.ktorandroidpc.BuildConfig
 import com.example.ktorandroidpc.explorer.FileUtils
 import java.io.File
 import java.io.InputStream
@@ -99,9 +106,10 @@ object Tools {
         )
     }
 
-    fun createDirectoryIfNonExist(dirName: String = Const.OH_TRANSFER_PATH) {
+    fun createDirectoryIfNonExist(dirName: String = Const.UPLOAD_PATH) {
         val file = File(dirName)
         if (!file.exists()) file.mkdir()
+        Tools.debugMessage(file.path, "path")
     }
 
     fun isExternalStorageReadOnly(): Boolean {
@@ -141,5 +149,59 @@ object Tools {
         }
         return null
     }
+
+    fun popUpWindow(
+        context: Context,
+        title: String,
+        layout: Int,
+        lambda: ((View, AlertDialog) -> Unit)? = null
+    ) {
+        val view = LayoutInflater.from(context)
+            .inflate(layout, null)
+        AlertDialog.Builder(context).apply {
+            this.setCancelable(false)
+            this.setTitle(title)
+            this.setView(view)
+            lambda!!(view, this.show())
+        }.show()
+    }
+
+    fun popUpWindow(
+        context: Context,
+        message: String,
+        title: String = "",
+        lambda: ((AlertDialog.Builder) -> Unit)? = null
+    ) {
+        AlertDialog.Builder(context).apply {
+            this.setCancelable(false)
+            this.setTitle(title)
+            this.setMessage(message)
+            lambda!!(this)
+        }.show()
+    }
+
+    fun deleteFileFromStorage(file: File, context: Context, function: (IntentSender)->Unit): Uri {
+//        val uri = Uri.fromFile(file)
+        val uri = FileProvider.getUriForFile(context, BuildConfig.APPLICATION_ID + ".provider", file)
+        try {
+            Tools.debugMessage(uri.path.toString(), "URI")
+            File(file.absolutePath).deleteRecursively()
+//            context?.contentResolver?.delete(uri, null, null)
+        } catch (e: SecurityException) {
+            val intentSender = when {
+                Build.VERSION.SDK_INT >= Build.VERSION_CODES.R -> {
+                    MediaStore.createDeleteRequest(context?.contentResolver!!, listOf(uri)).intentSender
+                }
+                Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q -> {
+                    val recoverableSecurityException = e as RecoverableSecurityException
+                    recoverableSecurityException.userAction.actionIntent.intentSender
+                }
+                else -> null
+            }
+            intentSender?.let { function(it) }
+        }
+        return uri
+    }
+
 
 }

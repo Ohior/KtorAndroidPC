@@ -1,20 +1,34 @@
 package com.example.ktorandroidpc
 
 
+import android.app.Activity
+import android.app.RecoverableSecurityException
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
-
+import android.graphics.Color
+import android.media.MediaScannerConnection
+import android.net.Uri
+import android.os.Build
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
+import android.provider.MediaStore
 import android.view.Menu
 import android.view.MenuItem
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.IntentSenderRequest
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.children
 import com.example.ktorandroidpc.utills.*
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import java.io.File
 import java.lang.reflect.Method
 
-
+//This activity is the host for explorer fragment and connect pc fragment
 class MainActivity : AppCompatActivity() {
-
 
     override fun onRequestPermissionsResult(
         requestCode: Int,
@@ -41,8 +55,8 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         SettingsActivity.appSettings(this)
+//        display custom actionbar
         setSupportActionBar(findViewById(R.id.id_toolbar))
-//        val customTitle = findViewById<TextView>(R.id.id_tv_toolbar)
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -51,6 +65,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onMenuOpened(featureId: Int, menu: Menu): Boolean {
+//        make sure menu is displaying icons
         if (menu.javaClass.simpleName == "MenuBuilder") {
             try {
                 val m: Method = menu.javaClass.getDeclaredMethod(
@@ -68,6 +83,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
+//        this holds general menu item
         return when (item.itemId) {
             R.id.id_menu_setting -> {
                 startActivity(Intent(this, SettingsActivity::class.java))
@@ -77,5 +93,4 @@ class MainActivity : AppCompatActivity() {
         }
 
     }
-
 }
