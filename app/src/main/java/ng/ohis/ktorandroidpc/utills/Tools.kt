@@ -17,7 +17,9 @@ import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
+import androidx.navigation.Navigation
 import ng.ohis.ktorandroidpc.BuildConfig
+import ng.ohis.ktorandroidpc.R
 import ng.ohis.ktorandroidpc.explorer.FileUtils
 import ng.ohis.ktorandroidpc.utills.FileModel
 import java.io.File
@@ -68,16 +70,6 @@ object Tools {
     private fun checkForPermission(context: Context, permission: String): Boolean {
         val result = ContextCompat.checkSelfPermission(context, permission)
         return result == PackageManager.PERMISSION_GRANTED
-    }
-
-    fun getDirectoryFromPath(path: String, showHiddenFiles: Boolean = true): List<FileModel> {
-        directoryPath += path
-        return FileUtils.getFileModelsFromFiles(
-            FileUtils.getFilesFromPath(
-                directoryPath,
-                showHiddenFiles = showHiddenFiles
-            )
-        )
     }
 
     fun getFilesFromPath(path: String, showHiddenFiles: Boolean = true): List<FileModel> {
@@ -194,5 +186,8 @@ object Tools {
         return uri
     }
 
+    fun navigateFragmentToFragment(fragmentView: View, id:Int){
+        Navigation.findNavController(fragmentView).navigate(id)
+    }
 
 }

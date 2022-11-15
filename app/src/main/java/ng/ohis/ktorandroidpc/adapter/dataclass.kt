@@ -13,26 +13,31 @@ data class FileModel(
     val sizeInMB: Double,
     val extension: String = "",
     val subFiles: Int = 0,
-){
+) {
     val file: File get() = File(path)
     val isFile: Boolean get() = FileType.FOLDER != fileType
-    val staticImage: String get() = when (fileType) {
-        FileType.FILE -> "/static/file.png"
-        FileType.FOLDER -> "/static/folder.png"
-        FileType.AUDIO -> "/static/audio.png"
-        FileType.IMAGE -> "/static/image.png"
-        FileType.VIDEO -> "/static/video.png"
-    }
-    val drawable: Int get() = when (fileType) {
-        FileType.FILE -> R.drawable.file
-        FileType.FOLDER -> R.drawable.folder
-        FileType.AUDIO -> R.drawable.audio
-        FileType.IMAGE -> R.drawable.image
-        FileType.VIDEO -> R.drawable.video
-    }
-    val fileFolder get() = path.split("/").let { it.elementAt(it.lastIndex-1) }
+    val staticImage: String
+        get() = when (fileType) {
+            FileType.FILE -> "/static/file.png"
+            FileType.FOLDER -> "/static/folder.png"
+            FileType.AUDIO -> "/static/audio.png"
+            FileType.IMAGE -> "/static/image.png"
+            FileType.VIDEO -> "/static/video.png"
+        }
+    val drawable: Int
+        get() = when (fileType) {
+            FileType.FILE -> R.drawable.file
+            FileType.FOLDER -> R.drawable.folder
+            FileType.AUDIO -> R.drawable.audio
+            FileType.IMAGE -> R.drawable.image
+            FileType.VIDEO -> R.drawable.video
+        }
+    val fileFolder get() = path.split("/").let { it.elementAt(it.lastIndex - 1) }
 }
 
+data class NavigateRecyclerAdapterDataclass(
+    val name: String
+)
 
 data class RecyclerAdapterDataclass(
     val fileModel: FileModel
@@ -40,11 +45,11 @@ data class RecyclerAdapterDataclass(
 
 data class ProgressDataClass(
     val dataSize: Int,
-    val dataName:String,
-    val dataPath:String
+    val dataName: String,
+    val dataPath: String
 )
 
 data class StorageDataClass(
-    val rootDirectory:String,
-    val isSdStorage:Boolean
+    val rootDirectory: String,
+    val isSdStorage: Boolean
 )

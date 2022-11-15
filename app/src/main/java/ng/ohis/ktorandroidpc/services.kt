@@ -77,14 +77,23 @@ fun Context.isThemeDark(): Boolean {
     }
 }
 
-fun Context.openFileWithDefaultApp(file: File) : Boolean{
+fun Context.openFileWithDefaultApp(file: File): Boolean {
     return try {
-        val uri = FileProvider.getUriForFile(this@openFileWithDefaultApp, BuildConfig.APPLICATION_ID + ".provider", file)
+        val uri =
+            FileProvider.getUriForFile(this@openFileWithDefaultApp, BuildConfig.APPLICATION_ID + ".provider", file)
         val intent = Intent(Intent.ACTION_VIEW, uri)
         intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
         this@openFileWithDefaultApp.startActivity(intent)
         true
-    }catch (e: ActivityNotFoundException){
+    } catch (e: ActivityNotFoundException) {
+        false
+    } catch (e: IllegalArgumentException) {
+        this.popUpWindow(
+            title = "Security",
+            message = this.getString(R.string.security)
+        ) {
+            it.setCancelable(true)
+        }
         false
     }
 }

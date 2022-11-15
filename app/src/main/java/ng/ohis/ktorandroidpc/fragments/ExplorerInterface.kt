@@ -2,12 +2,11 @@ package ng.ohis.ktorandroidpc.fragments
 
 import android.content.Context
 import ng.ohis.ktorandroidpc.R
+import ng.ohis.ktorandroidpc.adapter.NavigateRecyclerAdapter
 import ng.ohis.ktorandroidpc.adapter.RecyclerAdapter
 import ng.ohis.ktorandroidpc.explorer.FileType
 import ng.ohis.ktorandroidpc.openFileWithDefaultApp
-import ng.ohis.ktorandroidpc.utills.FileModel
-import ng.ohis.ktorandroidpc.utills.RecyclerAdapterDataclass
-import ng.ohis.ktorandroidpc.utills.Tools
+import ng.ohis.ktorandroidpc.utills.*
 
 interface ExplorerInterface {
     fun getDrawableFileType(fileType: FileType): Int {
@@ -31,8 +30,8 @@ interface ExplorerInterface {
     }
 
     fun loopThroughFiles(files: List<FileModel>, recyclerAdapter: RecyclerAdapter) {
+        // remove all data from recycler adapter amd fill it with updated list of file-model
         recyclerAdapter.emptyAdapter()
-        recyclerAdapter.arrayList.clear()
         for (file in files) {
             recyclerAdapter.addToAdapter(
                 RecyclerAdapterDataclass(
@@ -43,38 +42,63 @@ interface ExplorerInterface {
         recyclerAdapter.notifyDataSetChanged()
     }
 
-    fun navigateDirectoryForward(position: Int?, recyclerAdapter: RecyclerAdapter, context: Context, filePath: String):String {
+    fun navigateDirectoryForward(
+        position: Int?,
+        recyclerAdapter: RecyclerAdapter,
+        context: Context,
+        filePath: String
+    ): String {
+        // enter into new folder
         var path = filePath
-        if (position == null){
+        if (position == null) {
+            // because position is null return the passed file path, this usually returns the root path
             val files = Tools.getFilesFromPath(path).sortedWith(compareBy { it.name })
             loopThroughFiles(files, recyclerAdapter)
             return path
         }
-        val fml = recyclerAdapter.arrayList[position].fileModel
+        // get the folder at position
+        val fml = recyclerAdapter.getItemAt(position).fileModel
         if (fml.fileType == FileType.FOLDER) {
-            path = filePath+"/${fml.name}"
+            // enter the file because it is a folder
+            path = filePath + "/${fml.name}"
             val files = Tools.getFilesFromPath(path).sortedWith(compareBy { it.name })
             loopThroughFiles(files, recyclerAdapter)
         } else {
-           context.openFileWithDefaultApp(fml.file)
+            // open the file because it is not a folder
+            context.openFileWithDefaultApp(fml.file)
         }
         return path
     }
 
-    fun navigateDirectoryBackward(recyclerAdapter: RecyclerAdapter, rootDir:String, filePath:String, function: ()->Unit): String {
+    fun navigateDirectoryBackward(
+        recyclerAdapter: RecyclerAdapter,
+        rootDir: String,
+        filePath: String,
+    ): String {
+        // go backward in directory
         recyclerAdapter.emptyAdapter()
-        recyclerAdapter.arrayList.clear()
-        if (filePath.split("/").size <= rootDir.split("/").size) {
-            function()
-            return filePath
-        }
-        val directory = filePath.split("/")
-            .dropLast(1)
-            .joinToString("/")
+        return if (filePath.split("/").size <= rootDir.split("/").size) {
+            // if user is in root directory,
+            String()
+        } else {
+            // user is not in root directory. spit the path, drop the last item and join it back to a string
+            val directory = filePath.split("/")
+                .dropLast(1)
+                .joinToString("/")
 
-        val files = Tools.getFilesFromPath(directory).sortedWith(compareBy { it.name })
-        loopThroughFiles(files, recyclerAdapter)
-        return directory
+            val files = Tools.getFilesFromPath(directory).sortedWith(compareBy { it.name })
+            loopThroughFiles(files, recyclerAdapter)
+            directory
+        }
+    }
+
+    fun updateNavigationBarFolderRecyclerView(filePath: String, rootDir: StorageDataClass, navigateRecyclerAdapter: NavigateRecyclerAdapter) {
+        val path = filePath.split("/").drop((rootDir.rootDirectory.split("/").size) - 1)
+        navigateRecyclerAdapter.clearAdapter()
+        for ((i, p) in path.withIndex()) {
+            navigateRecyclerAdapter.addToAdapter(NavigateRecyclerAdapterDataclass(name = p))
+            navigateRecyclerAdapter.notifyItemChanged(i)
+        }
     }
 
 }

@@ -10,6 +10,7 @@ object Const {
     const val PORT = 8181
     const val FULL_ADDRESS = "$ADDRESS:$PORT"
     const val PERMISSION = 101
+    const val REQUEST_CODE_OPEN_DOCUMENT_TREE  = 102
     const val AUTHORITY = "ng.ohis.ktorandroidpc.fileprovider"
     const val ROOT_FOLDER_KEY = "ROOT_FOLDER_KEY"
     const val PRESENT_FOLDER_KEY = "PRESENT_FOLDER_KEY"

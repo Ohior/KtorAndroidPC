@@ -71,15 +71,15 @@ object DataManager {
         // because the json data is stored in list format
         // convert it to an array of json data
         val jsonArray = JSONArray(data)
-        val arrayList = ArrayList<FileModel>()
+        val recyclerArrayList = ArrayList<FileModel>()
         // loop through all the jsonArray
         for (i in 0 until jsonArray.length()) {
-            // get each json and store it inside the arrayList
+            // get each json and store it inside the recyclerArrayList
             val d = jsonArray.getJSONObject(i)
             // serialize the json data into the dataclass
             // (the arg of both json and dataclass are the same)
-            arrayList.add(Gson().fromJson(d.toString(), FileModel::class.java))
+            recyclerArrayList.add(Gson().fromJson(d.toString(), FileModel::class.java))
         }
-        return arrayList
+        return recyclerArrayList
     }
 }

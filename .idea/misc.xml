@@ -3,7 +3,9 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="..\:/Developer/IntellijIdea/KtorAndroidPC/app/src/main/res/drawable-v24/ic_folder.xml" value="0.20520833333333333" />
         <entry key="..\:/Developer/IntellijIdea/KtorAndroidPC/app/src/main/res/drawable-v24/ic_launcher_foreground.xml" value="0.1" />
+        <entry key="..\:/Developer/IntellijIdea/KtorAndroidPC/app/src/main/res/drawable-v24/ic_slash_forward.xml" value="0.20520833333333333" />
         <entry key="..\:/Developer/IntellijIdea/KtorAndroidPC/app/src/main/res/drawable/con_btn_design.xml" value="0.20416666666666666" />
         <entry key="..\:/Developer/IntellijIdea/KtorAndroidPC/app/src/main/res/drawable/ic_arrow_left.xml" value="0.20520833333333333" />
         <entry key="..\:/Developer/IntellijIdea/KtorAndroidPC/app/src/main/res/drawable/ic_computer.xml" value="0.20520833333333333" />
@@ -20,7 +22,9 @@
         <entry key="..\:/Developer/IntellijIdea/KtorAndroidPC/app/src/main/res/layout/fragment_connect_pc.xml" value="0.15942028985507245" />
         <entry key="..\:/Developer/IntellijIdea/KtorAndroidPC/app/src/main/res/layout/fragment_explorer.xml" value="0.1671195652173913" />
         <entry key="..\:/Developer/IntellijIdea/KtorAndroidPC/app/src/main/res/layout/fragment_sd_explorer.xml" value="0.1" />
+        <entry key="..\:/Developer/IntellijIdea/KtorAndroidPC/app/src/main/res/layout/navigate_rv_item.xml" value="0.18" />
         <entry key="..\:/Developer/IntellijIdea/KtorAndroidPC/app/src/main/res/layout/progress_item.xml" value="0.25" />
+        <entry key="..\:/Developer/IntellijIdea/KtorAndroidPC/app/src/main/res/layout/scrollable_button.xml" value="0.20208333333333334" />
         <entry key="..\:/Developer/IntellijIdea/KtorAndroidPC/app/src/main/res/layout/settings_activity.xml" value="0.1671195652173913" />
         <entry key="..\:/Developer/IntellijIdea/KtorAndroidPC/app/src/main/res/menu/main_menu.xml" value="0.20677083333333332" />
         <entry key="..\:/Developer/IntellijIdea/KtorAndroidPC/app/src/main/res/menu/menu_item.xml" value="0.20260416666666667" />

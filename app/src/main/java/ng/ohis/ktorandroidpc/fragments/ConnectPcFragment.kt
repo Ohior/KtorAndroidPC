@@ -51,6 +51,7 @@ class ConnectPcFragment : Fragment() {
     private lateinit var idGifImageView: ImageView
     private lateinit var idRecyclerView: RecyclerView
     private lateinit var idBtnConnectBrowser: Button
+    private lateinit var idBtnConnectDevice: Button
     private lateinit var coroutineScope: CoroutineScope
     private var connectDevice = true
     private var sdDirectory: String? = null
@@ -172,7 +173,7 @@ class ConnectPcFragment : Fragment() {
                                             )
                                         }
                                     }
-                                    recyclerAdapter.arrayList.remove(RecyclerAdapterDataclass(fileModel))
+                                    recyclerAdapter.removeAt(RecyclerAdapterDataclass(fileModel))
                                     recyclerAdapter.notifyDataSetChanged()
                                 }
                                 adb.setNegativeButton("cancel") { _, _ ->
@@ -196,6 +197,7 @@ class ConnectPcFragment : Fragment() {
     private fun ClickListener() {
 //        check if connect button is clicked, so you can connect or disconnect users
         idBtnConnectBrowser.setOnClickListener {
+            idBtnConnectDevice.isEnabled = !connectDevice
             if (IsHotspotOn()) {
                 // check if device can be connected
                 if (connectDevice) {
@@ -227,6 +229,9 @@ class ConnectPcFragment : Fragment() {
                 ConnectHotspot()
             }
         }
+        idBtnConnectDevice.setOnClickListener {
+            Tools.showToast(requireContext(), "connect device button ⌨ clicked")
+        }
     }
 
     private fun Initializers() {
@@ -237,6 +242,7 @@ class ConnectPcFragment : Fragment() {
         idGifLinearLayout = fragmentView.findViewById(R.id.id_gif_ll)
         idRecyclerView = fragmentView.findViewById(R.id.id_recycler_view)
         idBtnConnectBrowser = fragmentView.findViewById(R.id.id_btn_connect_browser)
+        idBtnConnectDevice = fragmentView.findViewById(R.id.id_btn_connect_device)
         coroutineScope = CoroutineScope(Dispatchers.IO)
         idToolbarTextView.setCompoundDrawablesRelativeWithIntrinsicBounds(R.drawable.ic_icon, 0, 0, 0)
         recyclerAdapter = RecyclerAdapter(

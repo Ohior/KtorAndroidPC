@@ -2,7 +2,6 @@ package ng.ohis.ktorandroidpc.adapter
 
 import ng.ohis.ktorandroidpc.utills.RecyclerAdapterDataclass
 import android.content.Context
-import android.database.Cursor
 import android.net.Uri
 import android.view.LayoutInflater
 import android.view.View
@@ -14,6 +13,7 @@ import com.bumptech.glide.Glide
 import ng.ohis.ktorandroidpc.R
 import ng.ohis.ktorandroidpc.explorer.FileType
 import ng.ohis.ktorandroidpc.utills.FileModel
+import ng.ohis.ktorandroidpc.utills.NavigateRecyclerAdapterDataclass
 
 class RecyclerAdapter(
     private val mContext: Context,
@@ -22,9 +22,8 @@ class RecyclerAdapter(
     column_count: Int = 1
 ) : RecyclerView.Adapter<RecyclerAdapter.ViewHolder>() {
     // replace all the RecyclerAdapterDataclass reference in this file with your own data class name
-    var arrayList: ArrayList<RecyclerAdapterDataclass> = ArrayList()
+    private var recyclerArrayList: ArrayList<RecyclerAdapterDataclass> = ArrayList()
     private var clickListener: OnItemClickListener? = null
-    private lateinit var mediaStoreCursor: Cursor
 
     init {
         recyclerview.layoutManager = CustomGridLayoutManager(mContext, column_count)
@@ -67,7 +66,7 @@ class RecyclerAdapter(
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         // bind your view holder class with your recycler adapter
         // i.e bind your view holder with your recyclerview
-        val array = this.arrayList[position]
+        val array = this.recyclerArrayList[position]
         holder.name.text = array.fileModel.name
         holder.detail.text = array.fileModel.path
         val bitmap = getBitmapFromMediaStore(array.fileModel)
@@ -80,22 +79,30 @@ class RecyclerAdapter(
 
     override fun getItemCount(): Int {
         //get the number of item in your recyclerview
-        return arrayList.size
+        return recyclerArrayList.size
     }
 
     fun emptyAdapter() {
         //remove all item from your recyclerview
-        arrayList.clear()
+        recyclerArrayList.clear()
     }
 
     fun addToAdapter(element: RecyclerAdapterDataclass) {
         // add item to your recyclerview
-        arrayList.add(element)
+        recyclerArrayList.add(element)
     }
 
     fun addToAdapter(index: Int, element: RecyclerAdapterDataclass) {
         // add item to an index spot of your recyclerview
-        arrayList.add(index, element)
+        recyclerArrayList.add(index, element)
+    }
+
+    fun removeAt(element: RecyclerAdapterDataclass){
+        recyclerArrayList.remove(element)
+    }
+
+    fun getItemAt(position: Int): RecyclerAdapterDataclass {
+        return recyclerArrayList[position]
     }
 
     private fun getBitmapFromMediaStore(fileModel: FileModel): Uri? {
@@ -132,7 +139,7 @@ class RecyclerAdapter(
                 listener.onItemClick(adapterPosition, itemView)
             }
             menu.setOnClickListener {
-                listener.onMenuClick(arrayList[adapterPosition].fileModel, it)
+                listener.onMenuClick(recyclerArrayList[adapterPosition].fileModel, it)
             }
         }
     }
