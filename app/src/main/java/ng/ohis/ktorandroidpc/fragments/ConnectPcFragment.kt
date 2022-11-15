@@ -26,7 +26,6 @@ import ng.ohis.ktorandroidpc.*
 import ng.ohis.ktorandroidpc.adapter.RecyclerAdapter
 import ng.ohis.ktorandroidpc.explorer.FileType
 import ng.ohis.ktorandroidpc.explorer.FileUtils
-import ng.ohis.ktorandroidpc.utills.*
 import io.ktor.server.engine.*
 import io.ktor.server.netty.*
 import kotlinx.coroutines.CoroutineScope
@@ -47,7 +46,7 @@ import java.lang.reflect.Method
 
 class ConnectPcFragment : Fragment() {
     private lateinit var fragmentView: View
-    lateinit var idGifLinearLayout: LinearLayout
+    private lateinit var idGifLinearLayout: LinearLayout
     private lateinit var idGifImageView: ImageView
     private lateinit var idRecyclerView: RecyclerView
     private lateinit var idBtnConnectBrowser: Button
@@ -55,7 +54,7 @@ class ConnectPcFragment : Fragment() {
     private lateinit var coroutineScope: CoroutineScope
     private var connectDevice = true
     private var sdDirectory: String? = null
-    lateinit var recyclerAdapter: RecyclerAdapter
+    private lateinit var recyclerAdapter: RecyclerAdapter
     private lateinit var nettyEngine: NettyApplicationEngine
     private lateinit var idToolbarTextView: TextView
     private lateinit var intentSenderLauncher: ActivityResultLauncher<IntentSenderRequest>
@@ -97,7 +96,7 @@ class ConnectPcFragment : Fragment() {
                 // TODO: 11/11/2022 optimize data communication between fragment
                 DataManager.with(requireActivity()).putPreferenceData(
                     StorageDataClass(
-                        rootDirectory = GetExternalSDCardRootDirectory().toString(),
+                        rootDirectory = Tools.getExternalSDCardRootDirectory(requireActivity()).toString(),
                         isSdStorage = true
                     ), Const.FRAGMENT_DATA_KEY
                 )
@@ -129,29 +128,29 @@ class ConnectPcFragment : Fragment() {
 
         requireActivity().findViewById<TextView>(R.id.id_tv_toolbar).isClickable = false
 
-        Initializers()
+        variableInitializers()
 
-        ClickListener()
+        buttonClickListener()
 
         if (Tools.checkAllPermission(requireActivity())) {
-            FragmentExecutable()
+            fragmentExecutable()
         }
 
         return fragmentView
     }
 
-    private fun FragmentExecutable() {
+    private fun fragmentExecutable() {
         Tools.createDirectoryIfNonExist(Const.UPLOAD_PATH)
         Glide.with(requireActivity()).asGif().load(R.drawable.gifimage).into(idGifImageView)
-        if (!IsHotspotOn()) {
+        if (!isHotspotOn()) {
             fragmentView.displaySnackBar("Wifi - Hotspot is switch OFF!", "switch ON") {
-                ConnectHotspot()
+                connectHotspot()
             }
         }
-        DownloadAdapterFunction()
+        recievedRecyclerAdapter()
     }
 
-    private fun DownloadAdapterFunction() {
+    private fun recievedRecyclerAdapter() {
 //        display uploaded items in recyclerview
         recyclerAdapter.onClickListener(object : RecyclerAdapter.OnItemClickListener {
             override fun onMenuClick(fileModel: FileModel, view: View) {
@@ -159,7 +158,6 @@ class ConnectPcFragment : Fragment() {
                 requireContext().popupMenu(view) { menuItem ->
                     when (menuItem.itemId) {
                         R.id.id_rv_menu_delete -> {
-
                             requireContext().popUpWindow("This delete is permanent", "Delete") { adb ->
                                 adb.setPositiveButton("delete") { _, _ ->
                                     // when delete menu is clicked, display popup to confirm delete
@@ -173,6 +171,7 @@ class ConnectPcFragment : Fragment() {
                                             )
                                         }
                                     }
+                                    // update adapter
                                     recyclerAdapter.removeAt(RecyclerAdapterDataclass(fileModel))
                                     recyclerAdapter.notifyDataSetChanged()
                                 }
@@ -194,11 +193,11 @@ class ConnectPcFragment : Fragment() {
 
     }
 
-    private fun ClickListener() {
+    private fun buttonClickListener() {
 //        check if connect button is clicked, so you can connect or disconnect users
         idBtnConnectBrowser.setOnClickListener {
-            idBtnConnectDevice.isEnabled = !connectDevice
-            if (IsHotspotOn()) {
+            if (isHotspotOn()) {
+                idBtnConnectDevice.isEnabled = !connectDevice
                 // check if device can be connected
                 if (connectDevice) {
                     coroutineScope.launch {
@@ -209,7 +208,6 @@ class ConnectPcFragment : Fragment() {
                                     displayRecyclerView(it)
                                 }
                             }
-
                             configureTemplating(this)
                         }
                         // start connection
@@ -226,15 +224,17 @@ class ConnectPcFragment : Fragment() {
                 connectDevice = !connectDevice
             } else {
                 // launch intent to prompt user to switch on hotspot
-                ConnectHotspot()
+                connectHotspot()
             }
         }
+        // This will prompt the user to select method of file transfer. Either to receive or send
+        // This will open another fragment
         idBtnConnectDevice.setOnClickListener {
-            Tools.showToast(requireContext(), "connect device button ⌨ clicked")
+            requireContext().popUpWindow(fragmentView,R.layout.connect_device_popup)
         }
     }
 
-    private fun Initializers() {
+    private fun variableInitializers() {
 //        initialize all global variables
         idToolbarTextView = requireActivity().findViewById(R.id.id_tv_toolbar)
         idToolbarTextView.text = requireActivity().getString(R.string.app_name)
@@ -250,42 +250,11 @@ class ConnectPcFragment : Fragment() {
             idRecyclerView,
             R.layout.explorer_item
         )
-        sdDirectory = GetExternalSDCardRootDirectory()
+        sdDirectory = Tools.getExternalSDCardRootDirectory(requireActivity())
     }
 
-    fun GetExternalSDCardRootDirectory(): String? {
-//        get the root directory of sd card if there is any, return null otherwise
-        if (Tools.isExternalStorageAvailable() || Tools.isExternalStorageReadOnly()) {
-            val storageManager = requireActivity().getSystemService(Context.STORAGE_SERVICE)
-            try {
-                val storageVolume = Class.forName("android.os.storage.StorageVolume")
-                val volumeList = storageManager.javaClass.getMethod("getVolumeList")
-                val path = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                    storageVolume.getMethod("getDirectory")
-                } else {
-                    storageVolume.getMethod("getPath")
-                }
-                val isRemovable = storageVolume.getMethod("isRemovable")
-                val result = volumeList.invoke(storageManager) as Array<*>
-                result.forEach {
-                    if (isRemovable.invoke(it) as Boolean) {
-                        return when (val invokeRequest = path.invoke(it)) {
-                            is File -> invokeRequest.absolutePath
-                            is String -> invokeRequest
-                            else -> null
-                        }
-                    }
-                }
-            } catch (e: Throwable) {
-                e.printStackTrace()
-            }
-            return null
-        }
-        return null
-    }
-
-    private fun ConnectHotspot() {
-//        open intent window so user can on their moble hotsopt
+    private fun connectHotspot() {
+//        open intent window so user can activate their mobile hotspot
         val intent = Intent(Intent.ACTION_MAIN, null)
         intent.addCategory(Intent.CATEGORY_LAUNCHER)
         val componentName = ComponentName("com.android.settings", "com.android.settings.TetherSettings")
@@ -294,7 +263,8 @@ class ConnectPcFragment : Fragment() {
         startActivity(intent)
     }
 
-    private fun IsHotspotOn(): Boolean {
+    private fun isHotspotOn(): Boolean {
+        // heck if user hot spot is switch on
         val wifiManager = requireActivity().applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
         val method: Method = wifiManager.javaClass.getMethod("getWifiApState")
         method.isAccessible = true
@@ -303,12 +273,18 @@ class ConnectPcFragment : Fragment() {
     }
 
     private fun displayRecyclerView(file: File) {
-//        display updated item and update recyclerview with items
+        /*
+        When there is an upload of files this function executes and the gif image is gone
+        to give way for the recyclerview adapter to display
+         */
         CoroutineScope(Dispatchers.Main).launch {
             if (idGifLinearLayout.isVisible) {
+            //  display recyclerview with items
+                // and remove gif layout
                 idRecyclerView.visibility = RecyclerView.VISIBLE
                 idGifLinearLayout.visibility = LinearLayout.GONE
             }
+            //add stuff to recyclerview
             recyclerAdapter.addToAdapter(
                 RecyclerAdapterDataclass(
                     fileModel = FileModel(

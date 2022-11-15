@@ -105,6 +105,7 @@ object Tools {
     }
 
     fun getExternalSDCardRootDirectory(activity: Activity): String? {
+        //        get the root directory of sd card if there is any, return null otherwise
         if (isExternalStorageAvailable() || isExternalStorageReadOnly()) {
             val storageManager = activity.getSystemService(Context.STORAGE_SERVICE)
             try {

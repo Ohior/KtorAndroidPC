@@ -5,7 +5,8 @@
     <string name="icon_image">icon image</string>
     <string name="connect_device">Connect Device</string>
     <string name="security">
-        "Due to security reasons, Android 📱 prevents the manipulation of files located in micro card. But the issue will is been worked on and will be fixed 🛠 in future update"
+        "Due to security reasons, Android 📱 prevents the manipulation of files located in micro card. But the issue
+        will is been worked on and will be fixed 🛠 in future update"
     </string>
     <string name="connect_PC_info">Open the browser on your laptop or desktop and enter this address <b>\"
         192.168.43.1:8181\"</b>. Make sure you mobile hotspot (Wi-Fi Hotspot) is switch on, and your laptop or PC is
@@ -29,4 +30,7 @@
     <string name="sd_card">SD Card</string>
     <string name="delete">delete</string>
     <string name="open">open</string>
+    <string name="send">Send</string>
+    <string name="receive">Receive</string>
+    <string name="local_storage">Local Storage</string>
 </resources>

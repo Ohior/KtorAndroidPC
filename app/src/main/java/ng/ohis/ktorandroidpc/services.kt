@@ -1,19 +1,32 @@
 package ng.ohis.ktorandroidpc
 
+import android.app.Activity
 import android.app.AlertDialog
 import android.content.ActivityNotFoundException
 import android.content.ContentValues
 import android.content.Context
 import android.content.Intent
 import android.content.res.Configuration
+import android.graphics.Color
+import android.graphics.drawable.BitmapDrawable
+import android.graphics.drawable.ColorDrawable
 import android.net.Uri
 import android.os.Build
 import android.provider.MediaStore
+import android.transition.Slide
+import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
+import android.view.View.inflate
+import android.widget.LinearLayout
 import android.widget.PopupMenu
+import android.widget.PopupWindow
+import android.widget.Toolbar
+import androidx.annotation.RequiresApi
 import androidx.core.content.FileProvider
+import androidx.core.content.getSystemService
+import androidx.fragment.app.Fragment
 import com.google.android.material.snackbar.Snackbar
 import java.io.File
 
@@ -43,18 +56,33 @@ fun Context.popupMenu(view: View, function: (MenuItem) -> Unit) {
 }
 
 fun Context.popUpWindow(
-    title: String,
+    fragmentView: View,
     layout: Int,
-    lambda: ((View, AlertDialog) -> Unit)? = null
+    lambda: ((View) -> Unit)? = null
 ) {
-    val view = LayoutInflater.from(this@popUpWindow)
-        .inflate(layout, null)
-    AlertDialog.Builder(this@popUpWindow).apply {
-        this.setCancelable(false)
-        this.setTitle(title)
-        this.setView(view)
-        lambda!!(view, this.show())
-    }.show()
+    val inflater = this.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
+    val view = inflater.inflate(layout, null)
+    val popupWindow = PopupWindow(
+        view,
+        LinearLayout.LayoutParams.MATCH_PARENT,
+        LinearLayout.LayoutParams.WRAP_CONTENT
+    )
+    popupWindow.elevation = 10.0F
+    popupWindow.isOutsideTouchable = true
+    popupWindow.isFocusable = true
+    popupWindow.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+    val slidein = Slide()
+    val slideout = Slide()
+    slidein.slideEdge = Gravity.TOP
+    slideout.slideEdge = Gravity.END
+    if (Build.VERSION.SDK_INT == Build.VERSION_CODES.M) {
+        popupWindow.enterTransition = slidein
+        popupWindow.exitTransition = slideout
+    }
+    if (lambda != null) {
+        lambda(view)
+    }
+    popupWindow.showAtLocation(fragmentView, Gravity.BOTTOM, 0, 0)
 }
 
 fun Context.popUpWindow(

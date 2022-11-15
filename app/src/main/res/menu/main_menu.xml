@@ -9,7 +9,7 @@
         app:showAsAction="always"/>
     <item
         android:id="@+id/id_menu_mobile"
-        android:title="@string/mobile_transfer"
+        android:title="@string/local_storage"
         android:icon="@drawable/ic_mobile"
         android:visible="false"/>
     <item
