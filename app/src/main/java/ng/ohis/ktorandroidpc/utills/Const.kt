@@ -23,6 +23,6 @@ object Const {
     val ARRAY_OF_PERMISSIONS = arrayOf(
         Manifest.permission.READ_EXTERNAL_STORAGE,
         Manifest.permission.WRITE_EXTERNAL_STORAGE,
-        Manifest.permission.ACCESS_FINE_LOCATION
     )
+//    Manifest.permission.ACCESS_FINE_LOCATION
 }

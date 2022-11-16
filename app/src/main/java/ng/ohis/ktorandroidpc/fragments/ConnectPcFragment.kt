@@ -182,7 +182,7 @@ class ConnectPcFragment : Fragment() {
                         }
                         R.id.id_rv_menu_open -> {
                             // open menu is clicked
-                            if (requireContext().openFileWithDefaultApp(fileModel.file)) {
+                            if (!requireContext().openFileWithDefaultApp(fileModel.file)) {
                                 Tools.showToast(requireContext(), "No App To open this File! 😢")
                             }
                         }

@@ -30,22 +30,21 @@ import ng.ohis.ktorandroidpc.utills.Tools
 import java.util.concurrent.atomic.AtomicBoolean
 
 
-
 class ConnectDeviceFragment : Fragment() {
     private lateinit var fragmentView: View
-    private lateinit var idImgQrCode:ImageView
+    private lateinit var idImgQrCode: ImageView
 
     private lateinit var mManager: WifiP2pManager
     private lateinit var wifiManager: WifiManager
-    private lateinit var mChannel : WifiP2pManager.Channel
+    private lateinit var mChannel: WifiP2pManager.Channel
     private var mReceiver: BroadcastReceiver? = null
 
-    private lateinit var mIntentFilter:IntentFilter
+    private lateinit var mIntentFilter: IntentFilter
     private lateinit var connected: AtomicBoolean
 
     override fun onPause() {
         super.onPause()
-        if (mReceiver != null)requireActivity().unregisterReceiver(mReceiver)
+        if (mReceiver != null) requireActivity().unregisterReceiver(mReceiver)
     }
 
     override fun onCreateView(
@@ -64,38 +63,38 @@ class ConnectDeviceFragment : Fragment() {
         idImgQrCode = fragmentView.findViewById(R.id.id_img_qr_code)
     }
 
-    fun generateQRCode(text:String): Bitmap? {
+    fun generateQRCode(text: String): Bitmap? {
         return try {
             val barcodeEncoder = BarcodeEncoder()
             val bitmap = barcodeEncoder.encodeBitmap(text, BarcodeFormat.QR_CODE, 512, 512)
             idImgQrCode.setImageBitmap(bitmap)
             bitmap
-        }catch (e:WriterException){
+        } catch (e: WriterException) {
             Tools.debugMessage(e.message.toString(), "WriterException")
             null
         }
     }
 
     private fun onPermissionsChecked() {
-            wifiManager =  requireActivity().applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
-            mManager =  requireActivity().applicationContext.getSystemService(Context.WIFI_P2P_SERVICE) as WifiP2pManager
-            mChannel = mManager.initialize(requireContext(), getMainLooper(), null)
+        wifiManager = requireActivity().applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
+        mManager = requireActivity().applicationContext.getSystemService(Context.WIFI_P2P_SERVICE) as WifiP2pManager
+        mChannel = mManager.initialize(requireContext(), getMainLooper(), null)
         mReceiver = MyBroadcastReceiver(mManager, mChannel, this)
         mIntentFilter = IntentFilter()
         mIntentFilter.addAction(WifiP2pManager.WIFI_P2P_STATE_CHANGED_ACTION)
         mIntentFilter.addAction(WifiP2pManager.WIFI_P2P_PEERS_CHANGED_ACTION)
         mIntentFilter.addAction(WifiP2pManager.WIFI_P2P_CONNECTION_CHANGED_ACTION)
         mIntentFilter.addAction(WifiP2pManager.WIFI_P2P_THIS_DEVICE_CHANGED_ACTION)
-        if (Tools.checkAllPermission(requireActivity())){
+        if (Tools.checkAllPermission(requireActivity())) {
             mManager.discoverPeers(mChannel, object : WifiP2pManager.ActionListener {
-                    override fun onSuccess() {
-                        TODO("Not yet implemented")
-                    }
+                override fun onSuccess() {
+                    TODO("Not yet implemented")
+                }
 
-                    override fun onFailure(p0: Int) {
-                        TODO("Not yet implemented")
-                    }
-                })
+                override fun onFailure(p0: Int) {
+                    TODO("Not yet implemented")
+                }
+            })
             connected = AtomicBoolean()
             connected.set(false)
         }
@@ -109,8 +108,8 @@ class ConnectDeviceFragment : Fragment() {
 
     val connectionInfoListener: WifiP2pManager.ConnectionInfoListener = WifiP2pManager.ConnectionInfoListener {
         val ownerAddress = it.groupOwnerAddress
-        if (!connected.get()){
-            mManager.stopPeerDiscovery(mChannel, object : WifiP2pManager.ActionListener{
+        if (!connected.get()) {
+            mManager.stopPeerDiscovery(mChannel, object : WifiP2pManager.ActionListener {
                 override fun onSuccess() {
                 }
 
@@ -118,12 +117,11 @@ class ConnectDeviceFragment : Fragment() {
                 }
 
             })
-            if (it.groupFormed && it.isGroupOwner){
+            if (it.groupFormed && it.isGroupOwner) {
                 CoroutineScope(Dispatchers.IO).launch {
                     // TODO: 15/11/2022  
                 }
-            }
-            else if (it.groupFormed){
+            } else if (it.groupFormed) {
                 CoroutineScope(Dispatchers.IO).launch {
                     // TODO: 15/11/2022
                 }
