@@ -19,13 +19,13 @@ import androidx.core.content.FileProvider
 import androidx.core.net.toFile
 import androidx.core.net.toUri
 import androidx.fragment.app.Fragment
-import androidx.navigation.Navigation
 import androidx.recyclerview.widget.RecyclerView
 import ng.ohis.ktorandroidpc.BuildConfig
 import ng.ohis.ktorandroidpc.R
 import ng.ohis.ktorandroidpc.adapter.NavigateRecyclerAdapter
 import ng.ohis.ktorandroidpc.adapter.OnClickInterface
 import ng.ohis.ktorandroidpc.adapter.RecyclerAdapter
+import ng.ohis.ktorandroidpc.classes.ExplorerInterface
 import ng.ohis.ktorandroidpc.explorer.FileType
 import ng.ohis.ktorandroidpc.openFileWithDefaultApp
 import ng.ohis.ktorandroidpc.popUpWindow

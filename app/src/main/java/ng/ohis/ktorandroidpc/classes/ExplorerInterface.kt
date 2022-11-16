@@ -1,4 +1,4 @@
-package ng.ohis.ktorandroidpc.fragments
+package ng.ohis.ktorandroidpc.classes
 
 import android.content.Context
 import ng.ohis.ktorandroidpc.R

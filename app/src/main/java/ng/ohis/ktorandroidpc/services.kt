@@ -58,7 +58,7 @@ fun Context.popupMenu(view: View, function: (MenuItem) -> Unit) {
 fun Context.popUpWindow(
     fragmentView: View,
     layout: Int,
-    lambda: ((View) -> Unit)? = null
+    lambda: ((View,PopupWindow) -> Unit)? = null
 ) {
     val inflater = this.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
     val view = inflater.inflate(layout, null)
@@ -80,7 +80,7 @@ fun Context.popUpWindow(
         popupWindow.exitTransition = slideout
     }
     if (lambda != null) {
-        lambda(view)
+        lambda(view, popupWindow)
     }
     popupWindow.showAtLocation(fragmentView, Gravity.BOTTOM, 0, 0)
 }

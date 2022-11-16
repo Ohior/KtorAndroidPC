@@ -128,7 +128,7 @@ class ConnectPcFragment : Fragment() {
 
         requireActivity().findViewById<TextView>(R.id.id_tv_toolbar).isClickable = false
 
-        variableInitializers()
+        fragmentInitializers()
 
         buttonClickListener()
 
@@ -230,11 +230,18 @@ class ConnectPcFragment : Fragment() {
         // This will prompt the user to select method of file transfer. Either to receive or send
         // This will open another fragment
         idBtnConnectDevice.setOnClickListener {
-            requireContext().popUpWindow(fragmentView,R.layout.connect_device_popup)
+            requireContext().popUpWindow(fragmentView,R.layout.connect_device_popup){v, p->
+                val send = v.findViewById<Button>(R.id.id_btn_send)
+                val receive = v.findViewById<Button>(R.id.id_btn_receive)
+                send.setOnClickListener {
+                    p.dismiss()
+                    Tools.navigateFragmentToFragment(fragmentView, R.id.connectPcFragment_to_connectDeviceFragment)
+                }
+            }
         }
     }
 
-    private fun variableInitializers() {
+    private fun fragmentInitializers() {
 //        initialize all global variables
         idToolbarTextView = requireActivity().findViewById(R.id.id_tv_toolbar)
         idToolbarTextView.text = requireActivity().getString(R.string.app_name)

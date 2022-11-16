@@ -26,6 +26,7 @@
         <Button
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:id="@+id/id_btn_send"
             android:layout_marginStart="25dp"
             android:gravity="center"
             android:text="@string/send"
@@ -47,6 +48,7 @@
         <Button
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:id="@+id/id_btn_receive"
             android:layout_marginStart="25dp"
             android:gravity="center"
             android:text="@string/receive"

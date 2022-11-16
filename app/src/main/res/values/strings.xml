@@ -33,4 +33,6 @@
     <string name="send">Send</string>
     <string name="receive">Receive</string>
     <string name="local_storage">Local Storage</string>
+    <string name="scan_code_image">scan code image</string>
+    <string name="scan_code">SCAN CODE</string>
 </resources>

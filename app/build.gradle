@@ -62,4 +62,7 @@ dependencies {
     //Navigation
     implementation 'androidx.navigation:navigation-fragment-ktx:2.5.3'
     implementation 'androidx.navigation:navigation-ui-ktx:2.5.3'
+
+    //QR code generator
+    implementation 'com.journeyapps:zxing-android-embedded:3.6.0'
 }
