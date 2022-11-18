@@ -20,6 +20,7 @@ import androidx.core.net.toFile
 import androidx.core.net.toUri
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.RecyclerView
+import com.google.gson.Gson
 import ng.ohis.ktorandroidpc.BuildConfig
 import ng.ohis.ktorandroidpc.R
 import ng.ohis.ktorandroidpc.adapter.NavigateRecyclerAdapter
@@ -31,7 +32,6 @@ import ng.ohis.ktorandroidpc.openFileWithDefaultApp
 import ng.ohis.ktorandroidpc.popUpWindow
 import ng.ohis.ktorandroidpc.utills.*
 import ng.ohis.ktorandroidpc.utills.Const
-import ng.ohis.ktorandroidpc.utills.DataManager
 import ng.ohis.ktorandroidpc.utills.Tools
 import java.io.File
 
@@ -42,10 +42,11 @@ class ExplorerFragment : Fragment(), ExplorerInterface {
     private lateinit var idNavigateRecyclerView: RecyclerView
     private lateinit var navigateRecyclerAdapter: NavigateRecyclerAdapter
     private lateinit var idToolbarTextView: TextView
-    private var rootDir = DataManager.getPreferenceData<StorageDataClass>(Const.FRAGMENT_DATA_KEY)!!
+    private lateinit var rootDir:StorageDataClass
     private var filePath = ""
     private lateinit var intentSenderLauncher: ActivityResultLauncher<IntentSenderRequest>
     private var deleteFileUri: Uri? = null
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -116,21 +117,21 @@ class ExplorerFragment : Fragment(), ExplorerInterface {
         position: Int?,
         recyclerAdapter: RecyclerAdapter,
         context: Context,
-        path: String
+        filePath: String
     ): String {
-        filePath = super.navigateDirectoryForward(position, recyclerAdapter, context, path)
+        this.filePath = super.navigateDirectoryForward(position, recyclerAdapter, context, filePath)
         folderNavigateRecyclerView()
-        return filePath
+        return this.filePath
     }
 
     override fun navigateDirectoryBackward(
         recyclerAdapter: RecyclerAdapter,
         rootDir: String,
-        path: String
+        filePath: String
     ): String {
-        filePath = super.navigateDirectoryBackward(recyclerAdapter, rootDir, path)
+        this.filePath = super.navigateDirectoryBackward(recyclerAdapter, rootDir, filePath)
         folderNavigateRecyclerView()
-        return filePath
+        return this.filePath
     }
 
     private fun fragmentExecutable() {
@@ -150,16 +151,22 @@ class ExplorerFragment : Fragment(), ExplorerInterface {
             override fun onItemClick(position: Int, view: View) {
                 filePath = navigateDirectoryForward(position, recyclerAdapter, requireContext(), filePath)
             }
-            override fun onMenuClick(fileModel: FileModel, view: View) {
+
+            override fun onMenuClick(fileModel: FileModel, view: View, position: Int) {
                 PopupMenu(context, view).apply {
                     this.inflate(R.menu.rv_menu_item)
                     this.setOnMenuItemClickListener { menuItem ->
                         when (menuItem.itemId) {
                             R.id.id_rv_menu_delete -> {
-                                Tools.popUpWindow(requireContext(),"This delete is permanent","Delete File") { builder: AlertDialog.Builder ->
+                                Tools.popUpWindow(
+                                    requireContext(),
+                                    "This delete is permanent",
+                                    "Delete File"
+                                ) { builder: AlertDialog.Builder ->
                                     builder.setPositiveButton("Delete") { _, _ ->
                                         deleteFileUri = deleteFileFromStorage(fileModel.file)
-                                        filePath = navigateDirectoryForward(null, recyclerAdapter, requireContext(), filePath)
+                                        filePath =
+                                            navigateDirectoryForward(null, recyclerAdapter, requireContext(), filePath)
                                     }
                                     builder.setNegativeButton("Cancel") { _, _ ->
                                         builder.show().dismiss()
@@ -168,9 +175,13 @@ class ExplorerFragment : Fragment(), ExplorerInterface {
                                 true
                             }
                             R.id.id_rv_menu_open -> {
-                                if (fileModel.fileType == FileType.FOLDER || !requireContext().openFileWithDefaultApp(fileModel.file)) {
+                                if (fileModel.fileType == FileType.FOLDER || !requireContext().openFileWithDefaultApp(
+                                        fileModel.file
+                                    )
+                                ) {
                                     Tools.showToast(requireContext(), "No App To open this File! 😢")
-                                } else filePath = navigateDirectoryForward(null, recyclerAdapter, requireContext(), filePath)
+                                } else filePath =
+                                    navigateDirectoryForward(null, recyclerAdapter, requireContext(), filePath)
                                 true
                             }
                             else -> false
@@ -183,6 +194,7 @@ class ExplorerFragment : Fragment(), ExplorerInterface {
     }
 
     private fun variableInitializers() {
+        rootDir = Gson().fromJson(requireArguments().getString(Const.FRAGMENT_DATA_KEY), StorageDataClass::class.java)
         idRvRootFolder = fragmentView.findViewById(R.id.id_rv_folder)
         idNavigateRecyclerView = fragmentView.findViewById(R.id.id_rv_navigate)
         filePath = rootDir.rootDirectory

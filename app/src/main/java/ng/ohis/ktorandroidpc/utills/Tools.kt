@@ -18,6 +18,7 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.navigation.Navigation
+import androidx.navigation.findNavController
 import ng.ohis.ktorandroidpc.BuildConfig
 import ng.ohis.ktorandroidpc.R
 import ng.ohis.ktorandroidpc.explorer.FileUtils
@@ -188,7 +189,8 @@ object Tools {
     }
 
     fun navigateFragmentToFragment(fragmentView: View, id:Int){
-        Navigation.findNavController(fragmentView).navigate(id)
+        fragmentView.findNavController().navigate(id)
+//        Navigation.findNavController(fragmentView).navigate(id)
     }
 
 }

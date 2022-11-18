@@ -32,7 +32,7 @@ data class FileModel(
             FileType.IMAGE -> R.drawable.image
             FileType.VIDEO -> R.drawable.video
         }
-    val fileFolder get() = path.split("/").let { it.elementAt(it.lastIndex - 1) }
+    val fileFolder: String get() = path.split("/").let { it.elementAt(it.lastIndex - 1) }
 }
 
 data class NavigateRecyclerAdapterDataclass(
@@ -43,13 +43,11 @@ data class RecyclerAdapterDataclass(
     val fileModel: FileModel
 )
 
-data class ProgressDataClass(
-    val dataSize: Int,
-    val dataName: String,
-    val dataPath: String
-)
-
 data class StorageDataClass(
     val rootDirectory: String,
     val isSdStorage: Boolean
-)
+) {
+    fun toJson(): String {
+        return """{"rootDirectory": "$rootDirectory","isSdStorage": "$isSdStorage"}""".trimIndent().trim()
+    }
+}

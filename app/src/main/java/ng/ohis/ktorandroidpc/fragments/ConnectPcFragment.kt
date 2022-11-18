@@ -16,7 +16,10 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.net.toFile
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentManager
+import androidx.navigation.NavDirections
 import androidx.navigation.Navigation
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import ng.ohis.ktorandroidpc.utills.FileModel
@@ -44,6 +47,7 @@ import ng.ohis.ktorandroidpc.utills.Tools
 import java.io.File
 import java.lang.reflect.Method
 
+
 class ConnectPcFragment : Fragment() {
     private lateinit var fragmentView: View
     private lateinit var idGifLinearLayout: LinearLayout
@@ -55,10 +59,16 @@ class ConnectPcFragment : Fragment() {
     private var connectDevice = true
     private var sdDirectory: String? = null
     private lateinit var recyclerAdapter: RecyclerAdapter
-    private lateinit var nettyEngine: NettyApplicationEngine
+    private var nettyEngine: NettyApplicationEngine? = null
     private lateinit var idToolbarTextView: TextView
     private lateinit var intentSenderLauncher: ActivityResultLauncher<IntentSenderRequest>
     private var deleteFileUri: Uri? = null
+
+
+    companion object{
+        var isFragActive = true
+    }
+
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -67,7 +77,7 @@ class ConnectPcFragment : Fragment() {
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-//        clear menu item so as not to duplicate items
+        // clear menu item so as not to duplicate items
         menu.clear()
         inflater.inflate(R.menu.main_menu, menu)
         menu.findItem(R.id.id_menu_mobile)?.isVisible = true
@@ -80,27 +90,29 @@ class ConnectPcFragment : Fragment() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             R.id.id_menu_mobile -> {
-                //  save root path in shared preference, so you can get and use  them from other fragment
-                // TODO: 11/11/2022 optimize data communication between fragment
-                DataManager.with(requireActivity()).putPreferenceData(
-                    StorageDataClass(
-                        rootDirectory = Const.ROOT_PATH,
-                        isSdStorage = false
-                    ), Const.FRAGMENT_DATA_KEY
-                )
-                Navigation.findNavController(fragmentView).navigate(R.id.connectPcFragment_to_explorerFragment)
+                menuItemClicked {
+                    findNavController().navigate(R.id.connectPcFragment_to_explorerFragment, Bundle().apply {
+                        putString(
+                            Const.FRAGMENT_DATA_KEY, StorageDataClass(
+                                rootDirectory = Const.ROOT_PATH,
+                                isSdStorage = false
+                            ).toJson()
+                        )
+                    })
+                }
                 true
             }
             R.id.id_menu_sd -> {
-                // save root path in shared preference, so you can get and use  them from other fragment
-                // TODO: 11/11/2022 optimize data communication between fragment
-                DataManager.with(requireActivity()).putPreferenceData(
-                    StorageDataClass(
-                        rootDirectory = Tools.getExternalSDCardRootDirectory(requireActivity()).toString(),
-                        isSdStorage = true
-                    ), Const.FRAGMENT_DATA_KEY
-                )
-                Navigation.findNavController(fragmentView).navigate(R.id.connectPcFragment_to_explorerFragment)
+                menuItemClicked {
+                    findNavController().navigate(R.id.connectPcFragment_to_explorerFragment, Bundle().apply {
+                        putString(
+                            Const.FRAGMENT_DATA_KEY, StorageDataClass(
+                                rootDirectory = Tools.getExternalSDCardRootDirectory(requireActivity()).toString(),
+                                isSdStorage = true
+                            ).toJson()
+                        )
+                    })
+                }
                 true
             }
             else -> super.onOptionsItemSelected(item)
@@ -110,10 +122,12 @@ class ConnectPcFragment : Fragment() {
 
     override fun onDestroyView() {
         try {
-            nettyEngine.stop()
+            nettyEngine?.stop()
+            nettyEngine = null
         } catch (e: UninitializedPropertyAccessException) {
             super.onDestroyView()
         }
+        isFragActive = false
         super.onDestroyView()
     }
 
@@ -147,13 +161,13 @@ class ConnectPcFragment : Fragment() {
                 connectHotspot()
             }
         }
-        recievedRecyclerAdapter()
+        receivedRecyclerAdapter()
     }
 
-    private fun recievedRecyclerAdapter() {
+    private fun receivedRecyclerAdapter() {
 //        display uploaded items in recyclerview
         recyclerAdapter.onClickListener(object : RecyclerAdapter.OnItemClickListener {
-            override fun onMenuClick(fileModel: FileModel, view: View) {
+            override fun onMenuClick(fileModel: FileModel, view: View, position: Int) {
                 // when recycler view menu is clicked, display drop down menu
                 requireContext().popupMenu(view) { menuItem ->
                     when (menuItem.itemId) {
@@ -173,7 +187,7 @@ class ConnectPcFragment : Fragment() {
                                     }
                                     // update adapter
                                     recyclerAdapter.removeAt(RecyclerAdapterDataclass(fileModel))
-                                    recyclerAdapter.notifyDataSetChanged()
+                                    recyclerAdapter.notifyItemRemoved(position)
                                 }
                                 adb.setNegativeButton("cancel") { _, _ ->
                                     adb.show().dismiss()
@@ -211,13 +225,14 @@ class ConnectPcFragment : Fragment() {
                             configureTemplating(this)
                         }
                         // start connection
-                        nettyEngine.start(wait = true)
+                        nettyEngine?.start(wait = true)
                     }
                     idBtnConnectBrowser.text = getString(R.string.format_string, "Disconnect PC")
                     fragmentView.displaySnackBar("Connected to Address ${Const.ADDRESS}")
                 } else {
                     // stop connection because connectDevice is false
-                    nettyEngine.stop()
+                    nettyEngine?.stop()
+                    nettyEngine = null
                     idBtnConnectBrowser.text = getString(R.string.format_string, "Connect PC")
                 }
                 // set connectDevice to not connectDevice so that you can toggle connection
@@ -230,7 +245,7 @@ class ConnectPcFragment : Fragment() {
         // This will prompt the user to select method of file transfer. Either to receive or send
         // This will open another fragment
         idBtnConnectDevice.setOnClickListener {
-            requireContext().popUpWindow(fragmentView,R.layout.connect_device_popup){v, p->
+            requireContext().popUpWindow(fragmentView, R.layout.connect_device_popup) { v, p ->
                 val send = v.findViewById<Button>(R.id.id_btn_send)
                 val receive = v.findViewById<Button>(R.id.id_btn_receive)
                 send.setOnClickListener {
@@ -244,6 +259,7 @@ class ConnectPcFragment : Fragment() {
     private fun fragmentInitializers() {
 //        initialize all global variables
         idToolbarTextView = requireActivity().findViewById(R.id.id_tv_toolbar)
+        isFragActive = true
         idToolbarTextView.text = requireActivity().getString(R.string.app_name)
         idGifImageView = fragmentView.findViewById(R.id.id_gif_image)
         idGifLinearLayout = fragmentView.findViewById(R.id.id_gif_ll)
@@ -286,7 +302,7 @@ class ConnectPcFragment : Fragment() {
          */
         CoroutineScope(Dispatchers.Main).launch {
             if (idGifLinearLayout.isVisible) {
-            //  display recyclerview with items
+                //  display recyclerview with items
                 // and remove gif layout
                 idRecyclerView.visibility = RecyclerView.VISIBLE
                 idGifLinearLayout.visibility = LinearLayout.GONE
@@ -302,8 +318,25 @@ class ConnectPcFragment : Fragment() {
                     ),
                 )
             )
-            recyclerAdapter.notifyDataSetChanged()
+            recyclerAdapter.notifyItemInserted(recyclerAdapter.itemCount)
         }
+    }
+
+    private fun menuItemClicked(function: () -> Unit) {
+        if (nettyEngine != null) {
+            requireContext().popUpWindow(
+                title = "Notice 🔔",
+                message = "PC Connection is in progress. Leaving this page 📟 will result in connection lost, which may lead to interruption of your download 👇🏾 or upload 👆🏾."
+            ) { popup ->
+                popup.setCancelable(true)
+                popup.setPositiveButton("Continue") { _, _ ->
+                    function()
+                }
+                popup.setNegativeButton("Cancel") { _, _ ->
+                    popup.show().dismiss()
+                }
+            }
+        } else function()
     }
 
     fun registerDeleteResult() {

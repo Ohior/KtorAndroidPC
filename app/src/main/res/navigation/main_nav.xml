@@ -10,6 +10,7 @@
                 app:enterAnim="@anim/nav_default_pop_enter_anim" app:exitAnim="@anim/nav_default_pop_exit_anim"/>
         <action android:id="@+id/connectPcFragment_to_connectDeviceFragment"
                 app:destination="@id/connectDeviceFragment" app:enterAnim="@android:anim/fade_in"/>
+        <argument android:name="directoryPath" app:argType="string"/>
     </fragment>
     <fragment android:id="@+id/explorerFragment" android:name="ng.ohis.ktorandroidpc.fragments.ExplorerFragment"
               android:label="fragment_explorer" tools:layout="@layout/fragment_explorer">

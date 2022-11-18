@@ -35,7 +35,7 @@ class RecyclerAdapter(
         // inter face for auto-loading itemClick and longItemClick
         fun onItemClick(position: Int, view: View) {}
         fun onLongItemClick(position: Int, view: View) {}
-        fun onMenuClick(fileModel: FileModel, view: View)
+        fun onMenuClick(fileModel: FileModel, view: View, position: Int = 0)
     }
 
     fun onClickListener(listener: OnItemClickListener) {
@@ -139,7 +139,7 @@ class RecyclerAdapter(
                 listener.onItemClick(adapterPosition, itemView)
             }
             menu.setOnClickListener {
-                listener.onMenuClick(recyclerArrayList[adapterPosition].fileModel, it)
+                listener.onMenuClick(recyclerArrayList[adapterPosition].fileModel, it, adapterPosition)
             }
         }
     }

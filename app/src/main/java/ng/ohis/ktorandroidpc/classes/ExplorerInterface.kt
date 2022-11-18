@@ -32,14 +32,14 @@ interface ExplorerInterface {
     fun loopThroughFiles(files: List<FileModel>, recyclerAdapter: RecyclerAdapter) {
         // remove all data from recycler adapter amd fill it with updated list of file-model
         recyclerAdapter.emptyAdapter()
-        for (file in files) {
+        for ((index, file) in files.withIndex()) {
             recyclerAdapter.addToAdapter(
                 RecyclerAdapterDataclass(
                     fileModel = file,
                 )
             )
+            recyclerAdapter.notifyItemInserted(index)
         }
-        recyclerAdapter.notifyDataSetChanged()
     }
 
     fun navigateDirectoryForward(

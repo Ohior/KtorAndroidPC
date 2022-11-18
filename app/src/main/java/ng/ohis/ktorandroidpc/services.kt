@@ -89,13 +89,14 @@ fun Context.popUpWindow(
     message: String,
     title: String = "",
     lambda: ((AlertDialog.Builder) -> Unit)? = null
-) {
+):Boolean {
     AlertDialog.Builder(this@popUpWindow).apply {
         this.setCancelable(false)
         this.setTitle(title)
         this.setMessage(message)
         lambda!!(this)
     }.show()
+    return false
 }
 
 fun Context.isThemeDark(): Boolean {

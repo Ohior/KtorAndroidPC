@@ -7,9 +7,13 @@ import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.Fragment
+import io.ktor.util.reflect.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import ng.ohis.ktorandroidpc.fragments.ConnectPcFragment
+import ng.ohis.ktorandroidpc.fragments.ExplorerFragment
 import ng.ohis.ktorandroidpc.utills.Const
 import ng.ohis.ktorandroidpc.utills.Tools
 import java.io.File
@@ -74,10 +78,18 @@ class MainActivity : AppCompatActivity() {
 //        this holds general menu item
         return when (item.itemId) {
             R.id.id_menu_setting -> {
+                ConnectPcFragment.isFragActive = true
                 startActivity(Intent(this, SettingsActivity::class.java))
                 true
             }
             else -> super.onOptionsItemSelected(item)
         }
+    }
+
+    override fun onBackPressed() {
+        if (ConnectPcFragment.isFragActive){
+            finish()
+        }
+        super.onBackPressed()
     }
 }
