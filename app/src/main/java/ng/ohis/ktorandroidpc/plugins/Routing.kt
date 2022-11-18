@@ -1,10 +1,6 @@
 package ng.ohis.ktorandroidpc.plugins
 
 
-import ng.ohis.ktorandroidpc.utills.Const
-import ng.ohis.ktorandroidpc.utills.DataManager
-import ng.ohis.ktorandroidpc.utills.FileModel
-import ng.ohis.ktorandroidpc.utills.Tools
 import io.ktor.http.*
 import io.ktor.http.content.*
 import io.ktor.server.application.*
@@ -13,9 +9,12 @@ import io.ktor.server.mustache.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import ng.ohis.ktorandroidpc.explorer.FileUtils
+import ng.ohis.ktorandroidpc.utills.*
 import java.io.File
 
 
@@ -34,7 +33,7 @@ private var rootDirectory = homeDirectoryPath
 
 private val sdDirectoryPath = DataManager.getString(Const.SD_DIRECTORY_KEY)
 
-fun Application.configureRouting(function: (Route)->Unit) {
+fun Application.configureRouting(function: (Route) -> Unit) {
     routing {
         navigateHomeDirectory()
 
@@ -45,7 +44,7 @@ fun Application.configureRouting(function: (Route)->Unit) {
         navigateSDHomeDirectory()
 
         downloadFile()
-        
+
         downloadFolder()
 
         function(this)
@@ -163,7 +162,7 @@ private fun Route.downloadFile() {
         // check if the file exits
         if (getFile != null) {
             val file = File(getFile.path)
-            call.downloadFile(file)
+            call.downloadFileAction(file)
         }
         call.respondRedirect("web")
     }
@@ -174,50 +173,53 @@ fun Route.uploadFile(function: (File) -> Unit) {
         try {
 
 //            // get the data been pass the server by the form
-        val multipartData = call.receiveMultipart()
-        withContext(Dispatchers.IO) {
+            val multipartData = call.receiveMultipart()
             withContext(Dispatchers.IO) {
-                multipartData.forEachPart { part ->
-                    // check which data part is
-                    when (part) {
-                        is PartData.FileItem -> {
-                            // upload the data
-                            val inputStream = part.streamProvider()
-                            val fileBytes = inputStream.readBytes()
-                            val mFile = File(Const.UPLOAD_PATH + part.originalFileName)
-                            mFile.writeBytes(fileBytes)
-                            function(mFile)
+                withContext(Dispatchers.IO) {
+                    multipartData.forEachPart { part ->
+                        // check which data part is
+                        when (part) {
+                            is PartData.FileItem -> {
+                                // upload the data
+                                val inputStream = part.streamProvider()
+                                val fileBytes = inputStream.readBytes()
+                                val mFile = File(Const.UPLOAD_PATH + part.originalFileName)
+                                mFile.writeBytes(fileBytes)
+                                function(mFile)
+                            }
+                            else -> Unit
                         }
-                        else -> Unit
+                        call.respondRedirect("web")
+                        part.dispose()
                     }
-                    call.respondRedirect("web")
-                    part.dispose()
                 }
             }
-        }
-        }catch (e:Exception){
-        call.respondRedirect("web")
+        } catch (e: Exception) {
+            call.respondRedirect("web")
 
         }
 
     }
 }
 
-private fun Route.downloadFolder(){
-    get("web/folder/{{name}}"){
+private fun Route.downloadFolder() {
+    get("web/folder/{name}") {
         //get data been pass to the server
         val name = call.parameters["name"]
-        
+
         // get the File model from the list
         val getFile = templateData!!.dirFiles.find { it.name == name }
-        val listOfFile = getFile?.path?.let { it1 -> FileUtils.getFilesFromPath(it1) }
-        // TODO: 18/11/2022 download folder 
+        // TODO: 18/11/2022 download folder
+        if (getFile != null){
+            // TODO: 18/11/2022 Download folder 
+        }
+        call.respondRedirect("/web")
     }
 }
 
-private suspend fun ApplicationCall.downloadFile(file: File){
+private suspend fun ApplicationCall.downloadFileAction(file: File) {
     // make the file downloadable and not playable
-    this@downloadFile.response.header(
+    this@downloadFileAction.response.header(
         HttpHeaders.ContentDisposition,
         ContentDisposition.Attachment.withParameter(
             ContentDisposition.Parameters.FileName,
@@ -225,5 +227,5 @@ private suspend fun ApplicationCall.downloadFile(file: File){
         ).toString()
     )
     // actually download the file
-    this@downloadFile.respondFile(file)
+    this@downloadFileAction.respondFile(file)
 }

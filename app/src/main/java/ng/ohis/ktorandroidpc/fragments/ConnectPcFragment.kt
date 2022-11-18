@@ -16,9 +16,6 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.net.toFile
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentManager
-import androidx.navigation.NavDirections
-import androidx.navigation.Navigation
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
@@ -42,7 +39,6 @@ import ng.ohis.ktorandroidpc.plugins.uploadFile
 import ng.ohis.ktorandroidpc.popUpWindow
 import ng.ohis.ktorandroidpc.popupMenu
 import ng.ohis.ktorandroidpc.utills.Const
-import ng.ohis.ktorandroidpc.utills.DataManager
 import ng.ohis.ktorandroidpc.utills.Tools
 import java.io.File
 import java.lang.reflect.Method

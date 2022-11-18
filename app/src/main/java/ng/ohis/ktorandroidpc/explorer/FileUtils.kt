@@ -1,8 +1,14 @@
 package ng.ohis.ktorandroidpc.explorer
 
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import ng.ohis.ktorandroidpc.utills.FileModel
 import ng.ohis.ktorandroidpc.utills.Tools
-import java.io.File
+import java.io.*
+import java.util.zip.ZipEntry
+import java.util.zip.ZipFile
+import java.util.zip.ZipOutputStream
 
 object FileUtils {
     fun getFilesFromPath(path: String, showHiddenFiles: Boolean = false, onlyFolders: Boolean = false): List<File> {
@@ -11,9 +17,9 @@ object FileUtils {
             file.listFiles()!!
                 .filter { showHiddenFiles || !it.name.startsWith(".") }
                 .filter { !onlyFolders || it.isDirectory }
-                .filter { !it.name.contains("%") }
                 .toList()
         } else emptyList()
+//                .filter { !it.name.contains("%") }
     }
 
     fun getFileModelsFromFiles(files: List<File>?): List<FileModel> {
