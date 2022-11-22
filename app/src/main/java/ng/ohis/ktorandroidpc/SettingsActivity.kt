@@ -5,11 +5,16 @@ import android.content.SharedPreferences
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
+import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.PreferenceManager
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import ng.ohis.ktorandroidpc.R
 import ng.ohis.ktorandroidpc.utills.Const
 import ng.ohis.ktorandroidpc.utills.DataManager
+import ng.ohis.ktorandroidpc.utills.SettingsDataClass
 import ng.ohis.ktorandroidpc.utills.Tools
 
 //setting activity controls the settings for this app
@@ -19,6 +24,11 @@ class SettingsActivity : AppCompatActivity(), SharedPreferences.OnSharedPreferen
         PreferenceManager.getDefaultSharedPreferences(this)
             .unregisterOnSharedPreferenceChangeListener(this)
         super.onDestroy()
+    }
+
+    override fun onBackPressed() {
+        appSettings(this)
+        super.onBackPressed()
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -36,6 +46,11 @@ class SettingsActivity : AppCompatActivity(), SharedPreferences.OnSharedPreferen
     }
 
     class SettingsFragment : PreferenceFragmentCompat() {
+        override fun onPreferenceTreeClick(preference: Preference): Boolean {
+            val key  = preference.key
+            Tools.debugMessage(key, "KEY")
+            return super.onPreferenceTreeClick(preference)
+        }
         override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
             setPreferencesFromResource(R.xml.root_preferences, rootKey)
         }
@@ -47,11 +62,12 @@ class SettingsActivity : AppCompatActivity(), SharedPreferences.OnSharedPreferen
             val appTheme = pref?.getString(key, "1")
             switchTheme(appTheme)
         }
+//        appSettings(this)
     }
 
-
     companion object {
-        private fun switchTheme(appTheme:String?){
+
+        private fun switchTheme(appTheme: String?) {
             when (appTheme?.toInt()) {
                 1 -> {
                     AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)
@@ -67,21 +83,18 @@ class SettingsActivity : AppCompatActivity(), SharedPreferences.OnSharedPreferen
                 }
             }
         }
-        fun appSettings(activity: Activity) {
-            DataManager.with(activity).setString(
-                Const.SD_DIRECTORY_KEY,
-                Tools.getExternalSDCardRootDirectory(activity)?:"")
-            val preferenceManager = PreferenceManager.getDefaultSharedPreferences(activity)
-            val appTheme = preferenceManager.getString("appTheme","1")
-            switchTheme(appTheme)
 
+        fun appSettings(activity: Activity) {
+            val preferenceManager = PreferenceManager.getDefaultSharedPreferences(activity)
+            val appTheme = preferenceManager.getString("appTheme", "1")
             val downloadFolder = preferenceManager.getBoolean("downloadFolder", false)
-            if (downloadFolder) {
-                Const.UPLOAD_PATH = Const.DOWNLOAD_DIR
-            } else {
-                Const.UPLOAD_PATH = Const.CHRANSVER_DIR
-            }
+            val showHiddenFiles = preferenceManager.getBoolean("showHiddenFile", true)
+            switchTheme(appTheme)
+            Const.SETTING_UPLOAD_PATH = if (downloadFolder) Const.DOWNLOAD_DIR else Const.CHRANSVER_DIR
+            Const.SETTING_SHOW_HIDDEN_FILES = showHiddenFiles
         }
+
+
     }
 
 }

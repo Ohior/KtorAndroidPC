@@ -1,21 +1,15 @@
 package ng.ohis.ktorandroidpc.explorer
 
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
+import ng.ohis.ktorandroidpc.utills.Const
 import ng.ohis.ktorandroidpc.utills.FileModel
-import ng.ohis.ktorandroidpc.utills.Tools
-import java.io.*
-import java.util.zip.ZipEntry
-import java.util.zip.ZipFile
-import java.util.zip.ZipOutputStream
+import java.io.File
 
 object FileUtils {
-    fun getFilesFromPath(path: String, showHiddenFiles: Boolean = false, onlyFolders: Boolean = false): List<File> {
+    fun getFilesFromPath(path: String,onlyFolders: Boolean = false): List<File> {
         val file = File(path)
         return if (file.listFiles() != null) {
             file.listFiles()!!
-                .filter { showHiddenFiles || !it.name.startsWith(".") }
+                .filter { Const.SETTING_SHOW_HIDDEN_FILES || !it.name.startsWith(".") }
                 .filter { !onlyFolders || it.isDirectory }
                 .toList()
         } else emptyList()

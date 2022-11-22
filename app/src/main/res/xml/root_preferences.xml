@@ -1,18 +1,44 @@
 <PreferenceScreen
-    xmlns:app="http://schemas.android.com/apk/res-auto" xmlns:android="http://schemas.android.com/apk/res/android">
-    <PreferenceCategory app:title="Basic">
-        <SwitchPreferenceCompat
-            app:key="downloadFolder"
-            app:title="Download Folder"
-            app:summary="Save files to Download?"/>
-    </PreferenceCategory>
-    <PreferenceCategory android:title="Theme">
-        <DropDownPreference
-            app:title="App Theme"
-            app:key="appTheme"
-            app:useSimpleSummaryProvider="true"
-            android:defaultValue="1"
-            android:entries="@array/theme_entries"
-            android:entryValues="@array/theme_entries_values"/>
-    </PreferenceCategory>
+	xmlns:app="http://schemas.android.com/apk/res-auto" xmlns:android="http://schemas.android.com/apk/res/android">
+	<PreferenceCategory app:title="Basic">
+		<SwitchPreferenceCompat
+			app:icon="@drawable/ic_folder"
+			app:key="downloadFolder"
+			app:title="Download Folder"
+			app:summary="Save files to Download?"/>
+		<SwitchPreferenceCompat
+			android:icon="@drawable/ic_file"
+			app:key="showHiddenFile"
+			app:title="Show Hidden Files"/>
+		<DropDownPreference
+			app:icon="@drawable/ic_theme"
+			app:title="App Theme"
+			app:key="appTheme"
+			app:useSimpleSummaryProvider="true"
+			android:defaultValue="1"
+			android:entries="@array/theme_entries"
+			android:entryValues="@array/theme_entries_values"/>
+	</PreferenceCategory>
+
+	<PreferenceCategory android:title="Advanced">
+		<Preference
+			app:icon="@drawable/ic_share"
+			app:title="Share"
+			app:key="shareApp"/>
+		<Preference
+			app:icon="@drawable/ic_thumb_up"
+			app:title="Rate">
+			<intent
+				android:data="https://play.google.com/store/apps/details?id=ng.ohis.ktorandroidpc"
+				android:action="android.intent.action.VIEW"/>
+		</Preference>
+		<Preference
+			app:icon="@drawable/ic_privacy"
+			app:summary="Check privacy"
+			app:title="Privacy">
+			<intent
+				android:action="android.intent.action.VIEW"
+				android:data="https://ohior.github.io/iamohiorenua/privacy.html"/>
+		</Preference>
+	</PreferenceCategory>
 </PreferenceScreen>

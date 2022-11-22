@@ -134,7 +134,9 @@ class ConnectPcFragment : Fragment() {
         // Inflate the layout for this fragment
         fragmentView = inflater.inflate(R.layout.fragment_connect_pc, container, false)
 
-        Tools.requestForAllPermission(requireActivity())
+        CoroutineScope(Dispatchers.IO).launch {
+            Tools.requestForAllPermission(requireActivity())
+        }
 
         requireActivity().findViewById<TextView>(R.id.id_tv_toolbar).isClickable = false
 
@@ -150,7 +152,7 @@ class ConnectPcFragment : Fragment() {
     }
 
     private fun fragmentExecutable() {
-        Tools.createDirectoryIfNonExist(Const.UPLOAD_PATH)
+        Tools.createDirectoryIfNonExist(Const.SETTING_UPLOAD_PATH)
         Glide.with(requireActivity()).asGif().load(R.drawable.gifimage).into(idGifImageView)
         if (!isHotspotOn()) {
             fragmentView.displaySnackBar("Wifi - Hotspot is switch OFF!", "switch ON") {

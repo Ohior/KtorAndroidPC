@@ -51,3 +51,11 @@ data class StorageDataClass(
         return """{"rootDirectory": "$rootDirectory","isSdStorage": "$isSdStorage"}""".trimIndent().trim()
     }
 }
+
+
+data class SettingsDataClass(
+    val downloadFolder:String,
+    val showHiddenFiles:Boolean
+){
+    fun toJson() = """{"downloadFolder":"$downloadFolder", "showHiddenFiles":"$showHiddenFiles"}""".trim()
+}

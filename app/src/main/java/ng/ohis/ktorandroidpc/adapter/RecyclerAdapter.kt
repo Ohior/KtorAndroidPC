@@ -85,6 +85,7 @@ class RecyclerAdapter(
     fun emptyAdapter() {
         //remove all item from your recyclerview
         recyclerArrayList.clear()
+        notifyDataSetChanged()
     }
 
     fun addToAdapter(element: RecyclerAdapterDataclass) {

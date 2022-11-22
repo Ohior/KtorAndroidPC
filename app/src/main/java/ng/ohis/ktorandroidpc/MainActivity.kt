@@ -1,6 +1,7 @@
 package ng.ohis.ktorandroidpc
 
 
+import android.app.Application
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
@@ -8,10 +9,12 @@ import android.view.Menu
 import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
+import io.ktor.server.application.*
 import io.ktor.util.reflect.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import ng.ohis.ktorandroidpc.fragments.ConnectPcFragment
 import ng.ohis.ktorandroidpc.fragments.ExplorerFragment
 import ng.ohis.ktorandroidpc.utills.Const
@@ -33,7 +36,12 @@ class MainActivity : AppCompatActivity() {
         ) {
             return
         } else {
-            Tools.requestForAllPermission(this@MainActivity)
+//            if (Tools.requestForAllPermission(this)){
+//                this.popUpWindow(
+//                    title = "Permission",
+//                    message = "Permissions 🙉 are needed for this app 📳 to run successfully"
+//                ){it.setCancelable(true)}
+//            }
         }
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
     }
@@ -78,7 +86,6 @@ class MainActivity : AppCompatActivity() {
 //        this holds general menu item
         return when (item.itemId) {
             R.id.id_menu_setting -> {
-                ConnectPcFragment.isFragActive = true
                 startActivity(Intent(this, SettingsActivity::class.java))
                 true
             }

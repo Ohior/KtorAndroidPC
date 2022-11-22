@@ -9,12 +9,12 @@ import io.ktor.server.mustache.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import ng.ohis.ktorandroidpc.explorer.FileUtils
-import ng.ohis.ktorandroidpc.utills.*
+import ng.ohis.ktorandroidpc.utills.Const
+import ng.ohis.ktorandroidpc.utills.DataManager
+import ng.ohis.ktorandroidpc.utills.FileModel
+import ng.ohis.ktorandroidpc.utills.Tools
 import java.io.File
 
 
@@ -44,8 +44,6 @@ fun Application.configureRouting(function: (Route) -> Unit) {
         navigateSDHomeDirectory()
 
         downloadFile()
-
-        downloadFolder()
 
         function(this)
 
@@ -183,7 +181,7 @@ fun Route.uploadFile(function: (File) -> Unit) {
                                 // upload the data
                                 val inputStream = part.streamProvider()
                                 val fileBytes = inputStream.readBytes()
-                                val mFile = File(Const.UPLOAD_PATH + part.originalFileName)
+                                val mFile = File(Const.SETTING_UPLOAD_PATH + part.originalFileName)
                                 mFile.writeBytes(fileBytes)
                                 function(mFile)
                             }
@@ -199,21 +197,6 @@ fun Route.uploadFile(function: (File) -> Unit) {
 
         }
 
-    }
-}
-
-private fun Route.downloadFolder() {
-    get("web/folder/{name}") {
-        //get data been pass to the server
-        val name = call.parameters["name"]
-
-        // get the File model from the list
-        val getFile = templateData!!.dirFiles.find { it.name == name }
-        // TODO: 18/11/2022 download folder
-        if (getFile != null){
-            // TODO: 18/11/2022 Download folder 
-        }
-        call.respondRedirect("/web")
     }
 }
 

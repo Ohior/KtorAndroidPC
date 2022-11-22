@@ -52,34 +52,34 @@ object DataManager {
         return GsonBuilder().create().fromJson(value, T::class.java)
     }
 
-    fun <T> savePreferenceData(dataclass: T, key: String) {
-        if (sharedPreferences == null) return
-        // make the sharedPreferences database editable
-        val prefEdit = sharedPreferences!!.edit()
-        // dataclass holds type of data and gson returns the data been held
-        val data = Gson().toJson(dataclass)
-        // store the data and assign a kry to it
-        prefEdit.putString(key, data)
-        //save the data
-        prefEdit.apply()
-    }
-
-    fun retrievePreferenceData(key: String): ArrayList<FileModel> {
-        if (sharedPreferences == null) return ArrayList()
-        // get the jsonfyied data from sharedPreferences
-        val data = sharedPreferences!!.getString(key, null)
-        // because the json data is stored in list format
-        // convert it to an array of json data
-        val jsonArray = JSONArray(data)
-        val recyclerArrayList = ArrayList<FileModel>()
-        // loop through all the jsonArray
-        for (i in 0 until jsonArray.length()) {
-            // get each json and store it inside the recyclerArrayList
-            val d = jsonArray.getJSONObject(i)
-            // serialize the json data into the dataclass
-            // (the arg of both json and dataclass are the same)
-            recyclerArrayList.add(Gson().fromJson(d.toString(), FileModel::class.java))
-        }
-        return recyclerArrayList
-    }
+//    private fun <T> savePreferenceData(dataclass: T, key: String) {
+//        if (sharedPreferences == null) return
+//        // make the sharedPreferences database editable
+//        val prefEdit = sharedPreferences!!.edit()
+//        // dataclass holds type of data and gson returns the data been held
+//        val data = Gson().toJson(dataclass)
+//        // store the data and assign a kry to it
+//        prefEdit.putString(key, data)
+//        //save the data
+//        prefEdit.apply()
+//    }
+//
+//    private fun retrievePreferenceData(key: String): ArrayList<FileModel> {
+//        if (sharedPreferences == null) return ArrayList()
+//        // get the jsonfyied data from sharedPreferences
+//        val data = sharedPreferences!!.getString(key, null)
+//        // because the json data is stored in list format
+//        // convert it to an array of json data
+//        val jsonArray = JSONArray(data)
+//        val recyclerArrayList = ArrayList<FileModel>()
+//        // loop through all the jsonArray
+//        for (i in 0 until jsonArray.length()) {
+//            // get each json and store it inside the recyclerArrayList
+//            val d = jsonArray.getJSONObject(i)
+//            // serialize the json data into the dataclass
+//            // (the arg of both json and dataclass are the same)
+//            recyclerArrayList.add(Gson().fromJson(d.toString(), FileModel::class.java))
+//        }
+//        return recyclerArrayList
+//    }
 }
