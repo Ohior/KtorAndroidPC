@@ -9,6 +9,8 @@ import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
 import ng.ohis.ktorandroidpc.fragments.ExplorerFragment
 import ng.ohis.ktorandroidpc.utills.Const
+import ng.ohis.ktorandroidpc.utills.DataManager
+import ng.ohis.ktorandroidpc.utills.Tools
 import java.lang.reflect.Method
 
 //This activity is the host for explorer fragment and connect pc fragment
@@ -46,6 +48,7 @@ class MainActivity : AppCompatActivity() {
         SettingsActivity.appSettings(this)
 //        display custom actionbar
         setSupportActionBar(findViewById(R.id.id_toolbar))
+        DataManager.with(this).setString(Const.SD_DIRECTORY_KEY, Tools.getExternalSDCardRootDirectory(this))
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {

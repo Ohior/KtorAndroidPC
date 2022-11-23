@@ -31,7 +31,7 @@ private var directoryPath = Const.ROOT_PATH
 
 private var rootDirectory = homeDirectoryPath
 
-private val sdDirectoryPath = DataManager.getString(Const.SD_DIRECTORY_KEY)
+private val sdDirectoryPath = DataManager.getString(Const.SD_DIRECTORY_KEY)?:""
 
 fun Application.configureRouting(function: (Route) -> Unit) {
     routing {
