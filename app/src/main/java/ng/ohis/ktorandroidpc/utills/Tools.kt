@@ -17,6 +17,7 @@ import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
+import androidx.navigation.Navigation
 import androidx.navigation.findNavController
 import ng.ohis.ktorandroidpc.BuildConfig
 import ng.ohis.ktorandroidpc.explorer.FileUtils
@@ -184,8 +185,9 @@ object Tools {
         return uri
     }
 
-    fun navigateFragmentToFragment(fragmentView: View, id: Int) {
-        fragmentView.findNavController().navigate(id)
+    fun navigateFragmentToFragment(fragmentView: View, id: Int, fragClass:String?=null) {
+        Const.FRAGMENT_TAG = fragClass?:""
+        fragmentView.findNavController() .navigate(id)
 //        Navigation.findNavController(fragmentView).navigate(id)
     }
 

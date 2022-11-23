@@ -19,6 +19,7 @@
         <entry key="..\:/Developer/IntellijIdea/KtorAndroidPC/app/src/main/res/drawable/ic_privacy.xml" value="0.20520833333333333" />
         <entry key="..\:/Developer/IntellijIdea/KtorAndroidPC/app/src/main/res/drawable/ic_rate.xml" value="0.20520833333333333" />
         <entry key="..\:/Developer/IntellijIdea/KtorAndroidPC/app/src/main/res/drawable/ic_setting.xml" value="0.1" />
+        <entry key="..\:/Developer/IntellijIdea/KtorAndroidPC/app/src/main/res/drawable/ic_theme.xml" value="0.20520833333333333" />
         <entry key="..\:/Developer/IntellijIdea/KtorAndroidPC/app/src/main/res/drawable/ic_thumb_up.xml" value="0.20520833333333333" />
         <entry key="..\:/Developer/IntellijIdea/KtorAndroidPC/app/src/main/res/layout-v23/connect_device_popup.xml" value="0.18802083333333333" />
         <entry key="..\:/Developer/IntellijIdea/KtorAndroidPC/app/src/main/res/layout/activity_explorer.xml" value="0.15715579710144928" />
@@ -28,6 +29,7 @@
         <entry key="..\:/Developer/IntellijIdea/KtorAndroidPC/app/src/main/res/layout/drawer_header.xml" value="0.1671195652173913" />
         <entry key="..\:/Developer/IntellijIdea/KtorAndroidPC/app/src/main/res/layout/explorer_item.xml" value="0.25" />
         <entry key="..\:/Developer/IntellijIdea/KtorAndroidPC/app/src/main/res/layout/explorer_item2.xml" value="0.15715579710144928" />
+        <entry key="..\:/Developer/IntellijIdea/KtorAndroidPC/app/src/main/res/layout/fragment_blank.xml" value="0.15942028985507245" />
         <entry key="..\:/Developer/IntellijIdea/KtorAndroidPC/app/src/main/res/layout/fragment_connect_device.xml" value="0.1" />
         <entry key="..\:/Developer/IntellijIdea/KtorAndroidPC/app/src/main/res/layout/fragment_connect_pc.xml" value="0.15942028985507245" />
         <entry key="..\:/Developer/IntellijIdea/KtorAndroidPC/app/src/main/res/layout/fragment_explorer.xml" value="0.1671195652173913" />

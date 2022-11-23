@@ -61,10 +61,6 @@ class ConnectPcFragment : Fragment() {
     private var deleteFileUri: Uri? = null
 
 
-    companion object{
-        var isFragActive = true
-    }
-
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -123,7 +119,6 @@ class ConnectPcFragment : Fragment() {
         } catch (e: UninitializedPropertyAccessException) {
             super.onDestroyView()
         }
-        isFragActive = false
         super.onDestroyView()
     }
 
@@ -152,7 +147,8 @@ class ConnectPcFragment : Fragment() {
     }
 
     private fun fragmentExecutable() {
-        Tools.createDirectoryIfNonExist(Const.SETTING_UPLOAD_PATH)
+        // Create app (Chransver) folder in root directory if it does not exist
+        Tools.createDirectoryIfNonExist(Const.ROOT_PATH)
         Glide.with(requireActivity()).asGif().load(R.drawable.gifimage).into(idGifImageView)
         if (!isHotspotOn()) {
             fragmentView.displaySnackBar("Wifi - Hotspot is switch OFF!", "switch ON") {
@@ -257,7 +253,6 @@ class ConnectPcFragment : Fragment() {
     private fun fragmentInitializers() {
 //        initialize all global variables
         idToolbarTextView = requireActivity().findViewById(R.id.id_tv_toolbar)
-        isFragActive = true
         idToolbarTextView.text = requireActivity().getString(R.string.app_name)
         idGifImageView = fragmentView.findViewById(R.id.id_gif_image)
         idGifLinearLayout = fragmentView.findViewById(R.id.id_gif_ll)

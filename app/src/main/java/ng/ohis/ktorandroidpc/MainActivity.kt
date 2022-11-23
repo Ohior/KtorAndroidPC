@@ -1,25 +1,14 @@
 package ng.ohis.ktorandroidpc
 
 
-import android.app.Application
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
-import androidx.fragment.app.Fragment
-import io.ktor.server.application.*
-import io.ktor.util.reflect.*
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
-import ng.ohis.ktorandroidpc.fragments.ConnectPcFragment
 import ng.ohis.ktorandroidpc.fragments.ExplorerFragment
 import ng.ohis.ktorandroidpc.utills.Const
-import ng.ohis.ktorandroidpc.utills.Tools
-import java.io.File
 import java.lang.reflect.Method
 
 //This activity is the host for explorer fragment and connect pc fragment
@@ -91,12 +80,5 @@ class MainActivity : AppCompatActivity() {
             }
             else -> super.onOptionsItemSelected(item)
         }
-    }
-
-    override fun onBackPressed() {
-        if (ConnectPcFragment.isFragActive){
-            finish()
-        }
-        super.onBackPressed()
     }
 }

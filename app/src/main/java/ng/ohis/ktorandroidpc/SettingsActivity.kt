@@ -1,10 +1,14 @@
 package ng.ohis.ktorandroidpc
 
 import android.app.Activity
+import android.content.Intent
 import android.content.SharedPreferences
+import android.content.pm.PackageManager
+import android.net.Uri
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
+import androidx.core.content.FileProvider
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.PreferenceManager
@@ -16,6 +20,7 @@ import ng.ohis.ktorandroidpc.utills.Const
 import ng.ohis.ktorandroidpc.utills.DataManager
 import ng.ohis.ktorandroidpc.utills.SettingsDataClass
 import ng.ohis.ktorandroidpc.utills.Tools
+import java.io.File
 
 //setting activity controls the settings for this app
 class SettingsActivity : AppCompatActivity(), SharedPreferences.OnSharedPreferenceChangeListener {
@@ -47,12 +52,34 @@ class SettingsActivity : AppCompatActivity(), SharedPreferences.OnSharedPreferen
 
     class SettingsFragment : PreferenceFragmentCompat() {
         override fun onPreferenceTreeClick(preference: Preference): Boolean {
-            val key  = preference.key
-            Tools.debugMessage(key, "KEY")
+            val key = preference.key
+            if (key != null && key == "shareApp") {
+                shareChransverApk()
+            }
             return super.onPreferenceTreeClick(preference)
         }
+
         override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
             setPreferencesFromResource(R.xml.root_preferences, rootKey)
+        }
+
+        private fun shareChransverApk() {
+            try {
+                val pm = requireActivity().packageManager
+                val ai = pm.getApplicationInfo(requireActivity().packageName, 0)
+                val file = File(ai.publicSourceDir)
+                val uri =
+                    FileProvider.getUriForFile(requireContext(), BuildConfig.APPLICATION_ID + ".provider", file)
+                val share = Intent()
+                share.action = Intent.ACTION_SEND
+                share.type = "application/vnd.android.package-archive"
+                share.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                share.putExtra(Intent.EXTRA_STREAM, uri)
+                requireActivity().startActivity(share)
+
+            } catch (e: Exception) {
+                Tools.debugMessage(e.message.toString())
+            }
         }
     }
 

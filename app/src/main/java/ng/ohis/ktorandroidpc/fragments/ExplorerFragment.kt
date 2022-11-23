@@ -12,6 +12,7 @@ import android.provider.MediaStore
 import android.view.*
 import android.widget.PopupMenu
 import android.widget.TextView
+import androidx.activity.addCallback
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.IntentSenderRequest
 import androidx.activity.result.contract.ActivityResultContracts
@@ -30,8 +31,9 @@ import ng.ohis.ktorandroidpc.classes.ExplorerInterface
 import ng.ohis.ktorandroidpc.explorer.FileType
 import ng.ohis.ktorandroidpc.openFileWithDefaultApp
 import ng.ohis.ktorandroidpc.popUpWindow
-import ng.ohis.ktorandroidpc.utills.*
 import ng.ohis.ktorandroidpc.utills.Const
+import ng.ohis.ktorandroidpc.utills.FileModel
+import ng.ohis.ktorandroidpc.utills.StorageDataClass
 import ng.ohis.ktorandroidpc.utills.Tools
 import java.io.File
 
@@ -42,7 +44,7 @@ class ExplorerFragment : Fragment(), ExplorerInterface {
     private lateinit var idNavigateRecyclerView: RecyclerView
     private lateinit var navigateRecyclerAdapter: NavigateRecyclerAdapter
     private lateinit var idToolbarTextView: TextView
-    private lateinit var rootDir:StorageDataClass
+    private lateinit var rootDir: StorageDataClass
     private var filePath = ""
     private lateinit var intentSenderLauncher: ActivityResultLauncher<IntentSenderRequest>
     private var deleteFileUri: Uri? = null
@@ -140,7 +142,14 @@ class ExplorerFragment : Fragment(), ExplorerInterface {
         idToolbarTextView.setOnClickListener {
             filePath = navigateDirectoryBackward(recyclerAdapter, rootDir.rootDirectory, filePath)
             if (filePath.isEmpty()) {
-                Tools.navigateFragmentToFragment(fragmentView, R.id.explorerFragment_to_connectPcFragment)
+                requireActivity().onBackPressed()
+            }
+        }
+        requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner) {
+            filePath = navigateDirectoryBackward(recyclerAdapter, rootDir.rootDirectory, filePath)
+            if (filePath.isEmpty()) {
+                isEnabled = false
+                requireActivity().onBackPressed()
             }
         }
     }
@@ -285,4 +294,5 @@ class ExplorerFragment : Fragment(), ExplorerInterface {
         })
         updateNavigationBarFolderRecyclerView(filePath, rootDir, navigateRecyclerAdapter)
     }
+
 }
