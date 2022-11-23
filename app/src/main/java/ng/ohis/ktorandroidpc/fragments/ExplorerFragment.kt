@@ -3,11 +3,14 @@ package ng.ohis.ktorandroidpc.fragments
 import android.app.Activity
 import android.app.AlertDialog
 import android.app.RecoverableSecurityException
+import android.content.ContentValues
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.os.storage.StorageManager
+import android.provider.DocumentsContract
 import android.provider.MediaStore
 import android.view.*
 import android.widget.PopupMenu
@@ -19,18 +22,18 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.FileProvider
 import androidx.core.net.toFile
 import androidx.core.net.toUri
+import androidx.documentfile.provider.DocumentFile
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.RecyclerView
 import com.google.gson.Gson
 import ng.ohis.ktorandroidpc.BuildConfig
 import ng.ohis.ktorandroidpc.R
-import ng.ohis.ktorandroidpc.adapter.NavigateRecyclerAdapter
+import ng.ohis.ktorandroidpc.adapter.NavbarRecyclerAdapter
 import ng.ohis.ktorandroidpc.adapter.OnClickInterface
 import ng.ohis.ktorandroidpc.adapter.RecyclerAdapter
 import ng.ohis.ktorandroidpc.classes.ExplorerInterface
 import ng.ohis.ktorandroidpc.explorer.FileType
 import ng.ohis.ktorandroidpc.openFileWithDefaultApp
-import ng.ohis.ktorandroidpc.popUpWindow
 import ng.ohis.ktorandroidpc.utills.Const
 import ng.ohis.ktorandroidpc.utills.FileModel
 import ng.ohis.ktorandroidpc.utills.StorageDataClass
@@ -42,18 +45,37 @@ class ExplorerFragment : Fragment(), ExplorerInterface {
     private lateinit var idRvRootFolder: RecyclerView
     private lateinit var recyclerAdapter: RecyclerAdapter
     private lateinit var idNavigateRecyclerView: RecyclerView
-    private lateinit var navigateRecyclerAdapter: NavigateRecyclerAdapter
+    private lateinit var navbarRecyclerAdapter: NavbarRecyclerAdapter
     private lateinit var idToolbarTextView: TextView
     private lateinit var rootDir: StorageDataClass
     private var filePath = ""
-    private lateinit var intentSenderLauncher: ActivityResultLauncher<IntentSenderRequest>
+    private var intentSenderLauncher: ActivityResultLauncher<IntentSenderRequest> =
+        registerForActivityResult(ActivityResultContracts.StartIntentSenderForResult()) {
+            if (it.resultCode == Activity.RESULT_OK) {
+                if (Build.VERSION.SDK_INT == Build.VERSION_CODES.Q) {
+                    deleteFileUri?.let { it1 -> deleteFileFromStorage(it1.toFile()) }
+                }
+                Tools.showToast(requireActivity(), "File(s) deleted")
+            } else {
+                Tools.showToast(requireActivity(), "File(s) not deleted")
+            }
+        }
     private var deleteFileUri: Uri? = null
+
+    private var sdCardDeleteResult = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+        if (it.resultCode == Activity.RESULT_OK) {
+            File(deleteFileUri.toString()).canonicalFile.delete()
+            Tools.debugMessage(deleteFileUri.toString(), "IT")
+            Tools.showToast(requireActivity(), "File(s) deleted")
+            requireActivity().contentResolver.delete(deleteFileUri!!, null, null)
+        }
+    }
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
-        registerDeleteResult()
+//        registerDeleteResult()
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
@@ -61,13 +83,13 @@ class ExplorerFragment : Fragment(), ExplorerInterface {
         inflater.inflate(R.menu.main_menu, menu)
         super.onCreateOptionsMenu(menu, inflater)
         menu.findItem(R.id.id_menu_computer)?.isVisible = true
-        hideAndShowMenuItem(menu)
+        hideAndShowMenuItem(menu, rootDir)
     }
 
     override fun onOptionsMenuClosed(menu: Menu) {
         super.onOptionsMenuClosed(menu)
         menu.findItem(R.id.id_menu_computer)?.isVisible = true
-        hideAndShowMenuItem(menu)
+        hideAndShowMenuItem(menu, rootDir)
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
@@ -82,7 +104,7 @@ class ExplorerFragment : Fragment(), ExplorerInterface {
                     isSdStorage = true
                 )
                 filePath = navigateDirectoryForward(null, recyclerAdapter, requireContext(), rootDir.rootDirectory)
-                changeToolbarName()
+                idToolbarTextView.text = getToolbarName(rootDir, requireActivity())
                 true
             }
             R.id.id_menu_mobile -> {
@@ -91,7 +113,7 @@ class ExplorerFragment : Fragment(), ExplorerInterface {
                     isSdStorage = false
                 )
                 filePath = navigateDirectoryForward(null, recyclerAdapter, requireContext(), rootDir.rootDirectory)
-                changeToolbarName()
+                idToolbarTextView.text = getToolbarName(rootDir, requireActivity())
                 true
             }
             else -> super.onOptionsItemSelected(item)
@@ -122,7 +144,7 @@ class ExplorerFragment : Fragment(), ExplorerInterface {
         filePath: String
     ): String {
         this.filePath = super.navigateDirectoryForward(position, recyclerAdapter, context, filePath)
-        folderNavigateRecyclerView()
+        navbarRecyclerView()
         return this.filePath
     }
 
@@ -132,12 +154,11 @@ class ExplorerFragment : Fragment(), ExplorerInterface {
         filePath: String
     ): String {
         this.filePath = super.navigateDirectoryBackward(recyclerAdapter, rootDir, filePath)
-        folderNavigateRecyclerView()
+        navbarRecyclerView()
         return this.filePath
     }
 
     private fun fragmentExecutable() {
-        changeToolbarName()
         idToolbarTextView.setCompoundDrawablesRelativeWithIntrinsicBounds(R.drawable.ic_arrow_left, 0, 0, 0)
         idToolbarTextView.setOnClickListener {
             filePath = navigateDirectoryBackward(recyclerAdapter, rootDir.rootDirectory, filePath)
@@ -155,11 +176,12 @@ class ExplorerFragment : Fragment(), ExplorerInterface {
     }
 
     private fun recyclerViewClickListener() {
-        folderNavigateRecyclerView()
-        recyclerAdapter.onClickListener(object : RecyclerAdapter.OnItemClickListener {
+//        navbarRecyclerView()
+        recyclerAdapter.onClickListener(object : OnClickInterface {
             override fun onItemClick(position: Int, view: View) {
                 filePath = navigateDirectoryForward(position, recyclerAdapter, requireContext(), filePath)
             }
+
 
             override fun onMenuClick(fileModel: FileModel, view: View, position: Int) {
                 PopupMenu(context, view).apply {
@@ -205,94 +227,94 @@ class ExplorerFragment : Fragment(), ExplorerInterface {
     private fun variableInitializers() {
         rootDir = Gson().fromJson(requireArguments().getString(Const.FRAGMENT_DATA_KEY), StorageDataClass::class.java)
         idRvRootFolder = fragmentView.findViewById(R.id.id_rv_folder)
+        idToolbarTextView = requireActivity().findViewById(R.id.id_tv_toolbar)
         idNavigateRecyclerView = fragmentView.findViewById(R.id.id_rv_navigate)
         filePath = rootDir.rootDirectory
         recyclerAdapter = RecyclerAdapter(requireContext(), idRvRootFolder, R.layout.explorer_item)
-        navigateRecyclerAdapter = NavigateRecyclerAdapter(requireContext(), idNavigateRecyclerView)
+        navbarRecyclerAdapter = NavbarRecyclerAdapter(requireContext(), idNavigateRecyclerView)
         filePath = navigateDirectoryForward(null, recyclerAdapter, requireContext(), filePath)
-    }
-
-    private fun changeToolbarName() {
-        if (rootDir.isSdStorage) {
-            idToolbarTextView = requireActivity().findViewById(R.id.id_tv_toolbar)
-            idToolbarTextView.text = requireActivity().getString(R.string.format_string, "SD Storage")
-        } else {
-            idToolbarTextView = requireActivity().findViewById(R.id.id_tv_toolbar)
-            idToolbarTextView.text = requireActivity().getString(R.string.format_string, "Local Storage")
-        }
-    }
-
-    private fun hideAndShowMenuItem(menu: Menu) {
-        if (rootDir.isSdStorage) {
-            menu.findItem(R.id.id_menu_sd)?.isVisible = false
-            menu.findItem(R.id.id_menu_mobile)?.isVisible = true
-        } else {
-            menu.findItem(R.id.id_menu_mobile)?.isVisible = false
-            menu.findItem(R.id.id_menu_sd)?.isVisible = true
-        }
+        idToolbarTextView.text = getToolbarName(rootDir, requireActivity())
     }
 
     private fun deleteFileFromStorage(file: File): Uri {
+        val fileUri = FileProvider.getUriForFile(requireContext(), BuildConfig.APPLICATION_ID + ".provider", file)
         if (rootDir.isSdStorage) {
-            requireContext().popUpWindow(
-                title = "Security",
-                message = requireActivity().getString(R.string.security)
-            ) {
-                it.setCancelable(true)
-            }
-            return file.toUri()
-        }
-        val uri = FileProvider.getUriForFile(requireContext(), BuildConfig.APPLICATION_ID + ".provider", file)
-        try {
-            File(file.absolutePath).deleteRecursively()
-        } catch (e: SecurityException) {
-            val intentSender = when {
-                Build.VERSION.SDK_INT >= Build.VERSION_CODES.R -> {
-                    MediaStore.createDeleteRequest(context?.contentResolver!!, listOf(uri)).intentSender
+//            sdCardDeleteResult.launch(Intent(Intent.ACTION_OPEN_DOCUMENT_TREE))
+            DocumentFile.fromSingleUri(requireContext(), fileUri)?.delete()
+        } else {
+            try {
+                File(file.absolutePath).deleteRecursively()
+//                            requireActivity().contentResolver.delete(fileUri, null, null)
+            } catch (e: SecurityException) {
+                val intentSender = when {
+                    Build.VERSION.SDK_INT >= Build.VERSION_CODES.R -> {
+                        MediaStore.createDeleteRequest(requireActivity().contentResolver, listOf(fileUri)).intentSender
+                    }
+                    Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q -> {
+                        val recoverableSecurityException = e as? RecoverableSecurityException
+                        recoverableSecurityException?.userAction?.actionIntent?.intentSender
+                    }
+                    else -> null
                 }
-                Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q -> {
-                    val recoverableSecurityException = e as RecoverableSecurityException
-                    recoverableSecurityException.userAction.actionIntent.intentSender
+                intentSender?.let { sender ->
+                    intentSenderLauncher.launch(IntentSenderRequest.Builder(sender).build())
                 }
-                else -> null
-            }
-            intentSender?.let { sender ->
-                intentSenderLauncher.launch(
-                    IntentSenderRequest.Builder(sender).build()
-                )
             }
         }
-        return uri
+//        if (rootDir.isSdStorage) {
+//            requireContext().popUpWindow(
+//                title = "Security",
+//                message = requireActivity().getString(R.string.security)
+//            ) {
+//                it.setCancelable(true)
+//            }
+//            return file.toUri()
+//        }
+//        try {
+//            File(file.absolutePath).deleteRecursively()
+//        } catch (e: SecurityException) {
+//            val intentSender = when {
+//                Build.VERSION.SDK_INT >= Build.VERSION_CODES.R -> {
+//                    MediaStore.createDeleteRequest(context?.contentResolver!!, listOf(uri)).intentSender
+//                }
+//                Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q -> {
+//                    val recoverableSecurityException = e as RecoverableSecurityException
+//                    recoverableSecurityException.userAction.actionIntent.intentSender
+//                }
+//                else -> null
+//            }
+//            intentSender?.let { sender ->
+//                intentSenderLauncher.launch(
+//                    IntentSenderRequest.Builder(sender).build()
+//                )
+//            }
+//        }
+        return fileUri
     }
 
-    private fun openDocumentTree() {
-        val intent = Intent(Intent.ACTION_OPEN_DOCUMENT_TREE)
-        startActivity(intent)
-    }
+//    private fun registerDeleteResult() {
+//        intentSenderLauncher = registerForActivityResult(ActivityResultContracts.StartIntentSenderForResult()) {
+//            if (it.resultCode == Activity.RESULT_OK) {
+//                if (Build.VERSION.SDK_INT == Build.VERSION_CODES.Q && deleteFileUri != null) {
+//                    deleteFileFromStorage(deleteFileUri!!.toFile())
+//                }
+//                Tools.showToast(requireContext(), "File deleted Successfully")
+//            } else {
+//                Tools.showToast(requireContext(), "File delete Aborted")
+//            }
+//        }
+//    }
 
-    private fun registerDeleteResult() {
-        intentSenderLauncher = registerForActivityResult(ActivityResultContracts.StartIntentSenderForResult()) {
-            if (it.resultCode == Activity.RESULT_OK) {
-                if (Build.VERSION.SDK_INT == Build.VERSION_CODES.Q && deleteFileUri != null) {
-                    deleteFileFromStorage(deleteFileUri!!.toFile())
-                }
-                Tools.showToast(requireContext(), "File deleted Successfully")
-            } else {
-                Tools.showToast(requireContext(), "File delete Aborted")
-            }
-        }
-    }
-
-    private fun folderNavigateRecyclerView() {
-        navigateRecyclerAdapter.onClickListener(object : OnClickInterface {
+    private fun navbarRecyclerView() {
+        navbarRecyclerAdapter.onClickListener(object : OnClickInterface {
             override fun onItemClick(position: Int, view: View) {
                 filePath = filePath.split("/")
-                    .dropLastWhile { it != navigateRecyclerAdapter.getItemAt(position).name }
+                    .dropLastWhile { it != navbarRecyclerAdapter.getItemAt(position).name }
                     .joinToString("/")
                 filePath = navigateDirectoryForward(null, recyclerAdapter, requireContext(), filePath)
             }
         })
-        updateNavigationBarFolderRecyclerView(filePath, rootDir, navigateRecyclerAdapter)
+        updateNavigationBarFolderRecyclerView(filePath, rootDir, navbarRecyclerAdapter)
     }
 
 }

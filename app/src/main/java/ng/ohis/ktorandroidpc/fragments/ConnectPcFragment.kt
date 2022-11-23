@@ -31,6 +31,7 @@ import io.ktor.server.netty.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import ng.ohis.ktorandroidpc.adapter.OnClickInterface
 import ng.ohis.ktorandroidpc.displaySnackBar
 import ng.ohis.ktorandroidpc.openFileWithDefaultApp
 import ng.ohis.ktorandroidpc.plugins.configureRouting
@@ -160,7 +161,7 @@ class ConnectPcFragment : Fragment() {
 
     private fun receivedRecyclerAdapter() {
 //        display uploaded items in recyclerview
-        recyclerAdapter.onClickListener(object : RecyclerAdapter.OnItemClickListener {
+        recyclerAdapter.onClickListener(object : OnClickInterface {
             override fun onMenuClick(fileModel: FileModel, view: View, position: Int) {
                 // when recycler view menu is clicked, display drop down menu
                 requireContext().popupMenu(view) { menuItem ->
@@ -351,7 +352,5 @@ class ConnectPcFragment : Fragment() {
             }
         }
     }
-
-
 }
 

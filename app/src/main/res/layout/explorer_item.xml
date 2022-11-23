@@ -29,6 +29,7 @@
             android:layout_marginTop="10dp"
             android:textStyle="bold"
             android:textSize="20sp"
+            android:singleLine="true"
             android:text="@string/folder_name"/>
         <TextView
             android:layout_width="match_parent"

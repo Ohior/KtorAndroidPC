@@ -1,12 +1,31 @@
 package ng.ohis.ktorandroidpc.classes
 
+import android.app.Activity
+import android.app.RecoverableSecurityException
 import android.content.Context
+import android.content.Intent
+import android.net.Uri
+import android.os.Build
+import android.provider.MediaStore
+import android.view.Menu
+import android.view.View
+import android.widget.TextView
+import androidx.activity.result.IntentSenderRequest
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.FileProvider
+import androidx.core.net.toFile
+import androidx.core.net.toUri
+import ng.ohis.ktorandroidpc.BuildConfig
 import ng.ohis.ktorandroidpc.R
-import ng.ohis.ktorandroidpc.adapter.NavigateRecyclerAdapter
+import ng.ohis.ktorandroidpc.adapter.NavbarRecyclerAdapter
+import ng.ohis.ktorandroidpc.adapter.OnClickInterface
 import ng.ohis.ktorandroidpc.adapter.RecyclerAdapter
 import ng.ohis.ktorandroidpc.explorer.FileType
 import ng.ohis.ktorandroidpc.openFileWithDefaultApp
+import ng.ohis.ktorandroidpc.popUpWindow
 import ng.ohis.ktorandroidpc.utills.*
+import java.io.File
 
 interface ExplorerInterface {
     fun getDrawableFileType(fileType: FileType): Int {
@@ -61,7 +80,7 @@ interface ExplorerInterface {
         if (fml.fileType == FileType.FOLDER) {
             // enter the file because it is a folder
             path = filePath + "/${fml.name}"
-            val files = Tools.getFilesFromPath(path).sortedWith(compareBy { it.name })
+            val files = Tools.getFilesFromPath(path).sortedWith(compareBy { it.name.lowercase() })
             loopThroughFiles(files, recyclerAdapter)
         } else {
             // open the file because it is not a folder
@@ -86,13 +105,17 @@ interface ExplorerInterface {
                 .dropLast(1)
                 .joinToString("/")
 
-            val files = Tools.getFilesFromPath(directory).sortedWith(compareBy { it.name })
+            val files = Tools.getFilesFromPath(directory).sortedWith(compareBy { it.name.lowercase() })
             loopThroughFiles(files, recyclerAdapter)
             directory
         }
     }
 
-    fun updateNavigationBarFolderRecyclerView(filePath: String, rootDir: StorageDataClass, navigateRecyclerAdapter: NavigateRecyclerAdapter) {
+    fun updateNavigationBarFolderRecyclerView(
+        filePath: String,
+        rootDir: StorageDataClass,
+        navigateRecyclerAdapter: NavbarRecyclerAdapter
+    ) {
         val path = filePath.split("/").drop((rootDir.rootDirectory.split("/").size) - 1)
         navigateRecyclerAdapter.clearAdapter()
         for ((i, p) in path.withIndex()) {
@@ -100,5 +123,51 @@ interface ExplorerInterface {
             navigateRecyclerAdapter.notifyItemChanged(i)
         }
     }
+
+
+    /// Config
+    private fun openDocumentTree(activity: Activity) {
+        val intent = Intent(Intent.ACTION_OPEN_DOCUMENT_TREE)
+        activity.startActivity(intent)
+    }
+
+    fun getToolbarName(rootDir: StorageDataClass, activity: Activity): String {
+        return if (rootDir.isSdStorage) {
+            activity.getString(R.string.format_string, "SD Storage")
+        } else {
+            activity.getString(R.string.format_string, "Local Storage")
+        }
+    }
+
+
+    fun hideAndShowMenuItem(menu: Menu, rootDir: StorageDataClass) {
+        if (rootDir.isSdStorage) {
+            menu.findItem(R.id.id_menu_sd)?.isVisible = false
+            menu.findItem(R.id.id_menu_mobile)?.isVisible = true
+        } else {
+            menu.findItem(R.id.id_menu_mobile)?.isVisible = false
+            menu.findItem(R.id.id_menu_sd)?.isVisible = true
+        }
+    }
+
+    private fun navbarRecyclerView(
+        navbarRecyclerAdapter: NavbarRecyclerAdapter,
+        filePath: String,
+        rootDir: StorageDataClass,
+        recyclerAdapter: RecyclerAdapter,
+        context: Context
+    ) {
+        var fp: String
+        navbarRecyclerAdapter.onClickListener(object : OnClickInterface {
+            override fun onItemClick(position: Int, view: View) {
+                fp = filePath.split("/")
+                    .dropLastWhile { it != navbarRecyclerAdapter.getItemAt(position).name }
+                    .joinToString("/")
+                fp = navigateDirectoryForward(null, recyclerAdapter, context, fp)
+                updateNavigationBarFolderRecyclerView(fp, rootDir, navbarRecyclerAdapter)
+            }
+        })
+    }
+
 
 }

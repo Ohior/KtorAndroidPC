@@ -5,16 +5,14 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
-import androidx.recyclerview.widget.GridLayoutManager
-import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import ng.ohis.ktorandroidpc.R
 import ng.ohis.ktorandroidpc.utills.NavigateRecyclerAdapterDataclass
 
-class NavigateRecyclerAdapter(
+class NavbarRecyclerAdapter(
     private val mContext: Context,
     recyclerView: RecyclerView
-) : RecyclerView.Adapter<NavigateRecyclerAdapter.ViewHolder>() {
+) : RecyclerView.Adapter<NavbarRecyclerAdapter.ViewHolder>() {
     private var navigateRecyclerArrayList = ArrayList<NavigateRecyclerAdapterDataclass>()
     private var clickListener: OnClickInterface? = null
 

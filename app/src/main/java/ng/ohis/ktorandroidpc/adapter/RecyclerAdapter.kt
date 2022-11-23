@@ -23,7 +23,7 @@ class RecyclerAdapter(
 ) : RecyclerView.Adapter<RecyclerAdapter.ViewHolder>() {
     // replace all the RecyclerAdapterDataclass reference in this file with your own data class name
     private var recyclerArrayList: ArrayList<RecyclerAdapterDataclass> = ArrayList()
-    private var clickListener: OnItemClickListener? = null
+    private var clickListener: OnClickInterface? = null
 
     init {
         recyclerview.layoutManager = CustomGridLayoutManager(mContext, column_count)
@@ -31,14 +31,7 @@ class RecyclerAdapter(
     }
 
 
-    interface OnItemClickListener {
-        // inter face for auto-loading itemClick and longItemClick
-        fun onItemClick(position: Int, view: View) {}
-        fun onLongItemClick(position: Int, view: View) {}
-        fun onMenuClick(fileModel: FileModel, view: View, position: Int = 0)
-    }
-
-    fun onClickListener(listener: OnItemClickListener) {
+    fun onClickListener(listener: OnClickInterface) {
         // This function handle's click and long click.
         // Do not use this function if you are not sure what to do.
         // Use this function like this in your fragment or activity file
@@ -123,13 +116,13 @@ class RecyclerAdapter(
 
     inner class ViewHolder(
         itemView: View,
-        listener: OnItemClickListener,
+        listener: OnClickInterface,
     ) : RecyclerView.ViewHolder(itemView) {
         // initialize the item your view holder will hold
         val name: TextView = itemView.findViewById(R.id.id_tv_folder_name)
         val detail: TextView = itemView.findViewById(R.id.id_tv_folder_detail)
         val image: ImageView = itemView.findViewById(R.id.id_iv_folder_image)
-        val menu: TextView = itemView.findViewById(R.id.id_tv_menu_item)
+        private val menu: TextView = itemView.findViewById(R.id.id_tv_menu_item)
 
         init {
             itemView.setOnLongClickListener {
