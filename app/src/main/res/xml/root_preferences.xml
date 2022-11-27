@@ -9,7 +9,8 @@
 		<SwitchPreferenceCompat
 			android:icon="@drawable/ic_file"
 			app:key="showHiddenFile"
-			app:title="Show Hidden Files"/>
+			app:title="Show Hidden Files"
+			app:defaultValue="true"/>
 		<DropDownPreference
 			app:icon="@drawable/ic_theme"
 			app:title="App Theme"

@@ -1,6 +1,5 @@
 package ng.ohis.ktorandroidpc.adapter
 
-import ng.ohis.ktorandroidpc.utills.RecyclerAdapterDataclass
 import android.content.Context
 import android.net.Uri
 import android.view.LayoutInflater
@@ -12,8 +11,6 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import ng.ohis.ktorandroidpc.R
 import ng.ohis.ktorandroidpc.explorer.FileType
-import ng.ohis.ktorandroidpc.utills.FileModel
-import ng.ohis.ktorandroidpc.utills.NavigateRecyclerAdapterDataclass
 
 class RecyclerAdapter(
     private val mContext: Context,

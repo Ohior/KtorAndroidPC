@@ -3,30 +3,18 @@ package ng.ohis.ktorandroidpc
 import android.app.Activity
 import android.app.AlertDialog
 import android.content.ActivityNotFoundException
-import android.content.ContentValues
 import android.content.Context
 import android.content.Intent
 import android.content.res.Configuration
 import android.graphics.Color
-import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.ColorDrawable
-import android.net.Uri
 import android.os.Build
-import android.provider.MediaStore
 import android.transition.Slide
-import android.view.Gravity
-import android.view.LayoutInflater
-import android.view.MenuItem
-import android.view.View
-import android.view.View.inflate
+import android.view.*
 import android.widget.LinearLayout
 import android.widget.PopupMenu
 import android.widget.PopupWindow
-import android.widget.Toolbar
-import androidx.annotation.RequiresApi
 import androidx.core.content.FileProvider
-import androidx.core.content.getSystemService
-import androidx.fragment.app.Fragment
 import com.google.android.material.snackbar.Snackbar
 import java.io.File
 
@@ -55,10 +43,11 @@ fun Context.popupMenu(view: View, function: (MenuItem) -> Unit) {
     popupMenu.show()
 }
 
-fun Context.popUpWindow(
+fun Context.locationPopUpWindow(
     fragmentView: View,
     layout: Int,
-    lambda: ((View,PopupWindow) -> Unit)? = null
+    gravity: Int = Gravity.BOTTOM,
+    function: ((View, PopupWindow) -> Unit)? = null,
 ) {
     val inflater = this.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
     val view = inflater.inflate(layout, null)
@@ -79,17 +68,33 @@ fun Context.popUpWindow(
         popupWindow.enterTransition = slidein
         popupWindow.exitTransition = slideout
     }
-    if (lambda != null) {
-        lambda(view, popupWindow)
+    if (function != null) {
+        function(view, popupWindow)
     }
-    popupWindow.showAtLocation(fragmentView, Gravity.BOTTOM, 0, 0)
+    popupWindow.showAtLocation(fragmentView, gravity, 0, 0)
 }
+
+fun Context.popUpWindow(
+    title: String,
+    layout: Int,
+    lambda: ((View, AlertDialog) -> Unit)? = null
+) {
+    val view = LayoutInflater.from(this@popUpWindow)
+        .inflate(layout, null)
+    AlertDialog.Builder(this@popUpWindow).apply {
+        this.setCancelable(false)
+        this.setTitle(title)
+        this.setView(view)
+        lambda!!(view, this.show())
+    }.show()
+}
+
 
 fun Context.popUpWindow(
     message: String,
     title: String = "",
     lambda: ((AlertDialog.Builder) -> Unit)? = null
-):Boolean {
+): Boolean {
     AlertDialog.Builder(this@popUpWindow).apply {
         this.setCancelable(false)
         this.setTitle(title)
@@ -125,21 +130,10 @@ fun Context.openFileWithDefaultApp(file: File): Boolean {
         }
         false
     }
+
 }
 
-
-/**
- * Rename file.
- *
- * @param uri    - filepath
- * @param rename - the name you want to replace with original.
- */
-private fun Context.rename(uri: Uri, rename: String) {
-    //create content values with new name and update
-    val contentValues = ContentValues()
-    contentValues.put(MediaStore.MediaColumns.DISPLAY_NAME, rename)
-
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-        this@rename.contentResolver.update(uri, contentValues, null)
-    }
+fun Activity.toggleScreenWakeLock(boolean: Boolean) {
+    if (boolean) this@toggleScreenWakeLock.window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+    else this@toggleScreenWakeLock.window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
 }

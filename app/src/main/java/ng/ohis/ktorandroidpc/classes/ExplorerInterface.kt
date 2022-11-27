@@ -1,31 +1,15 @@
 package ng.ohis.ktorandroidpc.classes
 
 import android.app.Activity
-import android.app.RecoverableSecurityException
 import android.content.Context
 import android.content.Intent
-import android.net.Uri
-import android.os.Build
-import android.provider.MediaStore
 import android.view.Menu
 import android.view.View
-import android.widget.TextView
-import androidx.activity.result.IntentSenderRequest
-import androidx.activity.result.contract.ActivityResultContracts
-import androidx.appcompat.app.AppCompatActivity
-import androidx.core.content.FileProvider
-import androidx.core.net.toFile
-import androidx.core.net.toUri
-import ng.ohis.ktorandroidpc.BuildConfig
 import ng.ohis.ktorandroidpc.R
-import ng.ohis.ktorandroidpc.adapter.NavbarRecyclerAdapter
-import ng.ohis.ktorandroidpc.adapter.OnClickInterface
-import ng.ohis.ktorandroidpc.adapter.RecyclerAdapter
+import ng.ohis.ktorandroidpc.adapter.*
 import ng.ohis.ktorandroidpc.explorer.FileType
 import ng.ohis.ktorandroidpc.openFileWithDefaultApp
-import ng.ohis.ktorandroidpc.popUpWindow
 import ng.ohis.ktorandroidpc.utills.*
-import java.io.File
 
 interface ExplorerInterface {
     fun getDrawableFileType(fileType: FileType): Int {

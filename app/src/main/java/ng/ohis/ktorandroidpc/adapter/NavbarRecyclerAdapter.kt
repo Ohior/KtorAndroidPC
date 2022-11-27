@@ -7,7 +7,6 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import ng.ohis.ktorandroidpc.R
-import ng.ohis.ktorandroidpc.utills.NavigateRecyclerAdapterDataclass
 
 class NavbarRecyclerAdapter(
     private val mContext: Context,
@@ -47,7 +46,7 @@ class NavbarRecyclerAdapter(
         return navigateRecyclerArrayList.size
     }
 
-    fun getItemAt(position: Int):NavigateRecyclerAdapterDataclass{
+    fun getItemAt(position: Int): NavigateRecyclerAdapterDataclass {
         return navigateRecyclerArrayList[position]
     }
 

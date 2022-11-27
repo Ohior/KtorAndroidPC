@@ -13,15 +13,18 @@ import android.provider.MediaStore
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
+import android.view.WindowManager
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
-import androidx.navigation.Navigation
 import androidx.navigation.findNavController
 import ng.ohis.ktorandroidpc.BuildConfig
+import ng.ohis.ktorandroidpc.adapter.FileModel
 import ng.ohis.ktorandroidpc.explorer.FileUtils
 import java.io.File
+import java.util.*
+import kotlin.collections.ArrayList
 
 
 object Tools {
@@ -133,36 +136,6 @@ object Tools {
         return null
     }
 
-    fun popUpWindow(
-        context: Context,
-        title: String,
-        layout: Int,
-        lambda: ((View, AlertDialog) -> Unit)? = null
-    ) {
-        val view = LayoutInflater.from(context)
-            .inflate(layout, null)
-        AlertDialog.Builder(context).apply {
-            this.setCancelable(false)
-            this.setTitle(title)
-            this.setView(view)
-            lambda!!(view, this.show())
-        }.show()
-    }
-
-    fun popUpWindow(
-        context: Context,
-        message: String,
-        title: String = "",
-        lambda: ((AlertDialog.Builder) -> Unit)? = null
-    ) {
-        AlertDialog.Builder(context).apply {
-            this.setCancelable(false)
-            this.setTitle(title)
-            this.setMessage(message)
-            lambda!!(this)
-        }.show()
-    }
-
     fun deleteFileFromStorage(file: File, context: Context, function: (IntentSender) -> Unit): Uri {
 //        val uri = Uri.fromFile(file)
         val uri = FileProvider.getUriForFile(context, BuildConfig.APPLICATION_ID + ".provider", file)
@@ -191,4 +164,5 @@ object Tools {
 //        Navigation.findNavController(fragmentView).navigate(id)
     }
 
+    fun getRandomUUID() = UUID.randomUUID().toString()
 }

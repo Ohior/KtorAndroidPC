@@ -4,10 +4,7 @@ package ng.ohis.ktorandroidpc.utills
 import android.app.Activity
 import android.content.Context
 import android.content.SharedPreferences
-import ng.ohis.ktorandroidpc.utills.FileModel
-import com.google.gson.Gson
 import com.google.gson.GsonBuilder
-import org.json.JSONArray
 
 object DataManager {
     var sharedPreferences: SharedPreferences? = null

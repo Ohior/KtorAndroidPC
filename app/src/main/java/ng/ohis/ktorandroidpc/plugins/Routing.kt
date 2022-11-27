@@ -13,7 +13,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import ng.ohis.ktorandroidpc.utills.Const
 import ng.ohis.ktorandroidpc.utills.DataManager
-import ng.ohis.ktorandroidpc.utills.FileModel
+import ng.ohis.ktorandroidpc.adapter.FileModel
 import ng.ohis.ktorandroidpc.utills.Tools
 import java.io.File
 

@@ -1,21 +1,22 @@
-package ng.ohis.ktorandroidpc.utills
+package ng.ohis.ktorandroidpc.adapter
 
 
 import ng.ohis.ktorandroidpc.R
 import ng.ohis.ktorandroidpc.explorer.FileType
+import ng.ohis.ktorandroidpc.explorer.FileUtils
 import java.io.File
 
 
 data class FileModel(
-    val name: String,
-    val path: String,
-    val fileType: FileType,
-    val sizeInMB: Double,
-    val extension: String = "",
-    val subFiles: Int = 0,
+    val file: File
 ) {
-    val file: File get() = File(path)
+    val path: String get() = file.path
+    val sizeInMB: String get() = FileUtils.getStringSize(file.length())
+    val extension: String get() = file.extension
+    val name: String get() = file.name
+    val subFiles: Int get() = file.listFiles()?.size?:0
     val isFile: Boolean get() = FileType.FOLDER != fileType
+    val fileType: FileType get() = FileType.getFileType(file)
     val staticImage: String
         get() = when (fileType) {
             FileType.FILE -> "/static/file.png"

@@ -7,6 +7,9 @@ import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
+import androidx.navigation.findNavController
+import ng.ohis.ktorandroidpc.fragments.ExplorerFragment
 import ng.ohis.ktorandroidpc.utills.Const
 import ng.ohis.ktorandroidpc.utills.DataManager
 import ng.ohis.ktorandroidpc.utills.Tools
@@ -44,9 +47,9 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        SettingsActivity.appSettings(this)
 //        display custom actionbar
         setSupportActionBar(findViewById(R.id.id_toolbar))
+        SettingsActivity.appSettings(this)
         DataManager.with(this).setString(Const.SD_DIRECTORY_KEY, Tools.getExternalSDCardRootDirectory(this))
     }
 

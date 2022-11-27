@@ -9,7 +9,10 @@ import android.net.wifi.WifiManager
 import android.os.Build
 import android.os.Bundle
 import android.view.*
-import android.widget.*
+import android.widget.Button
+import android.widget.ImageView
+import android.widget.LinearLayout
+import android.widget.TextView
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.IntentSenderRequest
 import androidx.activity.result.contract.ActivityResultContracts
@@ -19,26 +22,16 @@ import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
-import ng.ohis.ktorandroidpc.utills.FileModel
-import ng.ohis.ktorandroidpc.utills.RecyclerAdapterDataclass
-import ng.ohis.ktorandroidpc.utills.StorageDataClass
-import ng.ohis.ktorandroidpc.*
-import ng.ohis.ktorandroidpc.adapter.RecyclerAdapter
-import ng.ohis.ktorandroidpc.explorer.FileType
-import ng.ohis.ktorandroidpc.explorer.FileUtils
 import io.ktor.server.engine.*
 import io.ktor.server.netty.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import ng.ohis.ktorandroidpc.adapter.OnClickInterface
-import ng.ohis.ktorandroidpc.displaySnackBar
-import ng.ohis.ktorandroidpc.openFileWithDefaultApp
+import ng.ohis.ktorandroidpc.*
+import ng.ohis.ktorandroidpc.adapter.*
 import ng.ohis.ktorandroidpc.plugins.configureRouting
 import ng.ohis.ktorandroidpc.plugins.configureTemplating
 import ng.ohis.ktorandroidpc.plugins.uploadFile
-import ng.ohis.ktorandroidpc.popUpWindow
-import ng.ohis.ktorandroidpc.popupMenu
 import ng.ohis.ktorandroidpc.utills.Const
 import ng.ohis.ktorandroidpc.utills.Tools
 import java.io.File
@@ -60,8 +53,6 @@ class ConnectPcFragment : Fragment() {
     private lateinit var idToolbarTextView: TextView
     private lateinit var intentSenderLauncher: ActivityResultLauncher<IntentSenderRequest>
     private var deleteFileUri: Uri? = null
-
-
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -224,11 +215,13 @@ class ConnectPcFragment : Fragment() {
                     }
                     idBtnConnectBrowser.text = getString(R.string.format_string, "Disconnect PC")
                     fragmentView.displaySnackBar("Connected to Address ${Const.ADDRESS}")
+                    requireActivity().toggleScreenWakeLock(true)
                 } else {
                     // stop connection because connectDevice is false
                     nettyEngine?.stop()
                     nettyEngine = null
                     idBtnConnectBrowser.text = getString(R.string.format_string, "Connect PC")
+                    requireActivity().toggleScreenWakeLock(false)
                 }
                 // set connectDevice to not connectDevice so that you can toggle connection
                 connectDevice = !connectDevice
@@ -240,7 +233,10 @@ class ConnectPcFragment : Fragment() {
         // This will prompt the user to select method of file transfer. Either to receive or send
         // This will open another fragment
         idBtnConnectDevice.setOnClickListener {
-            requireContext().popUpWindow(fragmentView, R.layout.connect_device_popup) { v, p ->
+            requireContext().locationPopUpWindow(
+                fragmentView = fragmentView,
+                layout = R.layout.connect_device_popup
+            ) { v, p ->
                 val send = v.findViewById<Button>(R.id.id_btn_send)
                 val receive = v.findViewById<Button>(R.id.id_btn_receive)
                 send.setOnClickListener {
@@ -305,10 +301,7 @@ class ConnectPcFragment : Fragment() {
             recyclerAdapter.addToAdapter(
                 RecyclerAdapterDataclass(
                     fileModel = FileModel(
-                        name = file.name,
-                        fileType = FileType.getFileType(file),
-                        path = file.path,
-                        sizeInMB = FileUtils.convertFileSizeToMB(file.length())
+                        file = file
                     ),
                 )
             )

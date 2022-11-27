@@ -3,8 +3,6 @@ package ng.ohis.ktorandroidpc
 import android.app.Activity
 import android.content.Intent
 import android.content.SharedPreferences
-import android.content.pm.PackageManager
-import android.net.Uri
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
@@ -12,13 +10,7 @@ import androidx.core.content.FileProvider
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.PreferenceManager
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import ng.ohis.ktorandroidpc.R
 import ng.ohis.ktorandroidpc.utills.Const
-import ng.ohis.ktorandroidpc.utills.DataManager
-import ng.ohis.ktorandroidpc.utills.SettingsDataClass
 import ng.ohis.ktorandroidpc.utills.Tools
 import java.io.File
 
@@ -26,6 +18,7 @@ import java.io.File
 class SettingsActivity : AppCompatActivity(), SharedPreferences.OnSharedPreferenceChangeListener {
 
     override fun onDestroy() {
+        appSettings(this)
         PreferenceManager.getDefaultSharedPreferences(this)
             .unregisterOnSharedPreferenceChangeListener(this)
         super.onDestroy()
@@ -89,7 +82,6 @@ class SettingsActivity : AppCompatActivity(), SharedPreferences.OnSharedPreferen
             val appTheme = pref?.getString(key, "1")
             switchTheme(appTheme)
         }
-//        appSettings(this)
     }
 
     companion object {
