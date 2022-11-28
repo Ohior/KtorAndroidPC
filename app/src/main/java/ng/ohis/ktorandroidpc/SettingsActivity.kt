@@ -111,6 +111,7 @@ class SettingsActivity : AppCompatActivity(), SharedPreferences.OnSharedPreferen
             switchTheme(appTheme)
             Const.SETTING_UPLOAD_PATH = if (downloadFolder) Const.DOWNLOAD_DIR else Const.CHRANSVER_DIR
             Const.SETTING_SHOW_HIDDEN_FILES = showHiddenFiles
+            Tools.createDirectoryIfNonExist(Const.SETTING_UPLOAD_PATH)
         }
 
 

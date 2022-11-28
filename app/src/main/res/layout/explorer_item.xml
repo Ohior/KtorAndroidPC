@@ -30,12 +30,16 @@
             android:textStyle="bold"
             android:textSize="20sp"
             android:singleLine="true"
+            android:paddingEnd="20dp"
+            android:paddingStart="0dp"
             android:text="@string/folder_name"/>
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:id="@+id/id_tv_folder_detail"
-            android:layout_marginTop="10dp"
+            android:layout_marginVertical= "10dp"
+            android:paddingEnd="20dp"
+            android:paddingStart="0dp"
             android:scrollbars="vertical"
             android:scrollbarAlwaysDrawVerticalTrack="true"
             android:scrollHorizontally="false"

@@ -56,7 +56,7 @@ fun Application.configureRouting(function: (Route) -> Unit) {
 private fun Route.navigateSDHomeDirectory() {
     get("web/sd-dir") {
         // Reset root directory to SD card
-        directoryPath = sdDirectoryPath!!
+        directoryPath = sdDirectoryPath
         rootDirectory = sdDirectoryPath
         // initialize the template data
         templateData = TemplateData(

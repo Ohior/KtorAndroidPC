@@ -5,6 +5,8 @@ import ng.ohis.ktorandroidpc.R
 import ng.ohis.ktorandroidpc.explorer.FileType
 import ng.ohis.ktorandroidpc.explorer.FileUtils
 import java.io.File
+import kotlin.io.path.Path
+import kotlin.io.path.getLastModifiedTime
 
 
 data class FileModel(
@@ -14,7 +16,7 @@ data class FileModel(
     val sizeInMB: String get() = FileUtils.getStringSize(file.length())
     val extension: String get() = file.extension
     val name: String get() = file.name
-    val subFiles: Int get() = file.listFiles()?.size?:0
+    val subFiles: Int get() = file.listFiles()?.size ?: 0
     val isFile: Boolean get() = FileType.FOLDER != fileType
     val fileType: FileType get() = FileType.getFileType(file)
     val staticImage: String
@@ -33,7 +35,6 @@ data class FileModel(
             FileType.IMAGE -> R.drawable.image
             FileType.VIDEO -> R.drawable.video
         }
-    val fileFolder: String get() = path.split("/").let { it.elementAt(it.lastIndex - 1) }
 }
 
 data class NavigateRecyclerAdapterDataclass(
@@ -55,8 +56,25 @@ data class StorageDataClass(
 
 
 data class SettingsDataClass(
-    val downloadFolder:String,
-    val showHiddenFiles:Boolean
-){
+    val downloadFolder: String,
+    val showHiddenFiles: Boolean
+) {
     fun toJson() = """{"downloadFolder":"$downloadFolder", "showHiddenFiles":"$showHiddenFiles"}""".trim()
+}
+
+data class MenuDetailDataClass(val fileModel: FileModel) {
+    override fun toString(): String {
+        val lastData = Path(fileModel.path).getLastModifiedTime()
+        return if (fileModel.isFile) {
+            "Name : ${fileModel.name}\n" +
+                    "Size : ${fileModel.sizeInMB}\n " +
+                    "Modified : $lastData\n" +
+                    "Extension : ${fileModel.extension.uppercase()}"
+        } else {
+            "Name : ${fileModel.path.split("/").last()}\n" +
+                    "Sub-Files : ${fileModel.subFiles}\n" +
+                    "Modified : $lastData\n" +
+                    "Extension : FOLDER"
+        }
+    }
 }

@@ -25,14 +25,6 @@ object FileUtils {
     fun getFileModelsFromFiles(files: List<File>?): List<FileModel> {
         return files!!.map {
             FileModel(it)
-//            FileModel(
-//                path = it.path,
-//                fileType = FileType.getFileType(it),
-//                name = it.name,
-//                sizeInMB = getStringSize(it.length()),
-//                extension = it.extension,
-//                subFiles = it.listFiles()?.size ?: 0,
-//            )
         }
     }
 

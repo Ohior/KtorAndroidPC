@@ -1,8 +1,6 @@
 package ng.ohis.ktorandroidpc.fragments
 
-import android.Manifest
 import android.app.Activity
-import android.app.AlertDialog
 import android.app.RecoverableSecurityException
 import android.content.Context
 import android.net.Uri
@@ -18,21 +16,17 @@ import androidx.activity.result.IntentSenderRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.FileProvider
 import androidx.core.net.toFile
-import androidx.core.net.toUri
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.RecyclerView
 import com.google.gson.Gson
-import ng.ohis.ktorandroidpc.*
-import ng.ohis.ktorandroidpc.adapter.NavbarRecyclerAdapter
-import ng.ohis.ktorandroidpc.adapter.OnClickInterface
-import ng.ohis.ktorandroidpc.adapter.RecyclerAdapter
+import ng.ohis.ktorandroidpc.BuildConfig
+import ng.ohis.ktorandroidpc.R
+import ng.ohis.ktorandroidpc.adapter.*
 import ng.ohis.ktorandroidpc.classes.ExplorerInterface
 import ng.ohis.ktorandroidpc.explorer.FileType
-import ng.ohis.ktorandroidpc.explorer.FileUtils
+import ng.ohis.ktorandroidpc.openFileWithDefaultApp
+import ng.ohis.ktorandroidpc.popUpWindow
 import ng.ohis.ktorandroidpc.utills.Const
-import ng.ohis.ktorandroidpc.adapter.FileModel
-import ng.ohis.ktorandroidpc.adapter.StorageDataClass
 import ng.ohis.ktorandroidpc.utills.Tools
 import java.io.File
 
@@ -58,13 +52,6 @@ class ExplorerFragment : Fragment(), ExplorerInterface {
                 Tools.showToast(requireActivity(), "File(s) not deleted")
             }
         }
-
-    private var sdCardDeleteResult = registerForActivityResult(ActivityResultContracts.RequestPermission()) {
-        if (it) {
-            deleteFileUri?.path?.let { it1 -> requireActivity().contentResolver.delete(it1.toUri(), null, null) }
-        }
-    }
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -130,7 +117,7 @@ class ExplorerFragment : Fragment(), ExplorerInterface {
         variableInitializers()
 
         fragmentExecutable()
-
+        
         recyclerViewClickListener()
 
         return fragmentView
@@ -183,6 +170,8 @@ class ExplorerFragment : Fragment(), ExplorerInterface {
             override fun onMenuClick(fileModel: FileModel, view: View, position: Int) {
                 PopupMenu(context, view).apply {
                     this.inflate(R.menu.rv_menu_item)
+                    // TODO: 28/11/2022 create delete execution for sd card 
+                    if (rootDir.isSdStorage) menu.findItem(R.id.id_rv_menu_delete)?.isVisible = false
                     this.setOnMenuItemClickListener { menuItem ->
                         when (menuItem.itemId) {
                             R.id.id_rv_menu_delete -> {
@@ -216,6 +205,13 @@ class ExplorerFragment : Fragment(), ExplorerInterface {
                                     navigateDirectoryForward(null, recyclerAdapter, requireContext(), filePath)
                                 true
                             }
+                            R.id.id_rv_menu_detail -> {
+                                requireContext().popUpWindow(
+                                    title = "Properties : ",
+                                    message = MenuDetailDataClass(fileModel).toString()
+                                ) { it.setCancelable(true) }
+                                true
+                            }
                             else -> false
                         }
                     }
@@ -235,36 +231,28 @@ class ExplorerFragment : Fragment(), ExplorerInterface {
         navbarRecyclerAdapter = NavbarRecyclerAdapter(requireContext(), idNavigateRecyclerView)
         filePath = navigateDirectoryForward(null, recyclerAdapter, requireContext(), filePath)
         idToolbarTextView.text = getToolbarName(rootDir, requireActivity())
-        Tools.debugMessage("Im fragment")
     }
 
     private fun deleteFileFromStorage(file: File): Uri {
         val fileUri = FileProvider.getUriForFile(requireContext(), BuildConfig.APPLICATION_ID + ".provider", file)
-        if (rootDir.isSdStorage) {
-            sdCardDeleteResult.launch(Manifest.permission.WRITE_EXTERNAL_STORAGE)
-//            if (file.isFile) {
-//                FileUtils.zipSingleFile(file, "${Const.SETTING_UPLOAD_PATH + Tools.getRandomUUID()}.zip")
-//            } else {
-//                FileUtils.zipDirectory(file, "${Const.SETTING_UPLOAD_PATH + Tools.getRandomUUID()}.zip")
-//            }
-        } else {
-            try {
-                File(file.absolutePath).deleteRecursively()
-//                            requireActivity().contentResolver.delete(fileUri, null, null)
-            } catch (e: SecurityException) {
-                val intentSender = when {
-                    Build.VERSION.SDK_INT >= Build.VERSION_CODES.R -> {
-                        MediaStore.createDeleteRequest(requireActivity().contentResolver, listOf(fileUri)).intentSender
-                    }
-                    Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q -> {
-                        val recoverableSecurityException = e as? RecoverableSecurityException
-                        recoverableSecurityException?.userAction?.actionIntent?.intentSender
-                    }
-                    else -> null
+        try {
+            when {
+                file.isFile -> File(file.absolutePath).delete()
+                file.isDirectory -> File(file.absolutePath).deleteRecursively()
+            }
+        } catch (e: SecurityException) {
+            val intentSender = when {
+                Build.VERSION.SDK_INT >= Build.VERSION_CODES.R -> {
+                    MediaStore.createDeleteRequest(requireActivity().contentResolver, listOf(fileUri)).intentSender
                 }
-                intentSender?.let { sender ->
-                    intentSenderLauncher.launch(IntentSenderRequest.Builder(sender).build())
+                Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q -> {
+                    val recoverableSecurityException = e as? RecoverableSecurityException
+                    recoverableSecurityException?.userAction?.actionIntent?.intentSender
                 }
+                else -> null
+            }
+            intentSender?.let { sender ->
+                intentSenderLauncher.launch(IntentSenderRequest.Builder(sender).build())
             }
         }
         return fileUri

@@ -60,13 +60,13 @@ fun Context.locationPopUpWindow(
     popupWindow.isOutsideTouchable = true
     popupWindow.isFocusable = true
     popupWindow.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
-    val slidein = Slide()
-    val slideout = Slide()
-    slidein.slideEdge = Gravity.TOP
-    slideout.slideEdge = Gravity.END
+    val slideIn = Slide()
+    val slideOut = Slide()
+    slideIn.slideEdge = Gravity.TOP
+    slideOut.slideEdge = Gravity.END
     if (Build.VERSION.SDK_INT == Build.VERSION_CODES.M) {
-        popupWindow.enterTransition = slidein
-        popupWindow.exitTransition = slideout
+        popupWindow.enterTransition = slideIn
+        popupWindow.exitTransition = slideOut
     }
     if (function != null) {
         function(view, popupWindow)

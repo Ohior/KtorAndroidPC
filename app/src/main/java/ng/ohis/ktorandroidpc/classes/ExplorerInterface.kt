@@ -128,6 +128,7 @@ interface ExplorerInterface {
         if (rootDir.isSdStorage) {
             menu.findItem(R.id.id_menu_sd)?.isVisible = false
             menu.findItem(R.id.id_menu_mobile)?.isVisible = true
+            menu.findItem(R.id.id_rv_menu_delete)?.isVisible = false
         } else {
             menu.findItem(R.id.id_menu_mobile)?.isVisible = false
             menu.findItem(R.id.id_menu_sd)?.isVisible = true

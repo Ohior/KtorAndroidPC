@@ -35,4 +35,5 @@
 	<string name="local_storage">Local Storage</string>
 	<string name="scan_code_image">scan code image</string>
 	<string name="scan_code">SCAN CODE</string>
+	<string name="details">details</string>
 </resources>

@@ -22,12 +22,12 @@ object Const {
             Manifest.permission.WRITE_EXTERNAL_STORAGE,
         )
     }
-
     var SETTING_UPLOAD_PATH = CHRANSVER_DIR
     var SETTING_SHOW_HIDDEN_FILES = true
     var FRAGMENT_TAG = ""
     const val FULL_ADDRESS = "$ADDRESS:$PORT"
-    const val REQUEST_CODE_OPEN_DOCUMENT_TREE  = 102
+    const val REQUEST_CODE_OPEN_DOCUMENT_TREE = 102
     const val AUTHORITY = "ng.ohis.ktorandroidpc.fileprovider"
-//    Manifest.permission.ACCESS_FINE_LOCATION
+
+    //    Manifest.permission.ACCESS_FINE_LOCATION
 }
