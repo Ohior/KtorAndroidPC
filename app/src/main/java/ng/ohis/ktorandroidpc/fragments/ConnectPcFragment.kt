@@ -9,10 +9,7 @@ import android.net.wifi.WifiManager
 import android.os.Build
 import android.os.Bundle
 import android.view.*
-import android.widget.Button
-import android.widget.ImageView
-import android.widget.LinearLayout
-import android.widget.TextView
+import android.widget.*
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.IntentSenderRequest
 import androidx.activity.result.contract.ActivityResultContracts
@@ -155,38 +152,53 @@ class ConnectPcFragment : Fragment() {
         recyclerAdapter.onClickListener(object : OnClickInterface {
             override fun onMenuClick(fileModel: FileModel, view: View, position: Int) {
                 // when recycler view menu is clicked, display drop down menu
-                requireContext().popupMenu(view) { menuItem ->
-                    when (menuItem.itemId) {
-                        R.id.id_rv_menu_delete -> {
-                            requireContext().popUpWindow("This delete is permanent", "Delete") { adb ->
-                                adb.setPositiveButton("delete") { _, _ ->
-                                    // when delete menu is clicked, display popup to confirm delete
-                                    Tools.deleteFileFromStorage(
-                                        fileModel.file,
-                                        requireContext()
-                                    ) { intentSender ->
-                                        intentSender.let { sender ->
-                                            intentSenderLauncher.launch(
-                                                IntentSenderRequest.Builder(sender).build()
-                                            )
+                PopupMenu(context, view).apply {
+                    this.inflate(R.menu.rv_menu_item)
+                    this.setOnMenuItemClickListener { menuItem ->
+                        when (menuItem.itemId) {
+                            R.id.id_rv_menu_delete -> {
+                                requireContext().popUpWindow(
+                                    "This action is permanent",
+                                    "Delete File"
+                                ) { builder ->
+                                    builder.setPositiveButton("Delete") { _, _ ->
+                                        Tools.deleteFileFromStorage(
+                                            fileModel.file,
+                                            requireContext()
+                                        ) { intentSender ->
+                                            intentSender.let { sender ->
+                                                intentSenderLauncher.launch(
+                                                    IntentSenderRequest.Builder(sender).build()
+                                                )
+                                            }
                                         }
+                                        // update adapter
+                                        recyclerAdapter.removeAt(RecyclerAdapterDataclass(fileModel))
+                                        recyclerAdapter.notifyItemRemoved(position)
                                     }
-                                    // update adapter
-                                    recyclerAdapter.removeAt(RecyclerAdapterDataclass(fileModel))
-                                    recyclerAdapter.notifyItemRemoved(position)
+                                    builder.setNegativeButton("Cancel") { _, _ ->
+                                        builder.show().dismiss()
+                                    }
                                 }
-                                adb.setNegativeButton("cancel") { _, _ ->
-                                    adb.show().dismiss()
+                                true
+                            }
+                            R.id.id_rv_menu_open -> {
+                                if (!requireContext().openFileWithDefaultApp(fileModel.file)) {
+                                    Tools.showToast(requireContext(), "No App To open this File! 😢")
                                 }
+                                true
                             }
-                        }
-                        R.id.id_rv_menu_open -> {
-                            // open menu is clicked
-                            if (!requireContext().openFileWithDefaultApp(fileModel.file)) {
-                                Tools.showToast(requireContext(), "No App To open this File! 😢")
+                            R.id.id_rv_menu_detail -> {
+                                requireContext().popUpWindow(
+                                    title = "Properties : ",
+                                    message = MenuDetailDataClass(fileModel).toString()
+                                ) { it.setCancelable(true) }
+                                true
                             }
+                            else -> false
                         }
                     }
+                    this.show()
                 }
             }
         })

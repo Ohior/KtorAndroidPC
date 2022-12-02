@@ -29,12 +29,12 @@ class MainActivity : AppCompatActivity() {
         ) {
             return
         } else {
-//            if (Tools.requestForAllPermission(this)){
-//                this.popUpWindow(
-//                    title = "Permission",
-//                    message = "Permissions 🙉 are needed for this app 📳 to run successfully"
-//                ){it.setCancelable(true)}
-//            }
+            if (Tools.checkAllPermission(this)){
+                this.popUpWindow(
+                    title = "Permission",
+                    message = "Permissions 🙉 are needed for this app 📳 to run successfully"
+                ){it.setCancelable(true)}
+            }
         }
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
     }

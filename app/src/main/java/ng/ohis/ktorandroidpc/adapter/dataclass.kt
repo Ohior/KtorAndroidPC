@@ -1,10 +1,17 @@
 package ng.ohis.ktorandroidpc.adapter
 
 
+import android.text.format.DateFormat
+import android.text.format.Time
+import android.util.TimeUtils
+import io.ktor.server.util.*
+import io.ktor.util.*
 import ng.ohis.ktorandroidpc.R
 import ng.ohis.ktorandroidpc.explorer.FileType
 import ng.ohis.ktorandroidpc.explorer.FileUtils
 import java.io.File
+import java.sql.Date
+import java.util.*
 import kotlin.io.path.Path
 import kotlin.io.path.getLastModifiedTime
 
@@ -55,26 +62,16 @@ data class StorageDataClass(
 }
 
 
-data class SettingsDataClass(
-    val downloadFolder: String,
-    val showHiddenFiles: Boolean
-) {
-    fun toJson() = """{"downloadFolder":"$downloadFolder", "showHiddenFiles":"$showHiddenFiles"}""".trim()
-}
-
 data class MenuDetailDataClass(val fileModel: FileModel) {
     override fun toString(): String {
-        val lastData = Path(fileModel.path).getLastModifiedTime()
-        return if (fileModel.isFile) {
-            "Name : ${fileModel.name}\n" +
-                    "Size : ${fileModel.sizeInMB}\n " +
-                    "Modified : $lastData\n" +
-                    "Extension : ${fileModel.extension.uppercase()}"
-        } else {
-            "Name : ${fileModel.path.split("/").last()}\n" +
-                    "Sub-Files : ${fileModel.subFiles}\n" +
-                    "Modified : $lastData\n" +
-                    "Extension : FOLDER"
-        }
+        val lastData = Date(fileModel.file.lastModified())
+        return "Name : ${fileModel.name}\n" +
+                "Modified : $lastData\n" +
+                if (fileModel.isFile) {
+                    "Size : ${fileModel.sizeInMB}\n" +
+                            "Extension : ${fileModel.extension.uppercase()}"
+                } else {
+                    "Sub-Files : ${fileModel.subFiles}\n"
+                }
     }
 }

@@ -40,7 +40,7 @@ object Tools {
         Log.e(tag, message)
     }
 
-    fun requestForAllPermission(activity: Activity): Boolean {
+    fun requestForAllPermission(activity: Activity){
         unGrantedPermission.clear()
         for (per in Const.ARRAY_OF_PERMISSIONS) {
             if (!checkForPermission(activity, per)) {
@@ -50,7 +50,6 @@ object Tools {
         if (unGrantedPermission.isNotEmpty()) {
             requestForPermission(activity, unGrantedPermission)
         }
-        return unGrantedPermission != Const.ARRAY_OF_PERMISSIONS
     }
 
     fun checkAllPermission(activity: Activity): Boolean {

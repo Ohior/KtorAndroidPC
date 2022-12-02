@@ -9,13 +9,16 @@ import io.ktor.server.mustache.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import io.ktor.utils.io.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import ng.ohis.ktorandroidpc.adapter.FileModel
+import ng.ohis.ktorandroidpc.explorer.FileUtils
 import ng.ohis.ktorandroidpc.utills.Const
 import ng.ohis.ktorandroidpc.utills.DataManager
-import ng.ohis.ktorandroidpc.adapter.FileModel
 import ng.ohis.ktorandroidpc.utills.Tools
 import java.io.File
+import java.nio.channels.ByteChannel
 
 
 data class TemplateData(
@@ -31,7 +34,7 @@ private var directoryPath = Const.ROOT_PATH
 
 private var rootDirectory = homeDirectoryPath
 
-private val sdDirectoryPath = DataManager.getString(Const.SD_DIRECTORY_KEY)?:""
+private val sdDirectoryPath = DataManager.getString(Const.SD_DIRECTORY_KEY) ?: ""
 
 fun Application.configureRouting(function: (Route) -> Unit) {
     routing {
@@ -63,12 +66,7 @@ private fun Route.navigateSDHomeDirectory() {
             dirFiles = Tools.getFilesFromPath(directoryPath).sortedWith(compareBy { it.name }),
         )
         // load home page
-        call.respond(
-            MustacheContent(
-                "index.hbs",
-                mapOf("templateData" to templateData)
-            )
-        )
+        responseTemplate(call)
     }
 }
 
@@ -87,12 +85,7 @@ private fun Route.navigateHomeDirectory() {
     route("web") {
         get {
             // load home page
-            call.respond(
-                MustacheContent(
-                    "index.hbs",
-                    mapOf("templateData" to templateData)
-                )
-            )
+            responseTemplate(call)
         }
     }
 
@@ -117,12 +110,7 @@ private fun Route.navigateForward() {
                 dirFiles = dirFiles,
             )
             // open page
-            call.respond(
-                MustacheContent(
-                    "index.hbs",
-                    mapOf("templateData" to templateData)
-                )
-            )
+            responseTemplate(call)
         }
     }
 }
@@ -142,12 +130,7 @@ private fun Route.navigateBackward() {
             dirFiles = dirFiles,
         )
         // open page
-        call.respond(
-            MustacheContent(
-                "index.hbs",
-                mapOf("templateData" to templateData)
-            )
-        )
+        responseTemplate(call)
     }
 }
 
@@ -159,8 +142,14 @@ private fun Route.downloadFile() {
         val getFile = templateData!!.dirFiles.find { it.name == name }
         // check if the file exits
         if (getFile != null) {
-            val file = File(getFile.path)
-            call.downloadFileAction(file)
+            if (getFile.isFile) {
+                Tools.debugMessage("download FILE")
+                call.downloadFileAction(getFile.file)
+            } else {
+                Tools.debugMessage("download FOLDER")
+                call.downloadFolderAction(getFile.file)
+            }
+
         }
         call.respondRedirect("web")
     }
@@ -169,7 +158,6 @@ private fun Route.downloadFile() {
 fun Route.uploadFile(function: (File) -> Unit) {
     post("upload") {
         try {
-
 //            // get the data been pass the server by the form
             val multipartData = call.receiveMultipart()
             withContext(Dispatchers.IO) {
@@ -210,5 +198,20 @@ private suspend fun ApplicationCall.downloadFileAction(file: File) {
         ).toString()
     )
     // actually download the file
-    this@downloadFileAction.respondFile(file)
+    this@downloadFileAction.respondFile(file) {
+        Tools.debugMessage(FileUtils.getStringSize(this.contentLength!!))
+    }
+}
+
+private suspend fun ApplicationCall.downloadFolderAction(file: File) {
+    respondBytes(file.readBytes())
+}
+
+private suspend fun responseTemplate(call: ApplicationCall) {
+    call.respond(
+        MustacheContent(
+            "index.hbs",
+            mapOf("templateData" to templateData)
+        )
+    )
 }

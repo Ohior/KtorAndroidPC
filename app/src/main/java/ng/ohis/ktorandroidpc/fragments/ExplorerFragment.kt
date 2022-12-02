@@ -19,13 +19,10 @@ import androidx.core.net.toFile
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.RecyclerView
 import com.google.gson.Gson
-import ng.ohis.ktorandroidpc.BuildConfig
-import ng.ohis.ktorandroidpc.R
+import ng.ohis.ktorandroidpc.*
 import ng.ohis.ktorandroidpc.adapter.*
 import ng.ohis.ktorandroidpc.classes.ExplorerInterface
 import ng.ohis.ktorandroidpc.explorer.FileType
-import ng.ohis.ktorandroidpc.openFileWithDefaultApp
-import ng.ohis.ktorandroidpc.popUpWindow
 import ng.ohis.ktorandroidpc.utills.Const
 import ng.ohis.ktorandroidpc.utills.Tools
 import java.io.File
@@ -117,7 +114,7 @@ class ExplorerFragment : Fragment(), ExplorerInterface {
         variableInitializers()
 
         fragmentExecutable()
-        
+
         recyclerViewClickListener()
 
         return fragmentView
@@ -168,9 +165,10 @@ class ExplorerFragment : Fragment(), ExplorerInterface {
             }
 
             override fun onMenuClick(fileModel: FileModel, view: View, position: Int) {
+                // when recycler view menu is clicked, display drop down menu
                 PopupMenu(context, view).apply {
                     this.inflate(R.menu.rv_menu_item)
-                    // TODO: 28/11/2022 create delete execution for sd card 
+                    // TODO: 28/11/2022 create delete execution for sd card
                     if (rootDir.isSdStorage) menu.findItem(R.id.id_rv_menu_delete)?.isVisible = false
                     this.setOnMenuItemClickListener { menuItem ->
                         when (menuItem.itemId) {

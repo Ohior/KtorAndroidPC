@@ -33,11 +33,11 @@ fun View.displaySnackBar(message: String, actionStr: String = "dismiss", functio
         }.show()
 }
 
-fun Context.popupMenu(view: View, function: (MenuItem) -> Unit) {
+fun Context.popupMenu(view: View, function: (MenuItem, pm:PopupMenu) -> Unit) {
     val popupMenu = PopupMenu(this@popupMenu, view)
     popupMenu.inflate(R.menu.rv_menu_item)
     popupMenu.setOnMenuItemClickListener { menuItem ->
-        function(menuItem)
+        function(menuItem, popupMenu)
         true
     }
     popupMenu.show()
