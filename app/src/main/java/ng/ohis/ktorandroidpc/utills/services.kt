@@ -1,4 +1,4 @@
-package ng.ohis.ktorandroidpc
+package ng.ohis.ktorandroidpc.utills
 
 import android.app.Activity
 import android.app.AlertDialog
@@ -16,6 +16,9 @@ import android.widget.PopupMenu
 import android.widget.PopupWindow
 import androidx.core.content.FileProvider
 import com.google.android.material.snackbar.Snackbar
+import io.ktor.server.netty.*
+import ng.ohis.ktorandroidpc.BuildConfig
+import ng.ohis.ktorandroidpc.R
 import java.io.File
 
 
@@ -136,4 +139,21 @@ fun Context.openFileWithDefaultApp(file: File): Boolean {
 fun Activity.toggleScreenWakeLock(boolean: Boolean) {
     if (boolean) this@toggleScreenWakeLock.window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
     else this@toggleScreenWakeLock.window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+}
+
+fun Activity.menuItemClicked(nettyEngine: NettyApplicationEngine?, function: () -> Unit) {
+    if (nettyEngine != null) {
+        this.popUpWindow(
+            title = "Notice 🔔",
+            message = "PC Connection is in progress. Leaving this page 📟 will result in connection lost, which may lead to interruption of your download 👇🏾 or upload 👆🏾."
+        ) { popup ->
+            popup.setCancelable(true)
+            popup.setPositiveButton("Continue") { _, _ ->
+                function()
+            }
+            popup.setNegativeButton("Cancel") { _, _ ->
+                popup.show().dismiss()
+            }
+        }
+    } else function()
 }

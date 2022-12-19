@@ -3,21 +3,12 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical">
-    <androidx.appcompat.widget.Toolbar
+    <include
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/green"
-        android:id="@+id/id_toolbar">
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:id="@+id/id_tv_toolbar"
-            android:textSize="25sp"
-            android:textStyle="italic|bold"
-            android:drawableStart="@drawable/ic_icon"
-            android:drawablePadding="20dp"
-            android:text="@string/title_activity_settings"/>
-    </androidx.appcompat.widget.Toolbar>
+        android:layout_gravity="top"
+        android:id="@+id/id_top_nav_bar"
+        layout="@layout/toolbar_layout"/>
     <FrameLayout
         android:id="@+id/settings"
         android:layout_width="match_parent"

@@ -1,7 +1,6 @@
 package ng.ohis.ktorandroidpc.utills
 
 import android.app.Activity
-import android.app.AlertDialog
 import android.app.RecoverableSecurityException
 import android.content.Context
 import android.content.IntentSender
@@ -11,18 +10,21 @@ import android.os.Build
 import android.os.Environment
 import android.provider.MediaStore
 import android.util.Log
-import android.view.LayoutInflater
-import android.view.View
-import android.view.WindowManager
+import android.view.*
+import android.widget.TextView
 import android.widget.Toast
+import androidx.appcompat.widget.Toolbar
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
+import androidx.core.view.MenuProvider
 import androidx.navigation.findNavController
 import ng.ohis.ktorandroidpc.BuildConfig
+import ng.ohis.ktorandroidpc.R
 import ng.ohis.ktorandroidpc.adapter.FileModel
 import ng.ohis.ktorandroidpc.explorer.FileUtils
 import java.io.File
+import java.lang.reflect.Method
 import java.util.*
 import kotlin.collections.ArrayList
 
@@ -40,7 +42,7 @@ object Tools {
         Log.e(tag, message)
     }
 
-    fun requestForAllPermission(activity: Activity){
+    fun requestForAllPermission(activity: Activity) {
         unGrantedPermission.clear()
         for (per in Const.ARRAY_OF_PERMISSIONS) {
             if (!checkForPermission(activity, per)) {
@@ -137,14 +139,18 @@ object Tools {
 
     fun deleteFileFromStorage(file: File, context: Context, function: (IntentSender) -> Unit): Uri {
 //        val uri = Uri.fromFile(file)
-        val uri = FileProvider.getUriForFile(context, BuildConfig.APPLICATION_ID + ".provider", file)
+        val uri =
+            FileProvider.getUriForFile(context, BuildConfig.APPLICATION_ID + ".provider", file)
         try {
             File(file.absolutePath).deleteRecursively()
 //            context?.contentResolver?.delete(uri, null, null)
         } catch (e: SecurityException) {
             val intentSender = when {
                 Build.VERSION.SDK_INT >= Build.VERSION_CODES.R -> {
-                    MediaStore.createDeleteRequest(context.contentResolver!!, listOf(uri)).intentSender
+                    MediaStore.createDeleteRequest(
+                        context.contentResolver!!,
+                        listOf(uri)
+                    ).intentSender
                 }
                 Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q -> {
                     val recoverableSecurityException = e as RecoverableSecurityException
@@ -157,11 +163,85 @@ object Tools {
         return uri
     }
 
-    fun navigateFragmentToFragment(fragmentView: View, id: Int, fragClass:String?=null) {
-        Const.FRAGMENT_TAG = fragClass?:""
-        fragmentView.findNavController() .navigate(id)
+    fun navigateFragmentToFragment(fragmentView: View, id: Int, fragClass: String? = null) {
+        Const.FRAGMENT_TAG = fragClass ?: ""
+        fragmentView.findNavController().navigate(id)
 //        Navigation.findNavController(fragmentView).navigate(id)
     }
 
     fun getRandomUUID() = UUID.randomUUID().toString()
+
+    fun inflateMenuItem(
+        toolbar: Toolbar,
+        settingMenu: (() -> Unit)? = null,
+        sdCardMenu: (() -> Unit)? = null,
+        connectComputerMenu: (() -> Unit)? = null,
+        localStorageMenu: (() -> Unit)? = null,
+    ) {
+        toolbar.addMenuProvider(object : MenuProvider {
+            override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+                menuInflater.inflate(R.menu.main_menu, menu)
+                if (connectComputerMenu != null) {
+                    menu.findItem(R.id.id_menu_connect_computer)?.isVisible = true
+                }
+                //        make sure menu is displaying icons
+                if (menu.javaClass.simpleName == "MenuBuilder") {
+                    try {
+                        val m: Method = menu.javaClass.getDeclaredMethod(
+                            "setOptionalIconsVisible", java.lang.Boolean.TYPE
+                        )
+                        m.isAccessible = true
+                        m.invoke(menu, true)
+                    } catch (e: NoSuchMethodException) {
+                        e.printStackTrace()
+                    } catch (e: Exception) {
+                        throw RuntimeException(e)
+                    }
+                }
+            }
+
+            override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
+                return when (menuItem.itemId) {
+                    R.id.id_menu_setting -> {
+                        // SETTINGS MENU ITEM PRESSED
+                        settingMenu!!()
+                        true
+                    }
+                    // SD CARD MENU ITEM PRESSED
+                    R.id.id_menu_sd -> {
+                        sdCardMenu!!()
+                        true
+                    }
+                    R.id.id_menu_connect_computer -> {
+                        // CONNECT COMPUTER MENU ITEM PRESSED
+                        connectComputerMenu!!()
+                        true
+                    }
+                    R.id.id_menu_local_storage -> {
+                        // LOCAL STORAGE MENU ITEM PRESSED
+                        localStorageMenu!!()
+                        true
+                    }
+                    else -> false
+                }
+            }
+
+        })
+    }
+
+    fun manageTopNav(fragmentView: View, title: String): Toolbar {
+        val toolbar = fragmentView.findViewById<Toolbar>(R.id.id_top_nav_bar)
+        val textView = fragmentView.findViewById<TextView>(R.id.id_tv_toolbar)
+        textView.text = fragmentView.context.getString(R.string.format_string, title)
+        textView.setCompoundDrawablesRelativeWithIntrinsicBounds(R.drawable.ic_icon, 0, 0, 0)
+        return toolbar
+    }
+
+    fun manageTopNav(activity: Activity, title: String): Toolbar {
+        val toolbar = activity.findViewById<Toolbar>(R.id.id_top_nav_bar)
+        val textView = activity.findViewById<TextView>(R.id.id_tv_toolbar)
+        textView.text = activity.getString(R.string.format_string, title)
+        textView.setCompoundDrawablesRelativeWithIntrinsicBounds(R.drawable.ic_icon, 0, 0, 0)
+        return toolbar
+    }
 }

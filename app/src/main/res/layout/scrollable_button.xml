@@ -35,7 +35,6 @@
             android:paddingHorizontal="20dp"
             android:background="@drawable/con_btn_design"
             style="@style/TextAppearance.AppCompat"
-            android:visibility="gone"
             android:textSize="25sp"/>
     </LinearLayout>
 

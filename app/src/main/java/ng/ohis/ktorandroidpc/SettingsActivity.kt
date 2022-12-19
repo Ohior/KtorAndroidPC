@@ -4,6 +4,9 @@ import android.app.Activity
 import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.content.FileProvider
@@ -38,12 +41,13 @@ class SettingsActivity : AppCompatActivity(), SharedPreferences.OnSharedPreferen
                 .replace(R.id.settings, SettingsFragment())
                 .commit()
         }
-        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        Tools.manageTopNav(this,"${getString(R.string.app_name)} Settings")
         PreferenceManager.getDefaultSharedPreferences(this)
             .registerOnSharedPreferenceChangeListener(this)
     }
 
     class SettingsFragment : PreferenceFragmentCompat() {
+
         override fun onPreferenceTreeClick(preference: Preference): Boolean {
             val key = preference.key
             if (key != null && key == "shareApp") {
@@ -62,7 +66,11 @@ class SettingsActivity : AppCompatActivity(), SharedPreferences.OnSharedPreferen
                 val ai = pm.getApplicationInfo(requireActivity().packageName, 0)
                 val file = File(ai.publicSourceDir)
                 val uri =
-                    FileProvider.getUriForFile(requireContext(), BuildConfig.APPLICATION_ID + ".provider", file)
+                    FileProvider.getUriForFile(
+                        requireContext(),
+                        BuildConfig.APPLICATION_ID + ".provider",
+                        file
+                    )
                 val share = Intent()
                 share.action = Intent.ACTION_SEND
                 share.type = "application/vnd.android.package-archive"
@@ -109,7 +117,8 @@ class SettingsActivity : AppCompatActivity(), SharedPreferences.OnSharedPreferen
             val downloadFolder = preferenceManager.getBoolean("downloadFolder", false)
             val showHiddenFiles = preferenceManager.getBoolean("showHiddenFile", true)
             switchTheme(appTheme)
-            Const.SETTING_UPLOAD_PATH = if (downloadFolder) Const.DOWNLOAD_DIR else Const.CHRANSVER_DIR
+            Const.SETTING_UPLOAD_PATH =
+                if (downloadFolder) Const.DOWNLOAD_DIR else Const.CHRANSVER_DIR
             Const.SETTING_SHOW_HIDDEN_FILES = showHiddenFiles
             Tools.createDirectoryIfNonExist(Const.SETTING_UPLOAD_PATH)
         }

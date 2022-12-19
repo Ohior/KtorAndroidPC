@@ -6,6 +6,8 @@ import android.os.Environment
 object Const {
     const val FRAGMENT_DATA_KEY: String = "FRAGMENT_DATA_KEY"
     const val SD_DIRECTORY_KEY = "SD_DIRECTORY_KEY"
+    const val SD_CARD = "SD Card"
+    const val LOCAL_STORAGE = "Phone Storage"
     const val ADDRESS = "192.168.43.1"
     const val PORT = 8181
     const val PERMISSION = 101

@@ -3,13 +3,21 @@ package ng.ohis.ktorandroidpc.classes
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
+import android.os.Bundle
 import android.view.Menu
+import android.view.MenuInflater
+import android.view.MenuItem
 import android.view.View
+import androidx.core.view.MenuProvider
+import androidx.navigation.Navigation
+import io.ktor.server.netty.*
 import ng.ohis.ktorandroidpc.R
+import ng.ohis.ktorandroidpc.SettingsActivity
 import ng.ohis.ktorandroidpc.adapter.*
 import ng.ohis.ktorandroidpc.explorer.FileType
-import ng.ohis.ktorandroidpc.openFileWithDefaultApp
+import ng.ohis.ktorandroidpc.utills.openFileWithDefaultApp
 import ng.ohis.ktorandroidpc.utills.*
+import java.lang.reflect.Method
 
 interface ExplorerInterface {
     fun getDrawableFileType(fileType: FileType): Int {
@@ -89,7 +97,8 @@ interface ExplorerInterface {
                 .dropLast(1)
                 .joinToString("/")
 
-            val files = Tools.getFilesFromPath(directory).sortedWith(compareBy { it.name.lowercase() })
+            val files =
+                Tools.getFilesFromPath(directory).sortedWith(compareBy { it.name.lowercase() })
             loopThroughFiles(files, recyclerAdapter)
             directory
         }
@@ -127,10 +136,10 @@ interface ExplorerInterface {
     fun hideAndShowMenuItem(menu: Menu, rootDir: StorageDataClass) {
         if (rootDir.isSdStorage) {
             menu.findItem(R.id.id_menu_sd)?.isVisible = false
-            menu.findItem(R.id.id_menu_mobile)?.isVisible = true
+            menu.findItem(R.id.id_menu_local_storage)?.isVisible = true
             menu.findItem(R.id.id_rv_menu_delete)?.isVisible = false
         } else {
-            menu.findItem(R.id.id_menu_mobile)?.isVisible = false
+            menu.findItem(R.id.id_menu_local_storage)?.isVisible = false
             menu.findItem(R.id.id_menu_sd)?.isVisible = true
         }
     }
@@ -154,5 +163,21 @@ interface ExplorerInterface {
         })
     }
 
+    fun menuItemClicked(nettyEngine: NettyApplicationEngine?, activity: Activity, function: () -> Unit) {
+        if (nettyEngine != null) {
+            activity.popUpWindow(
+                title = "Notice 🔔",
+                message = "PC Connection is in progress. Leaving this page 📟 will result in connection lost, which may lead to interruption of your download 👇🏾 or upload 👆🏾."
+            ) { popup ->
+                popup.setCancelable(true)
+                popup.setPositiveButton("Continue") { _, _ ->
+                    function()
+                }
+                popup.setNegativeButton("Cancel") { _, _ ->
+                    popup.show().dismiss()
+                }
+            }
+        } else function()
+    }
 
 }
