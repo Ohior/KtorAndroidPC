@@ -8,15 +8,20 @@ import android.net.Uri
 import android.net.wifi.WifiManager
 import android.os.Build
 import android.os.Bundle
-import android.view.*
-import android.widget.*
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import android.widget.Button
+import android.widget.ImageView
+import android.widget.LinearLayout
+import android.widget.PopupMenu
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.IntentSenderRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.net.toFile
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
-import androidx.navigation.fragment.findNavController
+import androidx.navigation.Navigation
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import io.ktor.server.engine.*
@@ -24,13 +29,13 @@ import io.ktor.server.netty.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import ng.ohis.ktorandroidpc.*
+import ng.ohis.ktorandroidpc.R
+import ng.ohis.ktorandroidpc.SettingsActivity
 import ng.ohis.ktorandroidpc.adapter.*
 import ng.ohis.ktorandroidpc.plugins.configureRouting
 import ng.ohis.ktorandroidpc.plugins.configureTemplating
 import ng.ohis.ktorandroidpc.plugins.uploadFile
-import ng.ohis.ktorandroidpc.utills.Const
-import ng.ohis.ktorandroidpc.utills.Tools
+import ng.ohis.ktorandroidpc.utills.*
 import java.io.File
 import java.lang.reflect.Method
 
@@ -47,59 +52,10 @@ class ConnectPcFragment : Fragment() {
     private var sdDirectory: String? = null
     private lateinit var recyclerAdapter: RecyclerAdapter
     private var nettyEngine: NettyApplicationEngine? = null
-    private lateinit var idToolbarTextView: TextView
+    private lateinit var idToolbar: androidx.appcompat.widget.Toolbar
     private lateinit var intentSenderLauncher: ActivityResultLauncher<IntentSenderRequest>
     private var deleteFileUri: Uri? = null
 
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setHasOptionsMenu(true)
-    }
-
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        // clear menu item so as not to duplicate items
-        menu.clear()
-        inflater.inflate(R.menu.main_menu, menu)
-        menu.findItem(R.id.id_menu_mobile)?.isVisible = true
-        if (sdDirectory == null) {
-            menu.findItem(R.id.id_menu_sd)?.isVisible = false
-        }
-        super.onCreateOptionsMenu(menu, inflater)
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        return when (item.itemId) {
-            R.id.id_menu_mobile -> {
-                menuItemClicked {
-                    findNavController().navigate(R.id.connectPcFragment_to_explorerFragment, Bundle().apply {
-                        putString(
-                            Const.FRAGMENT_DATA_KEY, StorageDataClass(
-                                rootDirectory = Const.ROOT_PATH,
-                                isSdStorage = false
-                            ).toJson()
-                        )
-                    })
-                }
-                true
-            }
-            R.id.id_menu_sd -> {
-                menuItemClicked {
-                    findNavController().navigate(R.id.connectPcFragment_to_explorerFragment, Bundle().apply {
-                        putString(
-                            Const.FRAGMENT_DATA_KEY, StorageDataClass(
-                                rootDirectory = Tools.getExternalSDCardRootDirectory(requireActivity()).toString(),
-                                isSdStorage = true
-                            ).toJson()
-                        )
-                    })
-                }
-                true
-            }
-            else -> super.onOptionsItemSelected(item)
-
-        }
-    }
 
     override fun onDestroyView() {
         try {
@@ -118,11 +74,10 @@ class ConnectPcFragment : Fragment() {
         // Inflate the layout for this fragment
         fragmentView = inflater.inflate(R.layout.fragment_connect_pc, container, false)
 
+
         CoroutineScope(Dispatchers.IO).launch {
             Tools.requestForAllPermission(requireActivity())
         }
-
-        requireActivity().findViewById<TextView>(R.id.id_tv_toolbar).isClickable = false
 
         fragmentInitializers()
 
@@ -139,11 +94,53 @@ class ConnectPcFragment : Fragment() {
         // Create app (Chransver) folder in root directory if it does not exist
         Tools.createDirectoryIfNonExist(Const.ROOT_PATH)
         Glide.with(requireActivity()).asGif().load(R.drawable.gifimage).into(idGifImageView)
-        if (!isHotspotOn()) {
-            fragmentView.displaySnackBar("Wifi - Hotspot is switch OFF!", "switch ON") {
-                connectHotspot()
+
+        Tools.inflateMenuItem(idToolbar,
+            settingMenu = {
+                // SETTINGS MENU ITEM PRESSED
+                requireActivity().startActivity(
+                    Intent(
+                        activity,
+                        SettingsActivity::class.java
+                    )
+                )
+            },
+            sdCardMenu = {
+                // SD CARD MENU ITEM PRESSED
+                menuItemClicked {
+                    Navigation.findNavController(fragmentView).navigate(
+                        R.id.connectPcFragment_to_explorerFragment,
+                        Bundle().apply {
+                            putString(
+                                Const.FRAGMENT_DATA_KEY, StorageDataClass(
+                                    rootDirectory = Tools.getExternalSDCardRootDirectory(
+                                        requireActivity()
+                                    ).toString(),
+                                    isSdStorage = true,
+                                    title = Const.SD_CARD
+                                ).toJson()
+                            )
+                        })
+                }
+
+            },
+            localStorageMenu = {
+                // LOCAL STORAGE MENU ITEM PRESSED
+                menuItemClicked {
+                    Navigation.findNavController(fragmentView).navigate(
+                        R.id.connectPcFragment_to_explorerFragment,
+                        Bundle().apply {
+                            putString(
+                                Const.FRAGMENT_DATA_KEY, StorageDataClass(
+                                    rootDirectory = Const.ROOT_PATH,
+                                    isSdStorage = false,
+                                    title = Const.LOCAL_STORAGE
+                                ).toJson()
+                            )
+                        })
+                }
             }
-        }
+        )
         receivedRecyclerAdapter()
     }
 
@@ -184,7 +181,10 @@ class ConnectPcFragment : Fragment() {
                             }
                             R.id.id_rv_menu_open -> {
                                 if (!requireContext().openFileWithDefaultApp(fileModel.file)) {
-                                    Tools.showToast(requireContext(), "No App To open this File! 😢")
+                                    Tools.showToast(
+                                        requireContext(),
+                                        "No App To open this File! 😢"
+                                    )
                                 }
                                 true
                             }
@@ -214,14 +214,15 @@ class ConnectPcFragment : Fragment() {
                 if (connectDevice) {
                     coroutineScope.launch {
                         // launch connection
-                        nettyEngine = embeddedServer(Netty, port = Const.PORT, host = Const.ADDRESS) {
-                            configureRouting { it1 ->
-                                it1.uploadFile {
-                                    displayRecyclerView(it)
+                        nettyEngine =
+                            embeddedServer(Netty, port = Const.PORT, host = Const.ADDRESS) {
+                                configureRouting { it1 ->
+                                    it1.uploadFile {
+                                        displayRecyclerView(it)
+                                    }
                                 }
+                                configureTemplating(this)
                             }
-                            configureTemplating(this)
-                        }
                         // start connection
                         nettyEngine?.start(wait = true)
                     }
@@ -250,10 +251,13 @@ class ConnectPcFragment : Fragment() {
                 layout = R.layout.connect_device_popup
             ) { v, p ->
                 val send = v.findViewById<Button>(R.id.id_btn_send)
-                val receive = v.findViewById<Button>(R.id.id_btn_receive)
+//                val receive = v.findViewById<Button>(R.id.id_btn_receive)
                 send.setOnClickListener {
                     p.dismiss()
-                    Tools.navigateFragmentToFragment(fragmentView, R.id.connectPcFragment_to_connectDeviceFragment)
+                    Tools.navigateFragmentToFragment(
+                        fragmentView,
+                        R.id.connectPcFragment_to_connectDeviceFragment
+                    )
                 }
             }
         }
@@ -261,15 +265,13 @@ class ConnectPcFragment : Fragment() {
 
     private fun fragmentInitializers() {
 //        initialize all global variables
-        idToolbarTextView = requireActivity().findViewById(R.id.id_tv_toolbar)
-        idToolbarTextView.text = requireActivity().getString(R.string.app_name)
+        idToolbar = Tools.manageTopNav(fragmentView, getString(R.string.app_name))
         idGifImageView = fragmentView.findViewById(R.id.id_gif_image)
         idGifLinearLayout = fragmentView.findViewById(R.id.id_gif_ll)
         idRecyclerView = fragmentView.findViewById(R.id.id_recycler_view)
         idBtnConnectBrowser = fragmentView.findViewById(R.id.id_btn_connect_browser)
         idBtnConnectDevice = fragmentView.findViewById(R.id.id_btn_connect_device)
         coroutineScope = CoroutineScope(Dispatchers.IO)
-        idToolbarTextView.setCompoundDrawablesRelativeWithIntrinsicBounds(R.drawable.ic_icon, 0, 0, 0)
         recyclerAdapter = RecyclerAdapter(
             requireContext(),
             idRecyclerView,
@@ -282,7 +284,8 @@ class ConnectPcFragment : Fragment() {
 //        open intent window so user can activate their mobile hotspot
         val intent = Intent(Intent.ACTION_MAIN, null)
         intent.addCategory(Intent.CATEGORY_LAUNCHER)
-        val componentName = ComponentName("com.android.settings", "com.android.settings.TetherSettings")
+        val componentName =
+            ComponentName("com.android.settings", "com.android.settings.TetherSettings")
         intent.component = componentName
         intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
         startActivity(intent)
@@ -290,7 +293,8 @@ class ConnectPcFragment : Fragment() {
 
     private fun isHotspotOn(): Boolean {
         // heck if user hot spot is switch on
-        val wifiManager = requireActivity().applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
+        val wifiManager =
+            requireActivity().applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
         val method: Method = wifiManager.javaClass.getMethod("getWifiApState")
         method.isAccessible = true
         val invoke = method.invoke(wifiManager) as Int
@@ -339,23 +343,27 @@ class ConnectPcFragment : Fragment() {
     }
 
     fun registerDeleteResult() {
-        intentSenderLauncher = registerForActivityResult(ActivityResultContracts.StartIntentSenderForResult()) {
-            if (it.resultCode == Activity.RESULT_OK) {
-                if (Build.VERSION.SDK_INT == Build.VERSION_CODES.Q && deleteFileUri != null) {
-                    deleteFileUri =
-                        Tools.deleteFileFromStorage(deleteFileUri!!.toFile(), requireContext()) { intentSender ->
-                            intentSender.let { sender ->
-                                intentSenderLauncher.launch(
-                                    IntentSenderRequest.Builder(sender).build()
-                                )
+        intentSenderLauncher =
+            registerForActivityResult(ActivityResultContracts.StartIntentSenderForResult()) {
+                if (it.resultCode == Activity.RESULT_OK) {
+                    if (Build.VERSION.SDK_INT == Build.VERSION_CODES.Q && deleteFileUri != null) {
+                        deleteFileUri =
+                            Tools.deleteFileFromStorage(
+                                deleteFileUri!!.toFile(),
+                                requireContext()
+                            ) { intentSender ->
+                                intentSender.let { sender ->
+                                    intentSenderLauncher.launch(
+                                        IntentSenderRequest.Builder(sender).build()
+                                    )
+                                }
                             }
-                        }
+                    }
+                    Tools.showToast(requireContext(), "File deleted Successfully")
+                } else {
+                    Tools.showToast(requireContext(), "File delete Aborted")
                 }
-                Tools.showToast(requireContext(), "File deleted Successfully")
-            } else {
-                Tools.showToast(requireContext(), "File delete Aborted")
             }
-        }
     }
 }
 

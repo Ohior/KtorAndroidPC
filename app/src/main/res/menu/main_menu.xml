@@ -8,12 +8,11 @@
         android:icon="@drawable/ic_setting"
         app:showAsAction="always"/>
     <item
-        android:id="@+id/id_menu_mobile"
+        android:id="@+id/id_menu_local_storage"
         android:title="@string/local_storage"
-        android:icon="@drawable/ic_mobile"
-        android:visible="false"/>
+        android:icon="@drawable/ic_mobile"/>
     <item
-        android:id="@+id/id_menu_computer"
+        android:id="@+id/id_menu_connect_computer"
         android:title="@string/connect_PC"
         android:icon="@drawable/ic_computer"
         android:visible="false"/>

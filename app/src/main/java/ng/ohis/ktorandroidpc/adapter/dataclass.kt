@@ -54,10 +54,12 @@ data class RecyclerAdapterDataclass(
 
 data class StorageDataClass(
     val rootDirectory: String,
-    val isSdStorage: Boolean
+    val isSdStorage: Boolean,
+    val title: String? = null
 ) {
     fun toJson(): String {
-        return """{"rootDirectory": "$rootDirectory","isSdStorage": "$isSdStorage"}""".trimIndent().trim()
+        return """{"rootDirectory": "$rootDirectory","isSdStorage": "$isSdStorage"}""".trimIndent()
+            .trim()
     }
 }
 

@@ -4,13 +4,20 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
     tools:context="ng.ohis.ktorandroidpc.fragments.ConnectPcFragment">
+    <include
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="top"
+        android:id="@+id/id_top_nav_bar"
+        layout="@layout/toolbar_layout"/>
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:id="@+id/id_gif_ll"
-        android:orientation="vertical"
-        android:gravity="top">
+        android:layout_gravity="center"
+        android:orientation="vertical">
         <ImageView
             android:layout_width="match_parent"
             android:layout_height="300dp"
@@ -35,7 +42,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/id_recycler_view"
-        android:layout_gravity="top"
+        android:layout_gravity="center"
         android:visibility="gone"
         tools:listitem="@layout/explorer_item"/>
 
