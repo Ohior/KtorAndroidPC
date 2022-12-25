@@ -163,21 +163,4 @@ interface ExplorerInterface {
         })
     }
 
-    fun menuItemClicked(nettyEngine: NettyApplicationEngine?, activity: Activity, function: () -> Unit) {
-        if (nettyEngine != null) {
-            activity.popUpWindow(
-                title = "Notice 🔔",
-                message = "PC Connection is in progress. Leaving this page 📟 will result in connection lost, which may lead to interruption of your download 👇🏾 or upload 👆🏾."
-            ) { popup ->
-                popup.setCancelable(true)
-                popup.setPositiveButton("Continue") { _, _ ->
-                    function()
-                }
-                popup.setNegativeButton("Cancel") { _, _ ->
-                    popup.show().dismiss()
-                }
-            }
-        } else function()
-    }
-
 }

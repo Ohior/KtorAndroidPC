@@ -58,7 +58,7 @@ data class StorageDataClass(
     val title: String? = null
 ) {
     fun toJson(): String {
-        return """{"rootDirectory": "$rootDirectory","isSdStorage": "$isSdStorage"}""".trimIndent()
+        return """{"rootDirectory": "$rootDirectory","isSdStorage": "$isSdStorage","title": "$title"}""".trimIndent()
             .trim()
     }
 }

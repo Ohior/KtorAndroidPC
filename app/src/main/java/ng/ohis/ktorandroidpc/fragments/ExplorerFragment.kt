@@ -20,8 +20,13 @@ import androidx.appcompat.widget.Toolbar
 import androidx.core.content.FileProvider
 import androidx.core.net.toFile
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.whenResumed
+import androidx.lifecycle.withStarted
 import androidx.recyclerview.widget.RecyclerView
 import com.google.gson.Gson
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import ng.ohis.ktorandroidpc.BuildConfig
 import ng.ohis.ktorandroidpc.R
 import ng.ohis.ktorandroidpc.SettingsActivity
@@ -41,6 +46,7 @@ class ExplorerFragment : Fragment(), ExplorerInterface {
     private lateinit var rootDir: StorageDataClass
     private var filePath = ""
     private var deleteFileUri: Uri? = null
+    private lateinit var storageName:String
 
     private var intentSenderLauncher: ActivityResultLauncher<IntentSenderRequest> =
         registerForActivityResult(ActivityResultContracts.StartIntentSenderForResult()) {
@@ -104,6 +110,8 @@ class ExplorerFragment : Fragment(), ExplorerInterface {
                 requireActivity().onBackPressed()
             }
         }
+
+        // this call back prevent fragment from repeating them selves
         requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner) {
             filePath = navigateDirectoryBackward(recyclerAdapter, rootDir.rootDirectory, filePath)
             if (filePath.isEmpty()) {
@@ -129,7 +137,13 @@ class ExplorerFragment : Fragment(), ExplorerInterface {
                     isSdStorage = true,
                     title = Const.SD_CARD
                 )
-                filePath = navigateDirectoryForward(null, recyclerAdapter, requireContext(), rootDir.rootDirectory)
+                filePath = navigateDirectoryForward(
+                    null,
+                    recyclerAdapter,
+                    requireContext(),
+                    rootDir.rootDirectory
+                )
+                idToolbar = Tools.manageTopNav(fragmentView, Const.SD_CARD)
             },
             localStorageMenu = {
                 // LOCAL STORAGE MENU ITEM PRESSED
@@ -138,7 +152,13 @@ class ExplorerFragment : Fragment(), ExplorerInterface {
                     isSdStorage = false,
                     Const.LOCAL_STORAGE
                 )
-                filePath = navigateDirectoryForward(null, recyclerAdapter, requireContext(), rootDir.rootDirectory)
+                filePath = navigateDirectoryForward(
+                    null,
+                    recyclerAdapter,
+                    requireContext(),
+                    rootDir.rootDirectory
+                )
+                idToolbar = Tools.manageTopNav(fragmentView, Const.LOCAL_STORAGE)
             },
             connectComputerMenu = {
                 Tools.navigateFragmentToFragment(
@@ -221,11 +241,9 @@ class ExplorerFragment : Fragment(), ExplorerInterface {
     }
 
     private fun fragmentInitializers() {
-        idToolbar = fragmentView.findViewById(R.id.id_top_nav_bar)
-        rootDir = Gson().fromJson(
-            requireArguments().getString(Const.FRAGMENT_DATA_KEY),
-            StorageDataClass::class.java
-        )
+        rootDir = StorageDataClass(Const.ROOT_PATH, false, Const.LOCAL_STORAGE).apply {
+            idToolbar = Tools.manageTopNav(fragmentView, title ?: getString(R.string.app_name))
+        }
         idRvRootFolder = fragmentView.findViewById(R.id.id_rv_folder)
         idNavigateRecyclerView = fragmentView.findViewById(R.id.id_rv_navigate)
         filePath = rootDir.rootDirectory

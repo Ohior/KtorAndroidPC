@@ -6,49 +6,54 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     tools:context="ng.ohis.ktorandroidpc.fragments.ConnectPcFragment">
+
     <include
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="top"
         android:id="@+id/id_top_nav_bar"
-        layout="@layout/toolbar_layout"/>
-    <LinearLayout
+        layout="@layout/toolbar_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/id_gif_ll"
-        android:layout_gravity="center"
-        android:orientation="vertical">
-        <ImageView
-            android:layout_width="match_parent"
-            android:layout_height="300dp"
-            android:id="@+id/id_gif_image"
-            android:src="@drawable/gifimage"
-            android:layout_gravity="top"
-            android:layout_marginVertical="10dp"
-            android:contentDescription="@string/connection_gif"/>
-        <TextView
+        android:layout_gravity="top" />
+
+        <LinearLayout
+            android:id="@+id/id_gif_ll"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:scrollbars="vertical"
-            android:scrollbarSize="5dp"
-            android:textAlignment="center"
-            android:padding="10dp"
-            android:textSize="20sp"
-            android:fontFamily="cursive"
-            android:text="@string/connect_PC_info"/>
-    </LinearLayout>
+            android:layout_gravity="center"
+            android:orientation="vertical">
+
+            <ImageView
+                android:id="@+id/id_gif_image"
+                android:layout_width="match_parent"
+                android:layout_height="300dp"
+                android:layout_gravity="top"
+                android:layout_marginVertical="10dp"
+                android:contentDescription="@string/connection_gif"
+                android:src="@drawable/gifimage" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="cursive"
+                android:padding="10dp"
+                android:scrollbarSize="5dp"
+                android:scrollbars="vertical"
+                android:text="@string/connect_PC_info"
+                android:textAlignment="center"
+                android:textSize="20sp" />
+        </LinearLayout>
+
 
     <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/id_recycler_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/id_recycler_view"
         android:layout_gravity="center"
         android:visibility="gone"
-        tools:listitem="@layout/explorer_item"/>
+        tools:listitem="@layout/explorer_item" />
 
     <include
+        layout="@layout/scrollable_button"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="bottom"
-        layout="@layout/scrollable_button"/>
+        android:layout_gravity="bottom" />
 </FrameLayout>

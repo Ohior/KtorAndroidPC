@@ -17,5 +17,4 @@ class MyBroadcastReceiver(
 ) : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
     }
-
 }
