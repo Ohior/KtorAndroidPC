@@ -8,6 +8,10 @@
         android:icon="@drawable/ic_setting"
         app:showAsAction="always"/>
     <item
+        android:id="@+id/id_menu_connect_device"
+        android:title="@string/connect_device"
+        android:icon="@drawable/ic_mobile"/>
+    <item
         android:id="@+id/id_menu_mobile"
         android:title="@string/local_storage"
         android:icon="@drawable/ic_mobile"

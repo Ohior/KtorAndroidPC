@@ -8,6 +8,7 @@ import android.content.IntentSender
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
+import android.os.Bundle
 import android.os.Environment
 import android.provider.MediaStore
 import android.util.Log
@@ -18,9 +19,15 @@ import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
+import androidx.fragment.app.Fragment
+import androidx.navigation.Navigation
 import androidx.navigation.findNavController
+import androidx.navigation.fragment.findNavController
 import ng.ohis.ktorandroidpc.BuildConfig
+import ng.ohis.ktorandroidpc.MainActivity
+import ng.ohis.ktorandroidpc.R
 import ng.ohis.ktorandroidpc.adapter.FileModel
+import ng.ohis.ktorandroidpc.adapter.StorageDataClass
 import ng.ohis.ktorandroidpc.explorer.FileUtils
 import java.io.File
 import java.util.*
@@ -40,7 +47,7 @@ object Tools {
         Log.e(tag, message)
     }
 
-    fun requestForAllPermission(activity: Activity){
+    fun requestForAllPermission(activity: Activity) {
         unGrantedPermission.clear()
         for (per in Const.ARRAY_OF_PERMISSIONS) {
             if (!checkForPermission(activity, per)) {
@@ -137,14 +144,18 @@ object Tools {
 
     fun deleteFileFromStorage(file: File, context: Context, function: (IntentSender) -> Unit): Uri {
 //        val uri = Uri.fromFile(file)
-        val uri = FileProvider.getUriForFile(context, BuildConfig.APPLICATION_ID + ".provider", file)
+        val uri =
+            FileProvider.getUriForFile(context, BuildConfig.APPLICATION_ID + ".provider", file)
         try {
             File(file.absolutePath).deleteRecursively()
 //            context?.contentResolver?.delete(uri, null, null)
         } catch (e: SecurityException) {
             val intentSender = when {
                 Build.VERSION.SDK_INT >= Build.VERSION_CODES.R -> {
-                    MediaStore.createDeleteRequest(context.contentResolver!!, listOf(uri)).intentSender
+                    MediaStore.createDeleteRequest(
+                        context.contentResolver!!,
+                        listOf(uri)
+                    ).intentSender
                 }
                 Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q -> {
                     val recoverableSecurityException = e as RecoverableSecurityException
@@ -157,9 +168,9 @@ object Tools {
         return uri
     }
 
-    fun navigateFragmentToFragment(fragmentView: View, id: Int, fragClass:String?=null) {
-        Const.FRAGMENT_TAG = fragClass?:""
-        fragmentView.findNavController() .navigate(id)
+    fun navigateFragmentToFragment(fragmentView: Fragment, id: Int, fragClass: String? = null) {
+        Const.FRAGMENT_TAG = fragClass ?: ""
+        fragmentView.findNavController().navigate(id)
 //        Navigation.findNavController(fragmentView).navigate(id)
     }
 

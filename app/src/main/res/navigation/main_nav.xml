@@ -16,11 +16,17 @@
               android:label="fragment_explorer" tools:layout="@layout/fragment_explorer">
         <action android:id="@+id/explorerFragment_to_connectPcFragment" app:destination="@id/connectPcFragment"
                 app:exitAnim="@anim/nav_default_exit_anim" app:popExitAnim="@anim/nav_default_pop_exit_anim"/>
+        <action
+            android:id="@+id/explorerFragment_to_connectDeviceFragment"
+            app:destination="@id/connectDeviceFragment" />
     </fragment>
     <fragment android:id="@+id/connectDeviceFragment"
               android:name="ng.ohis.ktorandroidpc.fragments.ConnectDeviceFragment"
               android:label="fragment_connect_device" tools:layout="@layout/fragment_connect_device">
         <action android:id="@+id/connectDeviceFragment_to_connectPcFragment"
                 app:destination="@id/connectPcFragment" app:enterAnim="@android:anim/fade_out"/>
+        <action
+            android:id="@+id/connectDeviceFragment_to_explorerFragment"
+            app:destination="@id/explorerFragment" />
     </fragment>
 </navigation>

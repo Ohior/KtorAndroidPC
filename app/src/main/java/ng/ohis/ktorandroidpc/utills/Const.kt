@@ -11,6 +11,7 @@ object Const {
     const val PERMISSION = 101
     const val SETTINGS_KEY = "SETTINGS_KEY"
     const val PREFERENCES_FILE_NAME = "PREFERENCES_FILE_NAME"
+    const val WIFI_P2P_STATE = -1
     val ROOT_PATH: String by lazy {
         Environment.getExternalStorageDirectory().absolutePath
     }

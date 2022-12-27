@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/connect_device_menu"
+    android:orientation="vertical">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/id_tv_connect_status"
+            android:text="@string/connection_status"
+            android:layout_gravity="top|center"
+            android:textSize="30sp"/>
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/id_btn_wifi_switch"
+                android:layout_marginHorizontal="30dp"
+                android:text="@string/wifi"/>
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/id_btn_wifi_discover"
+                android:layout_gravity="end"
+                android:layout_marginHorizontal="30dp"
+                android:text="@string/discover"/>
+        </FrameLayout>
+        <ListView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/id_lv_devices"
+            android:background="#FF9292"/>
+</LinearLayout>

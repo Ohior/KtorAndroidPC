@@ -1,38 +1,40 @@
 package ng.ohis.ktorandroidpc.fragments
 
-import android.Manifest
-import android.annotation.SuppressLint
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.IntentFilter
-import android.content.pm.PackageManager
-import android.graphics.Bitmap
 import android.net.wifi.WifiManager
 import android.net.wifi.p2p.WifiP2pManager
 import android.os.Bundle
-import android.os.Looper.getMainLooper
+import android.view.*
 import androidx.fragment.app.Fragment
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
-import android.widget.ImageView
-import androidx.core.app.ActivityCompat
-import androidx.core.view.drawToBitmap
-import com.google.zxing.BarcodeFormat
-import com.google.zxing.WriterException
-import com.journeyapps.barcodescanner.BarcodeEncoder
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
+import android.widget.PopupMenu
+import androidx.activity.addCallback
+import androidx.activity.result.IntentSenderRequest
+import androidx.appcompat.widget.Toolbar
+import androidx.core.view.MenuProvider
+import androidx.navigation.Navigation
+import androidx.navigation.fragment.findNavController
+import androidx.recyclerview.widget.RecyclerView
+import com.google.gson.Gson
+import ng.ohis.ktorandroidpc.MainActivity
 import ng.ohis.ktorandroidpc.R
-import ng.ohis.ktorandroidpc.classes.MyBroadcastReceiver
+import ng.ohis.ktorandroidpc.adapter.*
+import ng.ohis.ktorandroidpc.classes.ExplorerInterface
+import ng.ohis.ktorandroidpc.explorer.FileType
+import ng.ohis.ktorandroidpc.openFileWithDefaultApp
+import ng.ohis.ktorandroidpc.popUpWindow
+import ng.ohis.ktorandroidpc.utills.Const
 import ng.ohis.ktorandroidpc.utills.Tools
 import java.util.concurrent.atomic.AtomicBoolean
 
 
-class ConnectDeviceFragment : Fragment() {
+class ConnectDeviceFragment : Fragment(), ExplorerInterface {
     private lateinit var fragmentView: View
-    private lateinit var idImgQrCode: ImageView
+    private lateinit var idRvRootFolder: RecyclerView
+    private lateinit var recyclerAdapter: RecyclerAdapter
+    private lateinit var idNavigateRecyclerView: RecyclerView
+    private lateinit var navbarRecyclerAdapter: NavbarRecyclerAdapter
 
     private lateinit var mManager: WifiP2pManager
     private lateinit var wifiManager: WifiManager
@@ -42,10 +44,8 @@ class ConnectDeviceFragment : Fragment() {
     private lateinit var mIntentFilter: IntentFilter
     private lateinit var connected: AtomicBoolean
 
-    override fun onPause() {
-        super.onPause()
-        if (mReceiver != null) requireActivity().unregisterReceiver(mReceiver)
-    }
+    private lateinit var rootDir: StorageDataClass
+    private var filePath = ""
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -56,77 +56,114 @@ class ConnectDeviceFragment : Fragment() {
 
         fragmentInitializers()
 
+        fragmentExecutables()
+
         return fragmentView
     }
 
+
+    override fun navigateDirectoryForward(
+        position: Int?,
+        recyclerAdapter: RecyclerAdapter,
+        context: Context,
+        filePath: String
+    ): String {
+        this.filePath = super.navigateDirectoryForward(position, recyclerAdapter, context, filePath)
+        navbarRecyclerView()
+        return this.filePath
+    }
+
+    override fun navigateDirectoryBackward(
+        recyclerAdapter: RecyclerAdapter,
+        rootDir: String,
+        filePath: String
+    ): String {
+        this.filePath = super.navigateDirectoryBackward(recyclerAdapter, rootDir, filePath)
+        navbarRecyclerView()
+        return this.filePath
+    }
+
     private fun fragmentInitializers() {
-        idImgQrCode = fragmentView.findViewById(R.id.id_img_qr_code)
+        rootDir = Gson().fromJson(
+            requireArguments().getString(Const.FRAGMENT_DATA_KEY),
+            StorageDataClass::class.java
+        )
+        idRvRootFolder = fragmentView.findViewById(R.id.id_rv_folder)
+        recyclerAdapter = RecyclerAdapter(
+            requireContext(),
+            idRvRootFolder,
+            R.layout.explorer_item,
+            menuVisibility = false
+        )
+        idNavigateRecyclerView = fragmentView.findViewById(R.id.id_rv_navigate)
+        navbarRecyclerAdapter = NavbarRecyclerAdapter(requireContext(), idNavigateRecyclerView)
+        filePath = rootDir.rootDirectory
+        filePath = navigateDirectoryForward(null, recyclerAdapter, requireContext(), filePath)
     }
 
-    fun generateQRCode(text: String): Bitmap? {
-        return try {
-            val barcodeEncoder = BarcodeEncoder()
-            val bitmap = barcodeEncoder.encodeBitmap(text, BarcodeFormat.QR_CODE, 512, 512)
-            idImgQrCode.setImageBitmap(bitmap)
-            bitmap
-        } catch (e: WriterException) {
-            Tools.debugMessage(e.message.toString(), "WriterException")
-            null
-        }
-    }
-
-    private fun onPermissionsChecked() {
-        wifiManager = requireActivity().applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
-        mManager = requireActivity().applicationContext.getSystemService(Context.WIFI_P2P_SERVICE) as WifiP2pManager
-        mChannel = mManager.initialize(requireContext(), getMainLooper(), null)
-        mReceiver = MyBroadcastReceiver(mManager, mChannel, this)
-        mIntentFilter = IntentFilter()
-        mIntentFilter.addAction(WifiP2pManager.WIFI_P2P_STATE_CHANGED_ACTION)
-        mIntentFilter.addAction(WifiP2pManager.WIFI_P2P_PEERS_CHANGED_ACTION)
-        mIntentFilter.addAction(WifiP2pManager.WIFI_P2P_CONNECTION_CHANGED_ACTION)
-        mIntentFilter.addAction(WifiP2pManager.WIFI_P2P_THIS_DEVICE_CHANGED_ACTION)
-        if (Tools.checkAllPermission(requireActivity())) {
-            mManager.discoverPeers(mChannel, object : WifiP2pManager.ActionListener {
-                override fun onSuccess() {
-                    TODO("Not yet implemented")
-                }
-
-                override fun onFailure(p0: Int) {
-                    TODO("Not yet implemented")
-                }
-            })
-            connected = AtomicBoolean()
-            connected.set(false)
-        }
-        requireActivity().registerReceiver(mReceiver, mIntentFilter)
-    }
-
-    fun setWifiOn() {
-        wifiManager.isWifiEnabled = true
-    }
-
-
-    val connectionInfoListener: WifiP2pManager.ConnectionInfoListener = WifiP2pManager.ConnectionInfoListener {
-        val ownerAddress = it.groupOwnerAddress
-        if (!connected.get()) {
-            mManager.stopPeerDiscovery(mChannel, object : WifiP2pManager.ActionListener {
-                override fun onSuccess() {
-                }
-
-                override fun onFailure(p0: Int) {
-                }
-
-            })
-            if (it.groupFormed && it.isGroupOwner) {
-                CoroutineScope(Dispatchers.IO).launch {
-                    // TODO: 15/11/2022  
-                }
-            } else if (it.groupFormed) {
-                CoroutineScope(Dispatchers.IO).launch {
-                    // TODO: 15/11/2022
-                }
+    private fun fragmentExecutables() {
+        // this makes sure pressing the back button only exit
+        // this fragment when user is at root directory
+        requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner) {
+            filePath = navigateDirectoryBackward(recyclerAdapter, rootDir.rootDirectory, filePath)
+            if (filePath.isEmpty()) {
+                isEnabled = false
+                requireActivity().onBackPressed()
             }
         }
+
+        recyclerViewClickListener()
+
+        inflateMenuItem()
     }
 
+    private fun recyclerViewClickListener() {
+        recyclerAdapter.onClickListener(object : OnClickInterface {
+            override fun onItemClick(position: Int, view: View) {
+                filePath =
+                    navigateDirectoryForward(position, recyclerAdapter, requireContext(), filePath)
+            }
+        })
+    }
+
+    private fun navbarRecyclerView() {
+        navbarRecyclerAdapter.onClickListener(object : OnClickInterface {
+            override fun onItemClick(position: Int, view: View) {
+                filePath = filePath.split("/")
+                    .dropLastWhile { it != navbarRecyclerAdapter.getItemAt(position).name }
+                    .joinToString("/")
+                filePath =
+                    navigateDirectoryForward(null, recyclerAdapter, requireContext(), filePath)
+            }
+        })
+        updateNavigationBarFolderRecyclerView(filePath, rootDir, navbarRecyclerAdapter)
+    }
+
+    private fun inflateMenuItem() {
+        requireActivity().addMenuProvider(object : MenuProvider {
+            override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+                menu.clear()
+                menuInflater.inflate(R.menu.main_menu, menu)
+                menu.findItem(R.id.id_menu_connect_device).isVisible = false
+                menu.findItem(R.id.id_menu_mobile).isVisible = false
+                menu.findItem(R.id.id_menu_sd).isVisible = false
+                menu.findItem(R.id.id_menu_computer).isVisible = true
+
+            }
+
+            override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
+                return when (menuItem.itemId) {
+                    R.id.id_menu_computer -> {
+                        Tools.navigateFragmentToFragment(
+                            this@ConnectDeviceFragment,
+                            R.id.connectDeviceFragment_to_connectPcFragment
+                        )
+                        true
+                    }
+                    else -> false
+                }
+            }
+
+        })
+    }
 }

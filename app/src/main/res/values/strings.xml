@@ -36,4 +36,9 @@
 	<string name="scan_code_image">scan code image</string>
 	<string name="scan_code">SCAN CODE</string>
 	<string name="details">details</string>
+    <string name="connection_status">Connection Status</string>
+	<string name="wifi">Wifi</string>
+	<string name="discover">Discover</string>
+	<string name="message">Message</string>
+    <string name="formatted_string">%1$s</string>
 </resources>

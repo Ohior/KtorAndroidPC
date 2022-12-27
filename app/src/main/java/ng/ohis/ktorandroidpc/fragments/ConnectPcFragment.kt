@@ -14,6 +14,7 @@ import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.IntentSenderRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.net.toFile
+import androidx.core.view.MenuProvider
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
@@ -41,7 +42,8 @@ class ConnectPcFragment : Fragment() {
     private lateinit var idGifImageView: ImageView
     private lateinit var idRecyclerView: RecyclerView
     private lateinit var idBtnConnectBrowser: Button
-    private lateinit var idBtnConnectDevice: Button
+
+    //    private lateinit var idBtnConnectDevice: Button
     private lateinit var coroutineScope: CoroutineScope
     private var connectDevice = true
     private var sdDirectory: String? = null
@@ -52,55 +54,68 @@ class ConnectPcFragment : Fragment() {
     private var deleteFileUri: Uri? = null
 
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setHasOptionsMenu(true)
-    }
-
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        // clear menu item so as not to duplicate items
-        menu.clear()
-        inflater.inflate(R.menu.main_menu, menu)
-        menu.findItem(R.id.id_menu_mobile)?.isVisible = true
-        if (sdDirectory == null) {
-            menu.findItem(R.id.id_menu_sd)?.isVisible = false
-        }
-        super.onCreateOptionsMenu(menu, inflater)
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        return when (item.itemId) {
-            R.id.id_menu_mobile -> {
-                menuItemClicked {
-                    findNavController().navigate(R.id.connectPcFragment_to_explorerFragment, Bundle().apply {
-                        putString(
-                            Const.FRAGMENT_DATA_KEY, StorageDataClass(
-                                rootDirectory = Const.ROOT_PATH,
-                                isSdStorage = false
-                            ).toJson()
-                        )
-                    })
-                }
-                true
-            }
-            R.id.id_menu_sd -> {
-                menuItemClicked {
-                    findNavController().navigate(R.id.connectPcFragment_to_explorerFragment, Bundle().apply {
-                        putString(
-                            Const.FRAGMENT_DATA_KEY, StorageDataClass(
-                                rootDirectory = Tools.getExternalSDCardRootDirectory(requireActivity()).toString(),
-                                isSdStorage = true
-                            ).toJson()
-                        )
-                    })
-                }
-                true
-            }
-            else -> super.onOptionsItemSelected(item)
-
-        }
-    }
-
+    //    override fun onCreate(savedInstanceState: Bundle?) {
+//        super.onCreate(savedInstanceState)
+//        setHasOptionsMenu(true)
+//    }
+//
+//    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+//        // clear menu item so as not to duplicate items
+//        menu.clear()
+//        inflater.inflate(R.menu.main_menu, menu)
+//        menu.findItem(R.id.id_menu_mobile)?.isVisible = true
+//        if (sdDirectory == null) {
+//            menu.findItem(R.id.id_menu_sd)?.isVisible = false
+//        }
+//        super.onCreateOptionsMenu(menu, inflater)
+//    }
+//
+//    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+//        return when (item.itemId) {
+//            R.id.id_menu_mobile -> {
+//                menuItemClicked {
+//                    findNavController().navigate(R.id.connectPcFragment_to_explorerFragment, Bundle().apply {
+//                        putString(
+//                            Const.FRAGMENT_DATA_KEY, StorageDataClass(
+//                                rootDirectory = Const.ROOT_PATH,
+//                                isSdStorage = false
+//                            ).toJson()
+//                        )
+//                    })
+//                }
+//                true
+//            }
+//            R.id.id_menu_sd -> {
+//                menuItemClicked {
+//                    findNavController().navigate(R.id.connectPcFragment_to_explorerFragment, Bundle().apply {
+//                        putString(
+//                            Const.FRAGMENT_DATA_KEY, StorageDataClass(
+//                                rootDirectory = Tools.getExternalSDCardRootDirectory(requireActivity()).toString(),
+//                                isSdStorage = true
+//                            ).toJson()
+//                        )
+//                    })
+//                }
+//                true
+//            }
+//            R.id.id_menu_connect_device->{
+//                menuItemClicked {
+//                    findNavController().navigate(R.id.connectPcFragment_to_connectDeviceFragment, Bundle().apply {
+//                        putString(
+//                            Const.FRAGMENT_DATA_KEY, StorageDataClass(
+//                                rootDirectory = Tools.getExternalSDCardRootDirectory(requireActivity()).toString(),
+//                                isSdStorage = true
+//                            ).toJson()
+//                        )
+//                    })
+//                }
+//                true
+//            }
+//            else -> super.onOptionsItemSelected(item)
+//
+//        }
+//    }
+//
     override fun onDestroyView() {
         try {
             nettyEngine?.stop()
@@ -123,6 +138,8 @@ class ConnectPcFragment : Fragment() {
         }
 
         requireActivity().findViewById<TextView>(R.id.id_tv_toolbar).isClickable = false
+
+        inflateMenuItem()
 
         fragmentInitializers()
 
@@ -184,7 +201,10 @@ class ConnectPcFragment : Fragment() {
                             }
                             R.id.id_rv_menu_open -> {
                                 if (!requireContext().openFileWithDefaultApp(fileModel.file)) {
-                                    Tools.showToast(requireContext(), "No App To open this File! 😢")
+                                    Tools.showToast(
+                                        requireContext(),
+                                        "No App To open this File! 😢"
+                                    )
                                 }
                                 true
                             }
@@ -209,19 +229,20 @@ class ConnectPcFragment : Fragment() {
 //        check if connect button is clicked, so you can connect or disconnect users
         idBtnConnectBrowser.setOnClickListener {
             if (isHotspotOn()) {
-                idBtnConnectDevice.isEnabled = !connectDevice
+//                idBtnConnectDevice.isEnabled = !connectDevice
                 // check if device can be connected
                 if (connectDevice) {
                     coroutineScope.launch {
                         // launch connection
-                        nettyEngine = embeddedServer(Netty, port = Const.PORT, host = Const.ADDRESS) {
-                            configureRouting { it1 ->
-                                it1.uploadFile {
-                                    displayRecyclerView(it)
+                        nettyEngine =
+                            embeddedServer(Netty, port = Const.PORT, host = Const.ADDRESS) {
+                                configureRouting { it1 ->
+                                    it1.uploadFile {
+                                        displayRecyclerView(it)
+                                    }
                                 }
+                                configureTemplating(this)
                             }
-                            configureTemplating(this)
-                        }
                         // start connection
                         nettyEngine?.start(wait = true)
                     }
@@ -244,19 +265,18 @@ class ConnectPcFragment : Fragment() {
         }
         // This will prompt the user to select method of file transfer. Either to receive or send
         // This will open another fragment
-        idBtnConnectDevice.setOnClickListener {
-            requireContext().locationPopUpWindow(
-                fragmentView = fragmentView,
-                layout = R.layout.connect_device_popup
-            ) { v, p ->
-                val send = v.findViewById<Button>(R.id.id_btn_send)
-                val receive = v.findViewById<Button>(R.id.id_btn_receive)
-                send.setOnClickListener {
-                    p.dismiss()
-                    Tools.navigateFragmentToFragment(fragmentView, R.id.connectPcFragment_to_connectDeviceFragment)
-                }
-            }
-        }
+//        idBtnConnectDevice.setOnClickListener {
+//            requireContext().locationPopUpWindow(
+//                fragmentView = fragmentView,
+//                layout = R.layout.connect_device_popup
+//            ) { v, p ->
+//                v.findViewById<Button>(R.id.id_btn_send).setOnClickListener{
+//                    p.dismiss()
+//                    Tools.navigateFragmentToFragment(fragmentView, R.id.connectPcFragment_to_connectDeviceFragment)
+//                }
+//                v.findViewById<Button>(R.id.id_btn_receive)
+//            }
+//        }
     }
 
     private fun fragmentInitializers() {
@@ -267,9 +287,14 @@ class ConnectPcFragment : Fragment() {
         idGifLinearLayout = fragmentView.findViewById(R.id.id_gif_ll)
         idRecyclerView = fragmentView.findViewById(R.id.id_recycler_view)
         idBtnConnectBrowser = fragmentView.findViewById(R.id.id_btn_connect_browser)
-        idBtnConnectDevice = fragmentView.findViewById(R.id.id_btn_connect_device)
+//        idBtnConnectDevice = fragmentView.findViewById(R.id.id_btn_connect_device)
         coroutineScope = CoroutineScope(Dispatchers.IO)
-        idToolbarTextView.setCompoundDrawablesRelativeWithIntrinsicBounds(R.drawable.ic_icon, 0, 0, 0)
+        idToolbarTextView.setCompoundDrawablesRelativeWithIntrinsicBounds(
+            R.drawable.ic_icon,
+            0,
+            0,
+            0
+        )
         recyclerAdapter = RecyclerAdapter(
             requireContext(),
             idRecyclerView,
@@ -282,7 +307,8 @@ class ConnectPcFragment : Fragment() {
 //        open intent window so user can activate their mobile hotspot
         val intent = Intent(Intent.ACTION_MAIN, null)
         intent.addCategory(Intent.CATEGORY_LAUNCHER)
-        val componentName = ComponentName("com.android.settings", "com.android.settings.TetherSettings")
+        val componentName =
+            ComponentName("com.android.settings", "com.android.settings.TetherSettings")
         intent.component = componentName
         intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
         startActivity(intent)
@@ -290,7 +316,8 @@ class ConnectPcFragment : Fragment() {
 
     private fun isHotspotOn(): Boolean {
         // heck if user hot spot is switch on
-        val wifiManager = requireActivity().applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
+        val wifiManager =
+            requireActivity().applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
         val method: Method = wifiManager.javaClass.getMethod("getWifiApState")
         method.isAccessible = true
         val invoke = method.invoke(wifiManager) as Int
@@ -339,23 +366,97 @@ class ConnectPcFragment : Fragment() {
     }
 
     fun registerDeleteResult() {
-        intentSenderLauncher = registerForActivityResult(ActivityResultContracts.StartIntentSenderForResult()) {
-            if (it.resultCode == Activity.RESULT_OK) {
-                if (Build.VERSION.SDK_INT == Build.VERSION_CODES.Q && deleteFileUri != null) {
-                    deleteFileUri =
-                        Tools.deleteFileFromStorage(deleteFileUri!!.toFile(), requireContext()) { intentSender ->
-                            intentSender.let { sender ->
-                                intentSenderLauncher.launch(
-                                    IntentSenderRequest.Builder(sender).build()
-                                )
+        intentSenderLauncher =
+            registerForActivityResult(ActivityResultContracts.StartIntentSenderForResult()) {
+                if (it.resultCode == Activity.RESULT_OK) {
+                    if (Build.VERSION.SDK_INT == Build.VERSION_CODES.Q && deleteFileUri != null) {
+                        deleteFileUri =
+                            Tools.deleteFileFromStorage(
+                                deleteFileUri!!.toFile(),
+                                requireContext()
+                            ) { intentSender ->
+                                intentSender.let { sender ->
+                                    intentSenderLauncher.launch(
+                                        IntentSenderRequest.Builder(sender).build()
+                                    )
+                                }
                             }
-                        }
+                    }
+                    Tools.showToast(requireContext(), "File deleted Successfully")
+                } else {
+                    Tools.showToast(requireContext(), "File delete Aborted")
                 }
-                Tools.showToast(requireContext(), "File deleted Successfully")
-            } else {
-                Tools.showToast(requireContext(), "File delete Aborted")
             }
-        }
     }
+
+    private fun inflateMenuItem() {
+        requireActivity().addMenuProvider(object : MenuProvider {
+            override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+                menu.clear()
+                menuInflater.inflate(R.menu.main_menu, menu)
+                menu.findItem(R.id.id_menu_mobile)?.isVisible = true
+                if (sdDirectory == null) {
+                    menu.findItem(R.id.id_menu_sd)?.isVisible = false
+                }
+            }
+
+            override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
+                return when (menuItem.itemId) {
+                    R.id.id_menu_mobile -> {
+                        menuItemClicked {
+                            findNavController().navigate(
+                                R.id.connectPcFragment_to_explorerFragment,
+                                Bundle().apply {
+                                    putString(
+                                        Const.FRAGMENT_DATA_KEY, StorageDataClass(
+                                            rootDirectory = Const.ROOT_PATH,
+                                            isSdStorage = false
+                                        ).toJson()
+                                    )
+                                })
+                        }
+                        true
+                    }
+                    R.id.id_menu_sd -> {
+                        menuItemClicked {
+                            findNavController().navigate(
+                                R.id.connectPcFragment_to_explorerFragment,
+                                Bundle().apply {
+                                    putString(
+                                        Const.FRAGMENT_DATA_KEY, StorageDataClass(
+                                            rootDirectory = Tools.getExternalSDCardRootDirectory(
+                                                requireActivity()
+                                            ).toString(),
+                                            isSdStorage = true
+                                        ).toJson()
+                                    )
+                                })
+                        }
+                        true
+                    }
+                    R.id.id_menu_connect_device -> {
+                        menuItemClicked {
+                            findNavController().navigate(
+                                R.id.connectPcFragment_to_connectDeviceFragment,
+                                Bundle().apply {
+                                    putString(
+                                        Const.FRAGMENT_DATA_KEY, StorageDataClass(
+                                            rootDirectory = Tools.getExternalSDCardRootDirectory(
+                                                requireActivity()
+                                            ).toString(),
+                                            isSdStorage = true
+                                        ).toJson()
+                                    )
+                                })
+                        }
+                        true
+                    }
+                    else -> false
+                }
+            }
+
+        })
+    }
+
 }
 

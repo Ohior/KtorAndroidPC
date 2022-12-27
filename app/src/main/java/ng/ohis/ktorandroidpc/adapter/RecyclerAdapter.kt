@@ -17,7 +17,8 @@ class RecyclerAdapter(
     private val mContext: Context,
     recyclerview: RecyclerView,
     private val layout: Int,
-    column_count: Int = 1
+    column_count: Int = 1,
+    private var menuVisibility: Boolean = true
 ) : RecyclerView.Adapter<RecyclerAdapter.ViewHolder>() {
     // replace all the RecyclerAdapterDataclass reference in this file with your own data class name
     private var recyclerArrayList: ArrayList<RecyclerAdapterDataclass> = ArrayList()
@@ -51,7 +52,7 @@ class RecyclerAdapter(
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val view = LayoutInflater.from(mContext).inflate(layout, parent, false)
-        return ViewHolder(view, clickListener!!)
+        return ViewHolder(view, clickListener!!, menuVisibility)
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
@@ -89,7 +90,7 @@ class RecyclerAdapter(
         recyclerArrayList.add(index, element)
     }
 
-    fun removeAt(element: RecyclerAdapterDataclass){
+    fun removeAt(element: RecyclerAdapterDataclass) {
         recyclerArrayList.remove(element)
     }
 
@@ -115,6 +116,7 @@ class RecyclerAdapter(
     inner class ViewHolder(
         itemView: View,
         listener: OnClickInterface,
+        menuVisibility:Boolean = false
     ) : RecyclerView.ViewHolder(itemView) {
         // initialize the item your view holder will hold
         val name: TextView = itemView.findViewById(R.id.id_tv_folder_name)
@@ -130,8 +132,14 @@ class RecyclerAdapter(
             itemView.setOnClickListener {
                 listener.onItemClick(adapterPosition, itemView)
             }
+
+            if (!menuVisibility)menu.visibility = View.GONE
             menu.setOnClickListener {
-                listener.onMenuClick(recyclerArrayList[adapterPosition].fileModel, it, adapterPosition)
+                listener.onMenuClick(
+                    recyclerArrayList[adapterPosition].fileModel,
+                    it,
+                    adapterPosition
+                )
             }
         }
     }

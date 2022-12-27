@@ -1,28 +1,79 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
     tools:context=".fragments.ConnectDeviceFragment">
-    <TextView
+
+    <LinearLayout
+        android:id="@+id/id_ll"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentEnd="true">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout_marginBottom="5dp"
+            android:background="@color/light_grey"
+            android:fontFamily="sans-serif"
+            android:gravity="center_vertical"
+            android:text="@string/local_storage"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:textColor="@color/material_dynamic_primary0"
+            app:drawableStartCompat="@drawable/ic_phone" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout_marginBottom="5dp"
+            android:background="@color/light_grey"
+            android:fontFamily="sans-serif"
+            android:gravity="center_vertical"
+            android:text="@string/sd_card"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:textColor="@color/material_dynamic_primary0"
+            app:drawableStartCompat="@drawable/ic_sd_card" />
+
+    </LinearLayout>
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/id_rv_navigate"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            android:orientation="horizontal"
+            android:layout_below="@id/id_ll"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentEnd="true"/>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/id_rv_folder"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        tools:listitem="@layout/explorer_item"
+        android:layout_below="@id/id_rv_navigate"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentEnd="true"/>
+    <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:autoSizeTextType="uniform"
-        android:text="@string/scan_code"
-        android:textColor="@color/blue"
-        android:layout_gravity="top|center"
-        android:layout_marginVertical="30dp"
-        android:textStyle="bold"
-        android:textSize="50sp"/>
-
-    <ImageView
-        android:layout_width="match_parent"
-        android:layout_height="300dp"
-        android:id="@+id/id_img_qr_code"
-        tools:src="@tools:sample/avatars"
-        android:layout_gravity="center"
-        android:contentDescription="@string/scan_code_image"/>
-
-</FrameLayout>
+        android:id="@+id/id_btn_connect_device"
+        android:text="@string/connect_device"
+        android:textAllCaps="false"
+        android:layout_margin="10dp"
+        tools:drawableStart="@drawable/ic_computer"
+        android:drawablePadding="5dp"
+        android:paddingHorizontal="20dp"
+        android:background="@drawable/con_btn_design"
+        style="@style/TextAppearance.AppCompat"
+        android:textSize="25sp"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"/>
+</RelativeLayout>
