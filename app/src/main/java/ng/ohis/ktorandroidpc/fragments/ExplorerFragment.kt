@@ -17,7 +17,6 @@ import androidx.core.view.MenuProvider
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.RecyclerView
 import com.google.gson.Gson
-import ng.ohis.ktorandroidpc.MainActivity
 import ng.ohis.ktorandroidpc.R
 import ng.ohis.ktorandroidpc.adapter.*
 import ng.ohis.ktorandroidpc.classes.ExplorerInterface
@@ -66,6 +65,10 @@ open class ExplorerFragment : Fragment(), ExplorerInterface {
     ): View {
         // Inflate the layout for this fragment
         fragmentView = inflater.inflate(R.layout.fragment_explorer, container, false)
+
+        Tools.debugMessage("Explorer Fragment")
+
+        inflateMenuItem()
 
         variableInitializers()
 
@@ -120,8 +123,6 @@ open class ExplorerFragment : Fragment(), ExplorerInterface {
                 requireActivity().onBackPressed()
             }
         }
-
-        inflateMenuItem()
     }
 
     private fun recyclerViewClickListener() {

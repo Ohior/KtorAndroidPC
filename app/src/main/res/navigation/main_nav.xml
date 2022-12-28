@@ -20,8 +20,7 @@
             android:id="@+id/explorerFragment_to_connectDeviceFragment"
             app:destination="@id/connectDeviceFragment" />
     </fragment>
-    <fragment android:id="@+id/connectDeviceFragment"
-              android:name="ng.ohis.ktorandroidpc.fragments.ConnectDeviceFragment"
+    <fragment android:id="@+id/connectDeviceFragment" android:name="ng.ohis.ktorandroidpc.fragments.ConnectDeviceFragment"
               android:label="fragment_connect_device" tools:layout="@layout/fragment_connect_device">
         <action android:id="@+id/connectDeviceFragment_to_connectPcFragment"
                 app:destination="@id/connectPcFragment" app:enterAnim="@android:anim/fade_out"/>

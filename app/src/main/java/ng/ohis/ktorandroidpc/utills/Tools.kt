@@ -1,33 +1,24 @@
 package ng.ohis.ktorandroidpc.utills
 
 import android.app.Activity
-import android.app.AlertDialog
 import android.app.RecoverableSecurityException
 import android.content.Context
 import android.content.IntentSender
 import android.content.pm.PackageManager
+import android.location.LocationManager
 import android.net.Uri
 import android.os.Build
-import android.os.Bundle
 import android.os.Environment
 import android.provider.MediaStore
 import android.util.Log
-import android.view.LayoutInflater
-import android.view.View
-import android.view.WindowManager
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.fragment.app.Fragment
-import androidx.navigation.Navigation
-import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
 import ng.ohis.ktorandroidpc.BuildConfig
-import ng.ohis.ktorandroidpc.MainActivity
-import ng.ohis.ktorandroidpc.R
 import ng.ohis.ktorandroidpc.adapter.FileModel
-import ng.ohis.ktorandroidpc.adapter.StorageDataClass
 import ng.ohis.ktorandroidpc.explorer.FileUtils
 import java.io.File
 import java.util.*
@@ -49,7 +40,7 @@ object Tools {
 
     fun requestForAllPermission(activity: Activity) {
         unGrantedPermission.clear()
-        for (per in Const.ARRAY_OF_PERMISSIONS) {
+        for (per in Const.STORAGE_PERMISSION) {
             if (!checkForPermission(activity, per)) {
                 unGrantedPermission.add(per)
             }
@@ -60,7 +51,7 @@ object Tools {
     }
 
     fun checkAllPermission(activity: Activity): Boolean {
-        for (per in Const.ARRAY_OF_PERMISSIONS) {
+        for (per in Const.STORAGE_PERMISSION) {
             if (!checkForPermission(activity, per)) {
                 return false
             }
@@ -68,11 +59,11 @@ object Tools {
         return true
     }
 
-    private fun requestForPermission(activity: Activity, unGrantedPermission: MutableList<String>) {
+    fun requestForPermission(activity: Activity, unGrantedPermission: MutableList<String>) {
         ActivityCompat.requestPermissions(
             activity,
             unGrantedPermission.toTypedArray(),
-            Const.PERMISSION
+            Const.PERMISSION_CODE
         )
     }
 
@@ -168,11 +159,27 @@ object Tools {
         return uri
     }
 
-    fun navigateFragmentToFragment(fragmentView: Fragment, id: Int, fragClass: String? = null) {
-        Const.FRAGMENT_TAG = fragClass ?: ""
+    fun navigateFragmentToFragment(fragmentView: Fragment, id: Int) {
         fragmentView.findNavController().navigate(id)
 //        Navigation.findNavController(fragmentView).navigate(id)
     }
 
     fun getRandomUUID() = UUID.randomUUID().toString()
+
+    fun isLocationEnabled(context: Context): Boolean {
+        val locationManager = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
+        if (Build.VERSION.SDK_INT == Build.VERSION_CODES.P) return locationManager.isLocationEnabled
+        return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)
+    }
+
+    fun askForPermission(activity: Activity, permissionString: String) {
+        ActivityCompat.requestPermissions(activity, arrayOf(permissionString), Const.PERMISSION_CODE)
+    }
+
+    fun isPermissionGranted(context: Context, permissionString: String):Boolean{
+        return ContextCompat.checkSelfPermission(
+            context,
+            permissionString
+        ) == PackageManager.PERMISSION_GRANTED
+    }
 }

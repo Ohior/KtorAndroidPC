@@ -54,68 +54,6 @@ class ConnectPcFragment : Fragment() {
     private var deleteFileUri: Uri? = null
 
 
-    //    override fun onCreate(savedInstanceState: Bundle?) {
-//        super.onCreate(savedInstanceState)
-//        setHasOptionsMenu(true)
-//    }
-//
-//    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-//        // clear menu item so as not to duplicate items
-//        menu.clear()
-//        inflater.inflate(R.menu.main_menu, menu)
-//        menu.findItem(R.id.id_menu_mobile)?.isVisible = true
-//        if (sdDirectory == null) {
-//            menu.findItem(R.id.id_menu_sd)?.isVisible = false
-//        }
-//        super.onCreateOptionsMenu(menu, inflater)
-//    }
-//
-//    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-//        return when (item.itemId) {
-//            R.id.id_menu_mobile -> {
-//                menuItemClicked {
-//                    findNavController().navigate(R.id.connectPcFragment_to_explorerFragment, Bundle().apply {
-//                        putString(
-//                            Const.FRAGMENT_DATA_KEY, StorageDataClass(
-//                                rootDirectory = Const.ROOT_PATH,
-//                                isSdStorage = false
-//                            ).toJson()
-//                        )
-//                    })
-//                }
-//                true
-//            }
-//            R.id.id_menu_sd -> {
-//                menuItemClicked {
-//                    findNavController().navigate(R.id.connectPcFragment_to_explorerFragment, Bundle().apply {
-//                        putString(
-//                            Const.FRAGMENT_DATA_KEY, StorageDataClass(
-//                                rootDirectory = Tools.getExternalSDCardRootDirectory(requireActivity()).toString(),
-//                                isSdStorage = true
-//                            ).toJson()
-//                        )
-//                    })
-//                }
-//                true
-//            }
-//            R.id.id_menu_connect_device->{
-//                menuItemClicked {
-//                    findNavController().navigate(R.id.connectPcFragment_to_connectDeviceFragment, Bundle().apply {
-//                        putString(
-//                            Const.FRAGMENT_DATA_KEY, StorageDataClass(
-//                                rootDirectory = Tools.getExternalSDCardRootDirectory(requireActivity()).toString(),
-//                                isSdStorage = true
-//                            ).toJson()
-//                        )
-//                    })
-//                }
-//                true
-//            }
-//            else -> super.onOptionsItemSelected(item)
-//
-//        }
-//    }
-//
     override fun onDestroyView() {
         try {
             nettyEngine?.stop()
@@ -414,6 +352,7 @@ class ConnectPcFragment : Fragment() {
                                         ).toJson()
                                     )
                                 })
+                            Tools.debugMessage("PC Fragment")
                         }
                         true
                     }
@@ -441,10 +380,8 @@ class ConnectPcFragment : Fragment() {
                                 Bundle().apply {
                                     putString(
                                         Const.FRAGMENT_DATA_KEY, StorageDataClass(
-                                            rootDirectory = Tools.getExternalSDCardRootDirectory(
-                                                requireActivity()
-                                            ).toString(),
-                                            isSdStorage = true
+                                            rootDirectory = Const.ROOT_PATH,
+                                            isSdStorage = false
                                         ).toJson()
                                     )
                                 })
@@ -457,6 +394,5 @@ class ConnectPcFragment : Fragment() {
 
         })
     }
-
 }
 
