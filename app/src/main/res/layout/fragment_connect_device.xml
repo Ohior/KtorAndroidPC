@@ -19,6 +19,7 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="50dp"
+            android:id="@+id/id_tv_local_storage"
             android:layout_marginBottom="5dp"
             android:background="@color/light_grey"
             android:fontFamily="sans-serif"
@@ -32,6 +33,7 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="50dp"
+            android:id="@+id/id_tv_sd_storage"
             android:layout_marginBottom="5dp"
             android:background="@color/light_grey"
             android:fontFamily="sans-serif"
@@ -40,7 +42,7 @@
             android:textSize="20sp"
             android:textStyle="bold"
             android:textColor="@color/design_default_color_primary"
-            app:drawableStartCompat="@drawable/ic_sd_card" />
+            app:drawableStartCompat="@drawable/ic_micro_sd" />
 
     </LinearLayout>
         <androidx.recyclerview.widget.RecyclerView

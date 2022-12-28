@@ -67,11 +67,9 @@ open class ExplorerFragment : Fragment(), ExplorerInterface {
         // Inflate the layout for this fragment
         fragmentView = inflater.inflate(R.layout.fragment_explorer, container, false)
 
-        Tools.debugMessage("Explorer Fragment")
+        variableInitializers()
 
         inflateMenuItem()
-
-        variableInitializers()
 
         fragmentExecutable()
 
@@ -240,24 +238,23 @@ open class ExplorerFragment : Fragment(), ExplorerInterface {
                 menu.clear()
                 menuInflater.inflate(R.menu.main_menu, menu)
                 menu.findItem(R.id.id_menu_computer)?.isVisible = true
-                hideAndShowMenuItem(menu, rootDir)
+//                hideAndShowMenuItem(menu, rootDir)
+                menu.findItem(R.id.id_menu_sd)?.isVisible = !rootDir.isSdStorage
+                menu.findItem(R.id.id_menu_mobile)?.isVisible = rootDir.isSdStorage
             }
 
             override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
                 return when (menuItem.itemId) {
                     R.id.id_menu_connect_device -> {
-//                        findNavController().navigate(
-//                            R.id.connectPcFragment_to_explorerFragment,
-//                        )
-                        this@ExplorerFragment.findNavController()
-                            .navigate(R.id.connectDeviceFragment, Bundle().apply {
-                                putString(
-                                    Const.FRAGMENT_DATA_KEY, StorageDataClass(
-                                        rootDirectory = Const.ROOT_PATH,
-                                        isSdStorage = false
-                                    ).toJson()
-                                )
-                            })
+                        Tools.navigateToFragment(
+                            fragment = this@ExplorerFragment,
+                            fragId = R.id.connectDeviceFragment,
+                            storageDataJson = StorageDataClass(
+                                rootDirectory = Const.ROOT_PATH,
+                                isSdStorage = false
+                            ).toJson()
+                        )
+
                         true
                     }
                     R.id.id_menu_computer -> {

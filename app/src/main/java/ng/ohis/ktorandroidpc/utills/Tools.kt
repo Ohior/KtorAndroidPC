@@ -168,15 +168,15 @@ object Tools {
 
     fun navigateToFragment(
         fragment: Fragment,
-        id: Int,
+        fragId: Int,
         storageKey: String = Const.FRAGMENT_DATA_KEY,
-        storageJson: String = StorageDataClass(
+        storageDataJson: String = StorageDataClass(
             rootDirectory = Const.ROOT_PATH,
             isSdStorage = true
         ).toJson()
     ) {
-        fragment.findNavController().navigate(id, Bundle().apply {
-            putString(storageKey, storageJson)
+        fragment.findNavController().navigate(fragId, Bundle().apply {
+            putString(storageKey, storageDataJson)
         })
     }
 

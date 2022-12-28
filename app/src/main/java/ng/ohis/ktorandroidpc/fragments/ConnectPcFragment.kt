@@ -343,50 +343,44 @@ class ConnectPcFragment : Fragment() {
                 return when (menuItem.itemId) {
                     R.id.id_menu_mobile -> {
                         menuItemClicked {
-                            findNavController().navigate(
-                                R.id.explorerFragment,
-                                Bundle().apply {
-                                    putString(
-                                        Const.FRAGMENT_DATA_KEY, StorageDataClass(
-                                            rootDirectory = Const.ROOT_PATH,
-                                            isSdStorage = false
-                                        ).toJson()
-                                    )
-                                })
-                            Tools.debugMessage("PC Fragment")
+                            Tools.navigateToFragment(
+                                fragment = this@ConnectPcFragment,
+                                fragId = R.id.explorerFragment,
+                                storageDataJson = StorageDataClass(
+                                    rootDirectory = Const.ROOT_PATH,
+                                    isSdStorage = false
+                                ).toJson()
+                            )
                         }
                         true
                     }
                     R.id.id_menu_sd -> {
                         menuItemClicked {
-                            findNavController().navigate(
-                                R.id.explorerFragment,
-                                Bundle().apply {
-                                    putString(
-                                        Const.FRAGMENT_DATA_KEY, StorageDataClass(
-                                            rootDirectory = Tools.getExternalSDCardRootDirectory(
-                                                requireActivity()
-                                            ).toString(),
-                                            isSdStorage = true
-                                        ).toJson()
-                                    )
-                                })
+                            Tools.navigateToFragment(
+                                fragment = this@ConnectPcFragment,
+                                fragId = R.id.explorerFragment,
+                                storageDataJson = StorageDataClass(
+                                    rootDirectory = Tools.getExternalSDCardRootDirectory(
+                                        requireActivity()
+                                    ).toString(),
+                                    isSdStorage = true
+                                ).toJson()
+                            )
                         }
                         true
                     }
                     R.id.id_menu_connect_device -> {
                         menuItemClicked {
-                            findNavController().navigate(
-                                R.id.connectDeviceFragment,
-                                Bundle().apply {
-                                    putString(
-                                        Const.FRAGMENT_DATA_KEY, StorageDataClass(
-                                            rootDirectory = Const.ROOT_PATH,
-                                            isSdStorage = false
-                                        ).toJson()
-                                    )
-                                })
+                            Tools.navigateToFragment(
+                                fragment = this@ConnectPcFragment,
+                                fragId = R.id.connectDeviceFragment,
+                                storageDataJson = StorageDataClass(
+                                    rootDirectory = Const.ROOT_PATH,
+                                    isSdStorage = false
+                                ).toJson()
+                            )
                         }
+
                         true
                     }
                     else -> false

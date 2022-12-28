@@ -115,24 +115,16 @@ interface ExplorerInterface {
         activity.startActivity(intent)
     }
 
-    fun getToolbarName(rootDir: StorageDataClass, activity: Activity): String {
-        return if (rootDir.isSdStorage) {
+    fun getToolbarName(rootDir: StorageDataClass?, activity: Activity, title:String?=null): String {
+        return if (rootDir == null){
+            activity.getString(R.string.format_string, title)
+        }
+        else if (rootDir.isSdStorage) {
             activity.getString(R.string.format_string, "SD Storage")
-        } else {
+        } else{
             activity.getString(R.string.format_string, "Local Storage")
         }
-    }
 
-
-    fun hideAndShowMenuItem(menu: Menu, rootDir: StorageDataClass) {
-        if (rootDir.isSdStorage) {
-            menu.findItem(R.id.id_menu_sd)?.isVisible = false
-            menu.findItem(R.id.id_menu_mobile)?.isVisible = true
-            menu.findItem(R.id.id_rv_menu_delete)?.isVisible = false
-        } else {
-            menu.findItem(R.id.id_menu_mobile)?.isVisible = false
-            menu.findItem(R.id.id_menu_sd)?.isVisible = true
-        }
     }
 
     private fun navbarRecyclerView(

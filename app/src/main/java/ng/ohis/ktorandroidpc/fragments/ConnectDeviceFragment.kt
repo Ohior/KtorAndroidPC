@@ -42,6 +42,8 @@ class ConnectDeviceFragment : Fragment(), ExplorerInterface {
     private lateinit var idNavigateRecyclerView: RecyclerView
     private lateinit var navbarRecyclerAdapter: NavbarRecyclerAdapter
     private lateinit var idBtnConnectDevice: Button
+    private lateinit var idTvLocalStorage: TextView
+    private lateinit var idTvSdStorage: TextView
 
     private lateinit var mManager: WifiP2pManager
     private lateinit var wifiManager: WifiManager
@@ -161,6 +163,8 @@ class ConnectDeviceFragment : Fragment(), ExplorerInterface {
             StorageDataClass::class.java
         )
         idRvRootFolder = fragmentView.findViewById(R.id.id_rv_folder)
+        idTvLocalStorage = fragmentView.findViewById(R.id.id_tv_local_storage)
+        idTvSdStorage = fragmentView.findViewById(R.id.id_tv_sd_storage)
         recyclerAdapter = RecyclerAdapter(
             requireContext(),
             idRvRootFolder,
@@ -200,12 +204,51 @@ class ConnectDeviceFragment : Fragment(), ExplorerInterface {
                 requireActivity().onBackPressed()
             }
         }
+        requireActivity().findViewById<TextView>(R.id.id_tv_toolbar).apply {
+            text = getToolbarName(null, requireActivity(), "Connect Device")
+            setOnClickListener {
+                filePath = navigateDirectoryBackward(recyclerAdapter, rootDir.rootDirectory, filePath)
+                if (filePath.isEmpty()) {
+                    requireActivity().onBackPressed()
+                }
+            }
+        }
+
+        rootDirectoryNavigation()
 
         recyclerViewClickListener()
 
         inflateMenuItem()
 
         connectDeviceButton()
+    }
+
+    private fun rootDirectoryNavigation() {
+        idTvLocalStorage.setOnClickListener {
+            rootDir = StorageDataClass(
+                rootDirectory = Const.ROOT_PATH,
+                isSdStorage = false
+            )
+            filePath = navigateDirectoryForward(
+                null,
+                recyclerAdapter,
+                requireContext(),
+                rootDir.rootDirectory
+            )
+        }
+
+        idTvSdStorage.setOnClickListener {
+            rootDir = StorageDataClass(
+                rootDirectory = Tools.getExternalSDCardRootDirectory(requireActivity())!!,
+                isSdStorage = true
+            )
+            filePath = navigateDirectoryForward(
+                null,
+                recyclerAdapter,
+                requireContext(),
+                rootDir.rootDirectory
+            )
+        }
     }
 
     private fun connectDeviceButton() {
