@@ -15,6 +15,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.net.toFile
 import androidx.core.view.MenuProvider
 import androidx.fragment.app.Fragment
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.RecyclerView
 import com.google.gson.Gson
 import ng.ohis.ktorandroidpc.R
@@ -244,17 +245,25 @@ open class ExplorerFragment : Fragment(), ExplorerInterface {
 
             override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
                 return when (menuItem.itemId) {
-                    R.id.id_menu_connect_device ->{
-                        Tools.navigateFragmentToFragment(
-                            this@ExplorerFragment,
-                            R.id.explorerFragment_to_connectDeviceFragment
-                        )
+                    R.id.id_menu_connect_device -> {
+//                        findNavController().navigate(
+//                            R.id.connectPcFragment_to_explorerFragment,
+//                        )
+                        this@ExplorerFragment.findNavController()
+                            .navigate(R.id.connectDeviceFragment, Bundle().apply {
+                                putString(
+                                    Const.FRAGMENT_DATA_KEY, StorageDataClass(
+                                        rootDirectory = Const.ROOT_PATH,
+                                        isSdStorage = false
+                                    ).toJson()
+                                )
+                            })
                         true
                     }
                     R.id.id_menu_computer -> {
                         Tools.navigateFragmentToFragment(
                             this@ExplorerFragment,
-                            R.id.explorerFragment_to_connectPcFragment
+                            R.id.connectPcFragment
                         )
                         true
                     }

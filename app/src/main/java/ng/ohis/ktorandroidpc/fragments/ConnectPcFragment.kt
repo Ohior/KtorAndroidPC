@@ -17,6 +17,7 @@ import androidx.core.net.toFile
 import androidx.core.view.MenuProvider
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
+import androidx.navigation.Navigation
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
@@ -343,7 +344,7 @@ class ConnectPcFragment : Fragment() {
                     R.id.id_menu_mobile -> {
                         menuItemClicked {
                             findNavController().navigate(
-                                R.id.connectPcFragment_to_explorerFragment,
+                                R.id.explorerFragment,
                                 Bundle().apply {
                                     putString(
                                         Const.FRAGMENT_DATA_KEY, StorageDataClass(
@@ -359,7 +360,7 @@ class ConnectPcFragment : Fragment() {
                     R.id.id_menu_sd -> {
                         menuItemClicked {
                             findNavController().navigate(
-                                R.id.connectPcFragment_to_explorerFragment,
+                                R.id.explorerFragment,
                                 Bundle().apply {
                                     putString(
                                         Const.FRAGMENT_DATA_KEY, StorageDataClass(
@@ -376,7 +377,7 @@ class ConnectPcFragment : Fragment() {
                     R.id.id_menu_connect_device -> {
                         menuItemClicked {
                             findNavController().navigate(
-                                R.id.connectPcFragment_to_connectDeviceFragment,
+                                R.id.connectDeviceFragment,
                                 Bundle().apply {
                                     putString(
                                         Const.FRAGMENT_DATA_KEY, StorageDataClass(

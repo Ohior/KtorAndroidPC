@@ -333,7 +333,7 @@ class ConnectDeviceFragment : Fragment(), ExplorerInterface {
                     R.id.id_menu_computer -> {
                         Tools.navigateFragmentToFragment(
                             this@ConnectDeviceFragment,
-                            R.id.connectDeviceFragment_to_connectPcFragment
+                            R.id.connectPcFragment
                         )
                         true
                     }

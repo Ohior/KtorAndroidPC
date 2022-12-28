@@ -8,6 +8,7 @@ import android.content.pm.PackageManager
 import android.location.LocationManager
 import android.net.Uri
 import android.os.Build
+import android.os.Bundle
 import android.os.Environment
 import android.provider.MediaStore
 import android.util.Log
@@ -19,6 +20,7 @@ import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import ng.ohis.ktorandroidpc.BuildConfig
 import ng.ohis.ktorandroidpc.adapter.FileModel
+import ng.ohis.ktorandroidpc.adapter.StorageDataClass
 import ng.ohis.ktorandroidpc.explorer.FileUtils
 import java.io.File
 import java.util.*
@@ -164,6 +166,20 @@ object Tools {
 //        Navigation.findNavController(fragmentView).navigate(id)
     }
 
+    fun navigateToFragment(
+        fragment: Fragment,
+        id: Int,
+        storageKey: String = Const.FRAGMENT_DATA_KEY,
+        storageJson: String = StorageDataClass(
+            rootDirectory = Const.ROOT_PATH,
+            isSdStorage = true
+        ).toJson()
+    ) {
+        fragment.findNavController().navigate(id, Bundle().apply {
+            putString(storageKey, storageJson)
+        })
+    }
+
     fun getRandomUUID() = UUID.randomUUID().toString()
 
     fun isLocationEnabled(context: Context): Boolean {
@@ -173,10 +189,14 @@ object Tools {
     }
 
     fun askForPermission(activity: Activity, permissionString: String) {
-        ActivityCompat.requestPermissions(activity, arrayOf(permissionString), Const.PERMISSION_CODE)
+        ActivityCompat.requestPermissions(
+            activity,
+            arrayOf(permissionString),
+            Const.PERMISSION_CODE
+        )
     }
 
-    fun isPermissionGranted(context: Context, permissionString: String):Boolean{
+    fun isPermissionGranted(context: Context, permissionString: String): Boolean {
         return ContextCompat.checkSelfPermission(
             context,
             permissionString
