@@ -3,13 +3,12 @@ package ng.ohis.ktorandroidpc.classes
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
-import android.view.Menu
 import android.view.View
 import ng.ohis.ktorandroidpc.R
 import ng.ohis.ktorandroidpc.adapter.*
 import ng.ohis.ktorandroidpc.explorer.FileType
 import ng.ohis.ktorandroidpc.openFileWithDefaultApp
-import ng.ohis.ktorandroidpc.utills.*
+import ng.ohis.ktorandroidpc.utills.Tools
 
 interface ExplorerInterface {
     fun getDrawableFileType(fileType: FileType): Int {
@@ -75,12 +74,12 @@ interface ExplorerInterface {
 
     fun navigateDirectoryBackward(
         recyclerAdapter: RecyclerAdapter,
-        rootDir: String,
+        rootPath: String,
         filePath: String,
     ): String {
         // go backward in directory
         recyclerAdapter.emptyAdapter()
-        return if (filePath.split("/").size <= rootDir.split("/").size) {
+        return if (filePath.split("/").size <= rootPath.split("/").size) {
             // if user is in root directory,
             String()
         } else {
@@ -127,23 +126,24 @@ interface ExplorerInterface {
 
     }
 
-    private fun navbarRecyclerView(
+    fun navbarRecyclerView(
         navbarRecyclerAdapter: NavbarRecyclerAdapter,
         filePath: String,
         rootDir: StorageDataClass,
         recyclerAdapter: RecyclerAdapter,
         context: Context
-    ) {
-        var fp: String
+    ): String {
+        var fp: String = filePath
         navbarRecyclerAdapter.onClickListener(object : OnClickInterface {
             override fun onItemClick(position: Int, view: View) {
                 fp = filePath.split("/")
                     .dropLastWhile { it != navbarRecyclerAdapter.getItemAt(position).name }
                     .joinToString("/")
                 fp = navigateDirectoryForward(null, recyclerAdapter, context, fp)
-                updateNavigationBarFolderRecyclerView(fp, rootDir, navbarRecyclerAdapter)
             }
         })
+        updateNavigationBarFolderRecyclerView(fp, rootDir, navbarRecyclerAdapter)
+        return fp
     }
 
 }

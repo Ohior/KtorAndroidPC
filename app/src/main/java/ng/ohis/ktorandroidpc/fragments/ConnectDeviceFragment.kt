@@ -12,6 +12,7 @@ import android.net.wifi.p2p.WifiP2pDevice
 import android.net.wifi.p2p.WifiP2pManager
 import android.os.Build
 import android.os.Bundle
+import android.os.Handler
 import android.os.Looper
 import android.provider.Settings
 import android.view.*
@@ -25,17 +26,20 @@ import androidx.core.view.MenuProvider
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.RecyclerView
 import com.google.gson.Gson
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import ng.ohis.ktorandroidpc.R
 import ng.ohis.ktorandroidpc.adapter.*
-import ng.ohis.ktorandroidpc.classes.ExplorerInterface
-import ng.ohis.ktorandroidpc.classes.MyBroadcastReceiver
+import ng.ohis.ktorandroidpc.classes.*
 import ng.ohis.ktorandroidpc.locationPopUpWindow
 import ng.ohis.ktorandroidpc.popUpWindow
 import ng.ohis.ktorandroidpc.utills.Const
 import ng.ohis.ktorandroidpc.utills.Tools
 
 
-class ConnectDeviceFragment : Fragment(), ExplorerInterface {
+class ConnectDeviceFragment : Fragment(), ExplorerInterface,
+    NavbarMenuInterface by NavbarMenuInterfaceImp() {
     private lateinit var fragmentView: View
     private lateinit var idRvRootFolder: RecyclerView
     private lateinit var recyclerAdapter: RecyclerAdapter
@@ -56,9 +60,9 @@ class ConnectDeviceFragment : Fragment(), ExplorerInterface {
     private lateinit var deviceNameArray: ArrayList<String>
     private lateinit var deviceArray: ArrayList<WifiP2pDevice>
 
-//    lateinit var clientClass: ClientClass
-//    lateinit var serverClass: ServerClass
-//    lateinit var sendReceive: SendReceive
+    lateinit var clientClass: ClientClass
+    lateinit var serverClass: ServerClass
+    lateinit var sendReceive: ShareDataThread
 
     private lateinit var rootDir: StorageDataClass
     private var filePath = ""
@@ -105,10 +109,30 @@ class ConnectDeviceFragment : Fragment(), ExplorerInterface {
                 Tools.debugMessage(device.deviceName)
             }
         }
-        if (peers.isEmpty()) {
-            Tools.showToast(requireContext(), "Peers is Empty")
+    }
+
+    // Create connection info (click) listener
+    val connectionInfoListener = WifiP2pManager.ConnectionInfoListener { wifiP2pInfo ->
+        val groupOwnerAddress = wifiP2pInfo.groupOwnerAddress
+        if (wifiP2pInfo.groupFormed && wifiP2pInfo.isGroupOwner) {
+            serverClass = ServerClass(this)
+            serverClass.start()
+        } else if (wifiP2pInfo.groupFormed) {
+            clientClass = ClientClass(this, groupOwnerAddress)
+            clientClass.start()
         }
     }
+
+    val handler = Handler(Looper.getMainLooper(), Handler.Callback { msg ->
+        when (msg.what) {
+            Const.MESSAGE_CODE -> {
+                val readBuff = msg.obj as ByteArray
+                val tempMsg = String(readBuff, 0, msg.arg1)
+                Tools.debugMessage(tempMsg, "TEMP-MESSAGE(OHIS)")
+            }
+        }
+        return@Callback true
+    })
 
     override fun onResume() {
         super.onResume()
@@ -143,17 +167,21 @@ class ConnectDeviceFragment : Fragment(), ExplorerInterface {
         filePath: String
     ): String {
         this.filePath = super.navigateDirectoryForward(position, recyclerAdapter, context, filePath)
-        navbarRecyclerView()
+        navbarRecyclerView(
+            navbarRecyclerAdapter, this.filePath, rootDir, this.recyclerAdapter, context
+        )
         return this.filePath
     }
 
     override fun navigateDirectoryBackward(
         recyclerAdapter: RecyclerAdapter,
-        rootDir: String,
+        rootPath: String,
         filePath: String
     ): String {
-        this.filePath = super.navigateDirectoryBackward(recyclerAdapter, rootDir, filePath)
-        navbarRecyclerView()
+        this.filePath = super.navigateDirectoryBackward(recyclerAdapter, rootPath, filePath)
+        navbarRecyclerView(
+            navbarRecyclerAdapter, this.filePath, rootDir, this.recyclerAdapter, requireContext()
+        )
         return this.filePath
     }
 
@@ -165,6 +193,7 @@ class ConnectDeviceFragment : Fragment(), ExplorerInterface {
         idRvRootFolder = fragmentView.findViewById(R.id.id_rv_folder)
         idTvLocalStorage = fragmentView.findViewById(R.id.id_tv_local_storage)
         idTvSdStorage = fragmentView.findViewById(R.id.id_tv_sd_storage)
+        sendReceive = ShareDataThread(this, null)
         recyclerAdapter = RecyclerAdapter(
             requireContext(),
             idRvRootFolder,
@@ -179,7 +208,8 @@ class ConnectDeviceFragment : Fragment(), ExplorerInterface {
 
         wifiManager =
             requireActivity().applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
-        mManager = requireActivity().applicationContext.getSystemService(Context.WIFI_P2P_SERVICE) as WifiP2pManager
+        mManager =
+            requireActivity().applicationContext.getSystemService(Context.WIFI_P2P_SERVICE) as WifiP2pManager
         mChannel = mManager.initialize(requireContext(), Looper.getMainLooper(), null)
 
         deviceNameArray = ArrayList()
@@ -207,7 +237,8 @@ class ConnectDeviceFragment : Fragment(), ExplorerInterface {
         requireActivity().findViewById<TextView>(R.id.id_tv_toolbar).apply {
             text = getToolbarName(null, requireActivity(), "Connect Device")
             setOnClickListener {
-                filePath = navigateDirectoryBackward(recyclerAdapter, rootDir.rootDirectory, filePath)
+                filePath =
+                    navigateDirectoryBackward(recyclerAdapter, rootDir.rootDirectory, filePath)
                 if (filePath.isEmpty()) {
                     requireActivity().onBackPressed()
                 }
@@ -315,7 +346,12 @@ class ConnectDeviceFragment : Fragment(), ExplorerInterface {
             val ild = v.findViewById<ListView>(R.id.id_lv_devices)
             v.findViewById<Button>(R.id.id_btn_discover_devices).setOnClickListener {
                 ild.adapter =
-                    ArrayAdapter(requireContext(), R.layout.list_item, R.id.id_tv_list_item, deviceNameArray)
+                    ArrayAdapter(
+                        requireContext(),
+                        R.layout.list_item,
+                        R.id.id_tv_list_item,
+                        deviceNameArray
+                    )
             }
             ild.setOnItemClickListener { _, _, position, _ ->
                 val device = deviceArray[position]
@@ -324,6 +360,9 @@ class ConnectDeviceFragment : Fragment(), ExplorerInterface {
                 mManager.connect(mChannel, config, object : WifiP2pManager.ActionListener {
                     override fun onSuccess() {
                         Tools.showToast(requireContext(), "Connected to ${device.deviceName}")
+                        CoroutineScope(Dispatchers.IO).launch {
+                            sendReceive.writeBytes("device ${device.deviceName} sent message Ohiorenua".toByteArray())
+                        }
                     }
 
                     override fun onFailure(p0: Int) {
@@ -346,44 +385,19 @@ class ConnectDeviceFragment : Fragment(), ExplorerInterface {
         })
     }
 
-    private fun navbarRecyclerView() {
-        navbarRecyclerAdapter.onClickListener(object : OnClickInterface {
-            override fun onItemClick(position: Int, view: View) {
-                filePath = filePath.split("/")
-                    .dropLastWhile { it != navbarRecyclerAdapter.getItemAt(position).name }
-                    .joinToString("/")
-                filePath =
-                    navigateDirectoryForward(null, recyclerAdapter, requireContext(), filePath)
-            }
-        })
-        updateNavigationBarFolderRecyclerView(filePath, rootDir, navbarRecyclerAdapter)
-    }
-
     private fun inflateMenuItem() {
-        requireActivity().addMenuProvider(object : MenuProvider {
-            override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
-                menu.clear()
-                menuInflater.inflate(R.menu.main_menu, menu)
-                menu.findItem(R.id.id_menu_connect_device).isVisible = false
-                menu.findItem(R.id.id_menu_mobile).isVisible = false
-                menu.findItem(R.id.id_menu_sd).isVisible = false
-                menu.findItem(R.id.id_menu_computer).isVisible = true
-
-            }
-
-            override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
-                return when (menuItem.itemId) {
-                    R.id.id_menu_computer -> {
-                        Tools.navigateFragmentToFragment(
-                            this@ConnectDeviceFragment,
-                            R.id.connectPcFragment
-                        )
-                        true
-                    }
-                    else -> false
+        navbarMenuProvider(requireActivity(), rootDir, showComputerIcon = true, showDeviceIcon = false) {
+            when (it.itemId) {
+                R.id.id_menu_computer -> {
+                    Tools.navigateFragmentToFragment(
+                        this@ConnectDeviceFragment,
+                        R.id.connectPcFragment
+                    )
+                    true
                 }
+                else -> false
             }
+        }
 
-        })
     }
 }

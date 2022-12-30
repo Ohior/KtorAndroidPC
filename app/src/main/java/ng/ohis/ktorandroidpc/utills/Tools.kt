@@ -61,7 +61,7 @@ object Tools {
         return true
     }
 
-    fun requestForPermission(activity: Activity, unGrantedPermission: MutableList<String>) {
+    private fun requestForPermission(activity: Activity, unGrantedPermission: MutableList<String>) {
         ActivityCompat.requestPermissions(
             activity,
             unGrantedPermission.toTypedArray(),
@@ -202,4 +202,5 @@ object Tools {
             permissionString
         ) == PackageManager.PERMISSION_GRANTED
     }
+
 }

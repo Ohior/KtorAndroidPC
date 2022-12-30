@@ -10,6 +10,7 @@ import android.os.Build
 import android.os.Bundle
 import android.view.*
 import android.widget.*
+import androidx.activity.addCallback
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.IntentSenderRequest
 import androidx.activity.result.contract.ActivityResultContracts
@@ -28,6 +29,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import ng.ohis.ktorandroidpc.*
 import ng.ohis.ktorandroidpc.adapter.*
+import ng.ohis.ktorandroidpc.classes.NavbarMenuInterface
+import ng.ohis.ktorandroidpc.classes.NavbarMenuInterfaceImp
 import ng.ohis.ktorandroidpc.plugins.configureRouting
 import ng.ohis.ktorandroidpc.plugins.configureTemplating
 import ng.ohis.ktorandroidpc.plugins.uploadFile
@@ -37,7 +40,7 @@ import java.io.File
 import java.lang.reflect.Method
 
 
-class ConnectPcFragment : Fragment() {
+class ConnectPcFragment : Fragment(), NavbarMenuInterface by NavbarMenuInterfaceImp() {
     private lateinit var fragmentView: View
     private lateinit var idGifLinearLayout: LinearLayout
     private lateinit var idGifImageView: ImageView
@@ -47,7 +50,7 @@ class ConnectPcFragment : Fragment() {
     //    private lateinit var idBtnConnectDevice: Button
     private lateinit var coroutineScope: CoroutineScope
     private var connectDevice = true
-    private var sdDirectory: String? = null
+    private lateinit var sdDirectory: StorageDataClass
     private lateinit var recyclerAdapter: RecyclerAdapter
     private var nettyEngine: NettyApplicationEngine? = null
     private lateinit var idToolbarTextView: TextView
@@ -78,9 +81,9 @@ class ConnectPcFragment : Fragment() {
 
         requireActivity().findViewById<TextView>(R.id.id_tv_toolbar).isClickable = false
 
-        inflateMenuItem()
-
         fragmentInitializers()
+
+        inflateMenuItem()
 
         buttonClickListener()
 
@@ -101,6 +104,10 @@ class ConnectPcFragment : Fragment() {
             }
         }
         receivedRecyclerAdapter()
+
+        requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner) {
+            requireActivity().finish()
+        }
     }
 
     private fun receivedRecyclerAdapter() {
@@ -239,7 +246,10 @@ class ConnectPcFragment : Fragment() {
             idRecyclerView,
             R.layout.explorer_item
         )
-        sdDirectory = Tools.getExternalSDCardRootDirectory(requireActivity())
+        sdDirectory = StorageDataClass(
+            isSdStorage = Tools.getExternalSDCardRootDirectory(requireActivity()) != null,
+            rootDirectory = ""
+        )
     }
 
     private fun connectHotspot() {
@@ -329,65 +339,53 @@ class ConnectPcFragment : Fragment() {
     }
 
     private fun inflateMenuItem() {
-        requireActivity().addMenuProvider(object : MenuProvider {
-            override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
-                menu.clear()
-                menuInflater.inflate(R.menu.main_menu, menu)
-                menu.findItem(R.id.id_menu_mobile)?.isVisible = true
-                if (sdDirectory == null) {
-                    menu.findItem(R.id.id_menu_sd)?.isVisible = false
+        navbarMenuProvider(requireActivity(), sdDirectory, false) {
+            when (it.itemId) {
+                R.id.id_menu_mobile -> {
+                    menuItemClicked {
+                        Tools.navigateToFragment(
+                            fragment = this@ConnectPcFragment,
+                            fragId = R.id.explorerFragment,
+                            storageDataJson = StorageDataClass(
+                                rootDirectory = Const.ROOT_PATH,
+                                isSdStorage = false
+                            ).toJson()
+                        )
+                    }
+                    true
                 }
-            }
-
-            override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
-                return when (menuItem.itemId) {
-                    R.id.id_menu_mobile -> {
-                        menuItemClicked {
-                            Tools.navigateToFragment(
-                                fragment = this@ConnectPcFragment,
-                                fragId = R.id.explorerFragment,
-                                storageDataJson = StorageDataClass(
-                                    rootDirectory = Const.ROOT_PATH,
-                                    isSdStorage = false
-                                ).toJson()
-                            )
-                        }
-                        true
+                R.id.id_menu_sd -> {
+                    menuItemClicked {
+                        Tools.navigateToFragment(
+                            fragment = this@ConnectPcFragment,
+                            fragId = R.id.explorerFragment,
+                            storageDataJson = StorageDataClass(
+                                rootDirectory = Tools.getExternalSDCardRootDirectory(
+                                    requireActivity()
+                                ).toString(),
+                                isSdStorage = true
+                            ).toJson()
+                        )
                     }
-                    R.id.id_menu_sd -> {
-                        menuItemClicked {
-                            Tools.navigateToFragment(
-                                fragment = this@ConnectPcFragment,
-                                fragId = R.id.explorerFragment,
-                                storageDataJson = StorageDataClass(
-                                    rootDirectory = Tools.getExternalSDCardRootDirectory(
-                                        requireActivity()
-                                    ).toString(),
-                                    isSdStorage = true
-                                ).toJson()
-                            )
-                        }
-                        true
-                    }
-                    R.id.id_menu_connect_device -> {
-                        menuItemClicked {
-                            Tools.navigateToFragment(
-                                fragment = this@ConnectPcFragment,
-                                fragId = R.id.connectDeviceFragment,
-                                storageDataJson = StorageDataClass(
-                                    rootDirectory = Const.ROOT_PATH,
-                                    isSdStorage = false
-                                ).toJson()
-                            )
-                        }
-
-                        true
-                    }
-                    else -> false
+                    true
                 }
-            }
+                R.id.id_menu_connect_device -> {
+                    menuItemClicked {
+                        Tools.navigateToFragment(
+                            fragment = this@ConnectPcFragment,
+                            fragId = R.id.connectDeviceFragment,
+                            storageDataJson = StorageDataClass(
+                                rootDirectory = Const.ROOT_PATH,
+                                isSdStorage = false
+                            ).toJson()
+                        )
+                    }
 
-        })
+                    true
+                }
+                else -> false
+            }
+        }
     }
 }
 

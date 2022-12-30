@@ -9,6 +9,8 @@ object Const {
     const val SD_DIRECTORY_KEY = "SD_DIRECTORY_KEY"
     const val ADDRESS = "192.168.43.1"
     const val PORT = 8181
+    const val SERVER_PORT = 5252
+    const val MESSAGE_CODE = 1
     const val PERMISSION_CODE = 101
     const val PREFERENCES_FILE_NAME = "PREFERENCES_FILE_NAME"
     val ROOT_PATH: String by lazy {
