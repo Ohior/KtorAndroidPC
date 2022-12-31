@@ -7,6 +7,7 @@ import android.content.IntentSender
 import android.content.pm.PackageManager
 import android.location.LocationManager
 import android.net.Uri
+import android.net.wifi.WifiManager
 import android.os.Build
 import android.os.Bundle
 import android.os.Environment
@@ -23,6 +24,7 @@ import ng.ohis.ktorandroidpc.adapter.FileModel
 import ng.ohis.ktorandroidpc.adapter.StorageDataClass
 import ng.ohis.ktorandroidpc.explorer.FileUtils
 import java.io.File
+import java.lang.reflect.Method
 import java.util.*
 import kotlin.collections.ArrayList
 
@@ -201,6 +203,16 @@ object Tools {
             context,
             permissionString
         ) == PackageManager.PERMISSION_GRANTED
+    }
+
+    fun isHotspotOn(activity: Activity): Boolean {
+        // heck if user hot spot is switch on
+        val wifiManager =
+            activity.applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
+        val method: Method = wifiManager.javaClass.getMethod("getWifiApState")
+        method.isAccessible = true
+        val invoke = method.invoke(wifiManager) as Int
+        return invoke == 13
     }
 
 }

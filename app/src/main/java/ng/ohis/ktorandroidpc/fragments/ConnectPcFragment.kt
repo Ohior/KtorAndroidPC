@@ -2,24 +2,21 @@ package ng.ohis.ktorandroidpc.fragments
 
 import android.app.Activity
 import android.content.ComponentName
-import android.content.Context
 import android.content.Intent
 import android.net.Uri
-import android.net.wifi.WifiManager
 import android.os.Build
 import android.os.Bundle
-import android.view.*
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
 import android.widget.*
 import androidx.activity.addCallback
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.IntentSenderRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.net.toFile
-import androidx.core.view.MenuProvider
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
-import androidx.navigation.Navigation
-import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import io.ktor.server.engine.*
@@ -37,7 +34,6 @@ import ng.ohis.ktorandroidpc.plugins.uploadFile
 import ng.ohis.ktorandroidpc.utills.Const
 import ng.ohis.ktorandroidpc.utills.Tools
 import java.io.File
-import java.lang.reflect.Method
 
 
 class ConnectPcFragment : Fragment(), NavbarMenuInterface by NavbarMenuInterfaceImp() {
@@ -98,7 +94,7 @@ class ConnectPcFragment : Fragment(), NavbarMenuInterface by NavbarMenuInterface
         // Create app (Chransver) folder in root directory if it does not exist
         Tools.createDirectoryIfNonExist(Const.ROOT_PATH)
         Glide.with(requireActivity()).asGif().load(R.drawable.gifimage).into(idGifImageView)
-        if (!isHotspotOn()) {
+        if (!Tools.isHotspotOn(requireActivity())) {
             fragmentView.displaySnackBar("Wifi - Hotspot is switch OFF!", "switch ON") {
                 connectHotspot()
             }
@@ -174,7 +170,7 @@ class ConnectPcFragment : Fragment(), NavbarMenuInterface by NavbarMenuInterface
     private fun buttonClickListener() {
 //        check if connect button is clicked, so you can connect or disconnect users
         idBtnConnectBrowser.setOnClickListener {
-            if (isHotspotOn()) {
+            if (Tools.isHotspotOn(requireActivity())) {
 //                idBtnConnectDevice.isEnabled = !connectDevice
                 // check if device can be connected
                 if (connectDevice) {
@@ -209,20 +205,6 @@ class ConnectPcFragment : Fragment(), NavbarMenuInterface by NavbarMenuInterface
                 connectHotspot()
             }
         }
-        // This will prompt the user to select method of file transfer. Either to receive or send
-        // This will open another fragment
-//        idBtnConnectDevice.setOnClickListener {
-//            requireContext().locationPopUpWindow(
-//                fragmentView = fragmentView,
-//                layout = R.layout.connect_device_popup
-//            ) { v, p ->
-//                v.findViewById<Button>(R.id.id_btn_send).setOnClickListener{
-//                    p.dismiss()
-//                    Tools.navigateFragmentToFragment(fragmentView, R.id.connectPcFragment_to_connectDeviceFragment)
-//                }
-//                v.findViewById<Button>(R.id.id_btn_receive)
-//            }
-//        }
     }
 
     private fun fragmentInitializers() {
@@ -261,16 +243,6 @@ class ConnectPcFragment : Fragment(), NavbarMenuInterface by NavbarMenuInterface
         intent.component = componentName
         intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
         startActivity(intent)
-    }
-
-    private fun isHotspotOn(): Boolean {
-        // heck if user hot spot is switch on
-        val wifiManager =
-            requireActivity().applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
-        val method: Method = wifiManager.javaClass.getMethod("getWifiApState")
-        method.isAccessible = true
-        val invoke = method.invoke(wifiManager) as Int
-        return invoke == 13
     }
 
     private fun displayRecyclerView(file: File) {
