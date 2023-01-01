@@ -25,6 +25,7 @@
     <item
         android:id="@+id/id_menu_sd"
         android:title="@string/sd_card"
-        android:icon="@drawable/ic_micro_sd"/>
+        android:icon="@drawable/ic_micro_sd"
+        android:visible="false"/>
 
 </menu>

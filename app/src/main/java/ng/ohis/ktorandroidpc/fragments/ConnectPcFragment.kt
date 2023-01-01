@@ -1,8 +1,6 @@
 package ng.ohis.ktorandroidpc.fragments
 
 import android.app.Activity
-import android.content.ComponentName
-import android.content.Intent
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -96,7 +94,7 @@ class ConnectPcFragment : Fragment(), NavbarMenuInterface by NavbarMenuInterface
         Glide.with(requireActivity()).asGif().load(R.drawable.gifimage).into(idGifImageView)
         if (!Tools.isHotspotOn(requireActivity())) {
             fragmentView.displaySnackBar("Wifi - Hotspot is switch OFF!", "switch ON") {
-                connectHotspot()
+                Tools.connectHotspot(requireActivity())
             }
         }
         receivedRecyclerAdapter()
@@ -202,7 +200,7 @@ class ConnectPcFragment : Fragment(), NavbarMenuInterface by NavbarMenuInterface
                 connectDevice = !connectDevice
             } else {
                 // launch intent to prompt user to switch on hotspot
-                connectHotspot()
+                Tools.connectHotspot(requireActivity())
             }
         }
     }
@@ -232,17 +230,6 @@ class ConnectPcFragment : Fragment(), NavbarMenuInterface by NavbarMenuInterface
             isSdStorage = Tools.getExternalSDCardRootDirectory(requireActivity()) != null,
             rootDirectory = ""
         )
-    }
-
-    private fun connectHotspot() {
-//        open intent window so user can activate their mobile hotspot
-        val intent = Intent(Intent.ACTION_MAIN, null)
-        intent.addCategory(Intent.CATEGORY_LAUNCHER)
-        val componentName =
-            ComponentName("com.android.settings", "com.android.settings.TetherSettings")
-        intent.component = componentName
-        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
-        startActivity(intent)
     }
 
     private fun displayRecyclerView(file: File) {

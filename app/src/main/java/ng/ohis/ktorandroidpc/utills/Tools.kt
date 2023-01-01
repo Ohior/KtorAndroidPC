@@ -2,7 +2,9 @@ package ng.ohis.ktorandroidpc.utills
 
 import android.app.Activity
 import android.app.RecoverableSecurityException
+import android.content.ComponentName
 import android.content.Context
+import android.content.Intent
 import android.content.IntentSender
 import android.content.pm.PackageManager
 import android.location.LocationManager
@@ -213,6 +215,17 @@ object Tools {
         method.isAccessible = true
         val invoke = method.invoke(wifiManager) as Int
         return invoke == 13
+    }
+
+    fun connectHotspot(activity: Activity) {
+//        open intent window so user can activate their mobile hotspot
+        val intent = Intent(Intent.ACTION_MAIN, null)
+        intent.addCategory(Intent.CATEGORY_LAUNCHER)
+        val componentName =
+            ComponentName("com.android.settings", "com.android.settings.TetherSettings")
+        intent.component = componentName
+        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+       activity.startActivity(intent)
     }
 
 }

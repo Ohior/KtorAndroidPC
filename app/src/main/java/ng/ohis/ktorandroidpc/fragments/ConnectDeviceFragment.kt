@@ -22,7 +22,6 @@ import android.widget.ListView
 import android.widget.TextView
 import androidx.activity.addCallback
 import androidx.activity.result.contract.ActivityResultContracts.*
-import androidx.core.view.MenuProvider
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.RecyclerView
 import com.google.gson.Gson
@@ -106,7 +105,6 @@ class ConnectDeviceFragment : Fragment(), ExplorerInterface,
             for (device in peerList.deviceList) {
                 deviceNameArray.add(device.deviceName)
                 deviceArray.add(device)
-                Tools.debugMessage(device.deviceName)
             }
         }
     }
@@ -193,6 +191,7 @@ class ConnectDeviceFragment : Fragment(), ExplorerInterface,
         idRvRootFolder = fragmentView.findViewById(R.id.id_rv_folder)
         idTvLocalStorage = fragmentView.findViewById(R.id.id_tv_local_storage)
         idTvSdStorage = fragmentView.findViewById(R.id.id_tv_sd_storage)
+        if (!Tools.isExternalStorageAvailable()){idTvSdStorage.visibility = View.GONE}
         sendReceive = ShareDataThread(this, null)
         recyclerAdapter = RecyclerAdapter(
             requireContext(),
@@ -297,6 +296,18 @@ class ConnectDeviceFragment : Fragment(), ExplorerInterface,
                         } else {
                             wifiManager.isWifiEnabled = !wifiManager.isWifiEnabled
                         }
+                    }
+                    if (Tools.isHotspotOn(requireActivity())) {
+                        requireActivity().popUpWindow(
+                            title = "Notice",
+                            message = "Your wifi - hotspot is on, do disable it"
+                        ) {
+                            it.setPositiveButton("disable hotspot") { _, _ ->
+                                Tools.connectHotspot(requireActivity())
+                            }
+                            it.setNegativeButton("cancel") { s, _ -> s.dismiss() }
+                        }
+
                     } else {
                         deviceConnectionPopup()
                         idBtnConnectDevice.visibility = View.GONE
@@ -359,7 +370,6 @@ class ConnectDeviceFragment : Fragment(), ExplorerInterface,
                 config.deviceAddress = device.deviceAddress
                 mManager.connect(mChannel, config, object : WifiP2pManager.ActionListener {
                     override fun onSuccess() {
-                        Tools.showToast(requireContext(), "Connected to ${device.deviceName}")
                         CoroutineScope(Dispatchers.IO).launch {
                             sendReceive.writeBytes("device ${device.deviceName} sent message Ohiorenua".toByteArray())
                         }
@@ -386,7 +396,12 @@ class ConnectDeviceFragment : Fragment(), ExplorerInterface,
     }
 
     private fun inflateMenuItem() {
-        navbarMenuProvider(requireActivity(), rootDir, showComputerIcon = true, showDeviceIcon = false) {
+        navbarMenuProvider(
+            requireActivity(),
+            null,
+            showComputerIcon = true,
+            showDeviceIcon = false
+        ) {
             when (it.itemId) {
                 R.id.id_menu_computer -> {
                     Tools.navigateFragmentToFragment(

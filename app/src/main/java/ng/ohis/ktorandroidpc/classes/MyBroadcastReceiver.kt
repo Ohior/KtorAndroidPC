@@ -65,8 +65,8 @@ class MyBroadcastReceiver(
                 else -> false
             }
         } else {
-//            return connectivityManager.activeNetworkInfo?.isConnected ?: false
-            return connectivityManager.isActiveNetworkMetered
+            return connectivityManager.activeNetworkInfo?.isConnected ?: false
+//            return connectivityManager.isActiveNetworkMetered
         }
     }
 }

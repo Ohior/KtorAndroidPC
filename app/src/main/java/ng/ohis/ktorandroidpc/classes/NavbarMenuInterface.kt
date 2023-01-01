@@ -1,5 +1,6 @@
 package ng.ohis.ktorandroidpc.classes
 
+import android.os.Environment
 import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
@@ -13,7 +14,7 @@ import ng.ohis.ktorandroidpc.utills.Tools
 interface NavbarMenuInterface {
     fun navbarMenuProvider(
         activity: FragmentActivity,
-        rootDir: StorageDataClass,
+        rootDir: StorageDataClass?,
         showComputerIcon: Boolean,
         showDeviceIcon: Boolean = true,
         menuItemFunc: (MenuItem) -> Boolean
@@ -23,7 +24,7 @@ interface NavbarMenuInterface {
 class NavbarMenuInterfaceImp : NavbarMenuInterface {
     override fun navbarMenuProvider(
         activity: FragmentActivity,
-        rootDir: StorageDataClass,
+        rootDir: StorageDataClass?,
         showComputerIcon: Boolean,
         showDeviceIcon: Boolean,
         menuItemFunc: (MenuItem) -> Boolean
@@ -33,10 +34,15 @@ class NavbarMenuInterfaceImp : NavbarMenuInterface {
                 menu.clear()
                 menuInflater.inflate(R.menu.main_menu, menu)
                 menu.findItem(R.id.id_menu_computer)?.isVisible = showComputerIcon
-                menu.findItem(R.id.id_menu_sd)?.isVisible =
-                    if (!showComputerIcon) Tools.isExternalStorageAvailable() else !rootDir.isSdStorage
-                menu.findItem(R.id.id_menu_mobile)?.isVisible = rootDir.isSdStorage
                 menu.findItem(R.id.id_menu_connect_device)?.isVisible = showDeviceIcon
+                if (rootDir == null) {
+                    menu.findItem(R.id.id_menu_sd)?.isVisible = false
+                    menu.findItem(R.id.id_menu_mobile)?.isVisible = false
+                } else {
+                    menu.findItem(R.id.id_menu_sd)?.isVisible =
+                        if (!showComputerIcon) Tools.isExternalStorageAvailable() else !rootDir.isSdStorage
+                    menu.findItem(R.id.id_menu_mobile)?.isVisible = rootDir.isSdStorage
+                }
             }
 
             override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
