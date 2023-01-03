@@ -9,6 +9,7 @@ import ng.ohis.ktorandroidpc.adapter.*
 import ng.ohis.ktorandroidpc.explorer.FileType
 import ng.ohis.ktorandroidpc.openFileWithDefaultApp
 import ng.ohis.ktorandroidpc.utills.Tools
+import java.io.File
 
 interface ExplorerInterface {
     fun getDrawableFileType(fileType: FileType): Int {
@@ -48,7 +49,8 @@ interface ExplorerInterface {
         position: Int?,
         recyclerAdapter: RecyclerAdapter,
         context: Context,
-        filePath: String
+        filePath: String,
+        function: ((fileModel: FileModel) -> Unit)? = null,
     ): String {
         // enter into new folder
         var path = filePath
@@ -67,7 +69,9 @@ interface ExplorerInterface {
             loopThroughFiles(files, recyclerAdapter)
         } else {
             // open the file because it is not a folder
-            context.openFileWithDefaultApp(fml.file)
+            if (function != null) {
+                function(fml)
+            }
         }
         return path
     }
@@ -88,7 +92,8 @@ interface ExplorerInterface {
                 .dropLast(1)
                 .joinToString("/")
 
-            val files = Tools.getFilesFromPath(directory).sortedWith(compareBy { it.name.lowercase() })
+            val files =
+                Tools.getFilesFromPath(directory).sortedWith(compareBy { it.name.lowercase() })
             loopThroughFiles(files, recyclerAdapter)
             directory
         }
@@ -114,13 +119,16 @@ interface ExplorerInterface {
         activity.startActivity(intent)
     }
 
-    fun getToolbarName(rootDir: StorageDataClass?, activity: Activity, title:String?=null): String {
-        return if (rootDir == null){
+    fun getToolbarName(
+        rootDir: StorageDataClass?,
+        activity: Activity,
+        title: String? = null
+    ): String {
+        return if (rootDir == null) {
             activity.getString(R.string.format_string, title)
-        }
-        else if (rootDir.isSdStorage) {
+        } else if (rootDir.isSdStorage) {
             activity.getString(R.string.format_string, "SD Storage")
-        } else{
+        } else {
             activity.getString(R.string.format_string, "Local Storage")
         }
 

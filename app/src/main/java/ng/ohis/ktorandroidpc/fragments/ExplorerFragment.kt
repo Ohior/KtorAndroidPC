@@ -79,13 +79,18 @@ open class ExplorerFragment : Fragment(), ExplorerInterface, NavbarMenuInterface
         return fragmentView
     }
 
-    override fun navigateDirectoryForward(
+    fun navigateDirForward(
         position: Int?,
         recyclerAdapter: RecyclerAdapter,
         context: Context,
-        filePath: String
-    ): String {
-        this.filePath = super.navigateDirectoryForward(position, recyclerAdapter, context, filePath)
+        filePath: String,
+        function: ((fileModel:FileModel) -> Unit)? = null,
+        ): String {
+        this.filePath = super.navigateDirectoryForward(position, recyclerAdapter, context, filePath){
+            if (function != null) {
+                function(it)
+            }
+        }
         navbarRecyclerView(
             navbarRecyclerAdapter, this.filePath, rootDir, this.recyclerAdapter, context
         )
@@ -133,7 +138,9 @@ open class ExplorerFragment : Fragment(), ExplorerInterface, NavbarMenuInterface
         recyclerAdapter.onClickListener(object : OnClickInterface {
             override fun onItemClick(position: Int, view: View) {
                 filePath =
-                    navigateDirectoryForward(position, recyclerAdapter, requireContext(), filePath)
+                    navigateDirForward(position, recyclerAdapter, requireContext(), filePath){
+                        requireContext().openFileWithDefaultApp(it.file)
+                    }
             }
 
             override fun onMenuClick(fileModel: FileModel, view: View, position: Int) {
@@ -162,7 +169,7 @@ open class ExplorerFragment : Fragment(), ExplorerInterface, NavbarMenuInterface
                                             )
                                         }
                                         filePath =
-                                            navigateDirectoryForward(
+                                            navigateDirForward(
                                                 null,
                                                 recyclerAdapter,
                                                 requireContext(),
@@ -185,12 +192,14 @@ open class ExplorerFragment : Fragment(), ExplorerInterface, NavbarMenuInterface
                                         "No App To open this File! 😢"
                                     )
                                 } else filePath =
-                                    navigateDirectoryForward(
+                                    navigateDirForward(
                                         null,
                                         recyclerAdapter,
                                         requireContext(),
                                         filePath
-                                    )
+                                    ){
+                                        requireContext().openFileWithDefaultApp(it.file)
+                                    }
                                 true
                             }
                             R.id.id_rv_menu_detail -> {
@@ -220,7 +229,7 @@ open class ExplorerFragment : Fragment(), ExplorerInterface, NavbarMenuInterface
         filePath = rootDir.rootDirectory
         recyclerAdapter = RecyclerAdapter(requireContext(), idRvRootFolder, R.layout.explorer_item)
         navbarRecyclerAdapter = NavbarRecyclerAdapter(requireContext(), idNavigateRecyclerView)
-        filePath = navigateDirectoryForward(null, recyclerAdapter, requireContext(), filePath)
+        filePath = navigateDirForward(null, recyclerAdapter, requireContext(), filePath)
         idToolbarTextView.text = getToolbarName(rootDir, requireActivity())
     }
 
@@ -240,7 +249,8 @@ open class ExplorerFragment : Fragment(), ExplorerInterface, NavbarMenuInterface
                 }
                 R.id.id_menu_computer -> {
                     Tools.navigateFragmentToFragment(
-                        this@ExplorerFragment,
+                        requireActivity(),
+                        R.id.fragmentContainerView,
                         R.id.connectPcFragment
                     )
                     true
@@ -250,7 +260,7 @@ open class ExplorerFragment : Fragment(), ExplorerInterface, NavbarMenuInterface
                         rootDirectory = Tools.getExternalSDCardRootDirectory(requireActivity())!!,
                         isSdStorage = true
                     )
-                    filePath = navigateDirectoryForward(
+                    filePath = navigateDirForward(
                         null,
                         recyclerAdapter,
                         requireContext(),
@@ -264,7 +274,7 @@ open class ExplorerFragment : Fragment(), ExplorerInterface, NavbarMenuInterface
                         rootDirectory = Const.ROOT_PATH,
                         isSdStorage = false
                     )
-                    filePath = navigateDirectoryForward(
+                    filePath = navigateDirForward(
                         null,
                         recyclerAdapter,
                         requireContext(),

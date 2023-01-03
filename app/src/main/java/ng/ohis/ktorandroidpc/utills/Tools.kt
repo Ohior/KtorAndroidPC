@@ -15,11 +15,13 @@ import android.os.Bundle
 import android.os.Environment
 import android.provider.MediaStore
 import android.util.Log
+import android.view.View
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.fragment.app.Fragment
+import androidx.navigation.Navigation
 import androidx.navigation.fragment.findNavController
 import ng.ohis.ktorandroidpc.BuildConfig
 import ng.ohis.ktorandroidpc.adapter.FileModel
@@ -108,6 +110,10 @@ object Tools {
         return Environment.MEDIA_MOUNTED == Environment.getExternalStorageState()
     }
 
+    fun isExternalStorageAvailable(context: Context): Boolean {
+        return ContextCompat.getExternalFilesDirs(context, null).size >= 2
+    }
+
     fun getExternalSDCardRootDirectory(activity: Activity): String? {
         //        get the root directory of sd card if there is any, return null otherwise
         if (isExternalStorageAvailable() || isExternalStorageReadOnly()) {
@@ -165,9 +171,10 @@ object Tools {
         return uri
     }
 
-    fun navigateFragmentToFragment(fragmentView: Fragment, id: Int) {
-        fragmentView.findNavController().navigate(id)
+    fun navigateFragmentToFragment(activity: Activity, viewId:Int, id: Int) {
+//        fragmentView.findNavController().navigate(id)
 //        Navigation.findNavController(fragmentView).navigate(id)
+        Navigation.findNavController(activity, viewId).navigate(id)
     }
 
     fun navigateToFragment(
@@ -227,5 +234,4 @@ object Tools {
         intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
        activity.startActivity(intent)
     }
-
 }
