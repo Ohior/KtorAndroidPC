@@ -1,82 +1,102 @@
 package ng.ohis.ktorandroidpc.classes
 
-import android.os.Environment
 import android.os.Handler
 import android.os.Looper
-import ng.ohis.ktorandroidpc.fragments.ConnectDeviceFragment
 import ng.ohis.ktorandroidpc.utills.Const
-import ng.ohis.ktorandroidpc.utills.Tools
-import java.io.IOException
-import java.io.InputStream
-import java.io.OutputStream
+import java.io.DataOutputStream
+import java.io.File
+import java.io.FileInputStream
 import java.net.InetAddress
-import java.net.InetSocketAddress
 import java.net.Socket
-import java.util.concurrent.Executor
 import java.util.concurrent.Executors
 
-//class ClientClass(
-//    private val connectDeviceFragment: ConnectDeviceFragment,
-//    private val insetAddress: InetAddress
-//) : Thread() {
-//    private val socket = Socket()
-//
-//    override fun run() {
-//        try {
-//            socket.connect(InetSocketAddress(insetAddress.hostAddress, Const.SERVER_PORT), 500)
-//            connectDeviceFragment.sendReceive = SendReceiveThread(connectDeviceFragment, socket)
-//            connectDeviceFragment.sendReceive.start()
-//        } catch (io: IOException) {
-//            Tools.debugMessage(io.message.toString(), io.cause.toString())
-//        }
-//    }
-//}
 
 class ClientClass(
     private val inetAddress: InetAddress
 ) : Thread() {
-
-    private var socket: Socket? = null
-    private var inputStream: InputStream? = null
-    private var outputStream: OutputStream? = null
+    private lateinit var socket: Socket
+    private lateinit var inputStream: FileInputStream
+    private lateinit var outputStream: DataOutputStream
 
     override fun run() {
-        try {
-            socket = Socket()
-            socket?.connect(InetSocketAddress(inetAddress, Const.SERVER_PORT), 500)
-            inputStream = socket?.getInputStream()
-            outputStream = socket?.getOutputStream()
-        } catch (io: IOException) {
-            Tools.debugMessage(io.message.toString(), io.cause.toString())
-        }
+        socket = Socket(inetAddress, Const.SERVER_PORT)
+    }
+
+    fun writeFile(file: File, function: (size: Long, count: Int, name: String) -> Unit) {
+        inputStream = FileInputStream(file)
+        outputStream = DataOutputStream(socket.getOutputStream())
+
+        val fileName = file.name
+        val fileNameByteArray = fileName.toByteArray()
+        outputStream.writeInt(fileNameByteArray.size)
+        outputStream.write(fileNameByteArray)
 
         val executor = Executors.newSingleThreadExecutor()
         val handler = Handler(Looper.getMainLooper())
         executor.execute {
-            val buffer = ByteArray(4024)
-            var bytes: Int
-            while (socket != null) {
-                try {
-                    bytes = inputStream!!.read(buffer)
-                    if (bytes > 0){
-                        val finalByte = bytes
-                        handler.post {
-                            val tempMsg = String(buffer, 0, finalByte)
-                            Tools.debugMessage(tempMsg)
-                        }
-                    }
-                }catch (io:IOException){
-                    Tools.debugMessage(io.message.toString(), io.cause.toString())
-                }
+            val byteArray = ByteArray(4 * 1024)
+            var bytes: Int = inputStream.read(byteArray)
+            var count = 0
+            while (bytes > 0) {
+                count += bytes
+                outputStream.write(byteArray, 0, bytes)
+                bytes = inputStream.read(byteArray)
+                function(file.length(), count, fileName)
             }
         }
-    }
-
-    fun write(byteArray: ByteArray) {
-        try {
-            outputStream?.write(byteArray)
-        } catch (io: IOException) {
-            Tools.debugMessage(io.message.toString(), io.cause.toString())
-        }
+        inputStream.close()
+        outputStream.close()
+        socket.close()
     }
 }
+
+
+// WORKING STEP ONE(1)
+//class ClientClass(
+//    private val context: Context,
+//    private val inetAddress: InetAddress
+//) : Thread() {
+//    private lateinit var socket: Socket
+//    //    private var inputStream: InputStream? = null
+//    private var inputStream: FileInputStream? = null
+//    private var outputStream: DataOutputStream? = null
+//
+//    override fun run() {
+//        try {
+////            socket.bind(null)
+////            socket.connect(InetSocketAddress(inetAddress, Const.SERVER_PORT), 500)
+//            socket = Socket(inetAddress, Const.SERVER_PORT)
+//            Tools.debugMessage("Client socket - " + socket.isConnected)
+//        } catch (e: IOException) {
+//            Tools.debugMessage("an error occurred", e.cause.toString())
+//        }
+//    }
+//
+//
+//    fun writeFile(file: File) {
+//        inputStream = FileInputStream(file)
+//        outputStream = DataOutputStream(socket.getOutputStream())
+//        val fileName = file.name
+//
+//        val executor = Executors.newSingleThreadExecutor()
+//        val handler = Handler(Looper.getMainLooper())
+//        executor.execute {
+//            val fileContentByteArray = ByteArray(file.length().toInt())
+//            val fileNameBytes = fileName.toByteArray()
+//            var bytes: Int
+//            inputStream!!.read(fileContentByteArray)
+//
+//            outputStream!!.writeInt(fileNameBytes.size)
+//            outputStream!!.write(fileNameBytes)
+//
+//            outputStream!!.writeInt(fileContentByteArray.size)
+//            outputStream!!.write(fileContentByteArray)
+//
+//            // Close the streams and the socket
+////            inputStream!!.close()
+////            outputStream?.close()
+////            socket.close()
+//        }
+//
+//    }
+//}

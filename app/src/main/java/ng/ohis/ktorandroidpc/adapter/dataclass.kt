@@ -1,9 +1,11 @@
 package ng.ohis.ktorandroidpc.adapter
 
 
+import android.content.Context
 import ng.ohis.ktorandroidpc.R
 import ng.ohis.ktorandroidpc.explorer.FileType
 import ng.ohis.ktorandroidpc.explorer.FileUtils
+import ng.ohis.ktorandroidpc.utills.Tools
 import java.io.File
 import java.sql.Date
 
@@ -49,7 +51,8 @@ data class StorageDataClass(
     val isSdStorage: Boolean
 ) {
     fun toJson(): String {
-        return """{"rootDirectory": "$rootDirectory","isSdStorage": "$isSdStorage"}""".trimIndent().trim()
+        return """{"rootDirectory": "$rootDirectory","isSdStorage": "$isSdStorage"}""".trimIndent()
+            .trim()
     }
 }
 
@@ -67,3 +70,9 @@ data class MenuDetailDataClass(val fileModel: FileModel) {
                 }
     }
 }
+
+data class ShowSdCardDataclass(
+    val showSdCard:Boolean,
+    val localMemory:Boolean,
+    val connectPc:Boolean = true
+)

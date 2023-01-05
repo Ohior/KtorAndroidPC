@@ -27,7 +27,8 @@ import ng.ohis.ktorandroidpc.popUpWindow
 import ng.ohis.ktorandroidpc.utills.Const
 import ng.ohis.ktorandroidpc.utills.Tools
 
-open class ExplorerFragment : Fragment(), ExplorerInterface, NavbarMenuInterface by NavbarMenuInterfaceImp(){
+open class ExplorerFragment : Fragment(), ExplorerInterface,
+    NavbarMenuInterface by NavbarMenuInterfaceImp() {
     private lateinit var fragmentView: View
     private lateinit var idRvRootFolder: RecyclerView
     private lateinit var recyclerAdapter: RecyclerAdapter
@@ -84,13 +85,14 @@ open class ExplorerFragment : Fragment(), ExplorerInterface, NavbarMenuInterface
         recyclerAdapter: RecyclerAdapter,
         context: Context,
         filePath: String,
-        function: ((fileModel:FileModel) -> Unit)? = null,
-        ): String {
-        this.filePath = super.navigateDirectoryForward(position, recyclerAdapter, context, filePath){
-            if (function != null) {
-                function(it)
+        function: ((fileModel: FileModel) -> Unit)? = null,
+    ): String {
+        this.filePath =
+            super.navigateDirectoryForward(position, recyclerAdapter, context, filePath) {
+                if (function != null) {
+                    function(it)
+                }
             }
-        }
         navbarRecyclerView(
             navbarRecyclerAdapter, this.filePath, rootDir, this.recyclerAdapter, context
         )
@@ -138,7 +140,7 @@ open class ExplorerFragment : Fragment(), ExplorerInterface, NavbarMenuInterface
         recyclerAdapter.onClickListener(object : OnClickInterface {
             override fun onItemClick(position: Int, view: View) {
                 filePath =
-                    navigateDirForward(position, recyclerAdapter, requireContext(), filePath){
+                    navigateDirForward(position, recyclerAdapter, requireContext(), filePath) {
                         requireContext().openFileWithDefaultApp(it.file)
                     }
             }
@@ -197,7 +199,7 @@ open class ExplorerFragment : Fragment(), ExplorerInterface, NavbarMenuInterface
                                         recyclerAdapter,
                                         requireContext(),
                                         filePath
-                                    ){
+                                    ) {
                                         requireContext().openFileWithDefaultApp(it.file)
                                     }
                                 true
@@ -234,7 +236,11 @@ open class ExplorerFragment : Fragment(), ExplorerInterface, NavbarMenuInterface
     }
 
     private fun inflateMenuItem() {
-        navbarMenuProvider(requireActivity(), rootDir, true) {
+        navbarMenuProvider(
+            requireActivity(),
+            rootDir,
+        ShowSdCardDataclass(!rootDir.isSdStorage && Tools.isExternalStorageAvailable(requireContext()), rootDir.isSdStorage)
+        ) {
             when (it.itemId) {
                 R.id.id_menu_connect_device -> {
                     Tools.navigateToFragment(

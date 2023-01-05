@@ -15,9 +15,9 @@ import ng.ohis.ktorandroidpc.utills.Tools
 
 
 class MyBroadcastReceiver(
-    private val manager: WifiP2pManager,
-    private val channel: WifiP2pManager.Channel?,
-    private val activity: ConnectDeviceFragment
+    private val wifiP2pManager: WifiP2pManager,
+    private val channel: WifiP2pManager.Channel,
+    private val connectDeviceFragment: ConnectDeviceFragment
 ) : BroadcastReceiver() {
 
     @SuppressLint("MissingPermission")
@@ -25,30 +25,41 @@ class MyBroadcastReceiver(
         when (intent?.action) {
             WifiP2pManager.WIFI_P2P_STATE_CHANGED_ACTION -> {
                 // check if wifi is enabled
+                val state = intent.getIntExtra(WifiP2pManager.EXTRA_WIFI_STATE, -1)
+                // Check to see if Wi-Fi P2P is on and supported
+                if (state == WifiP2pManager.WIFI_P2P_STATE_ENABLED) {
+                    // wifiP2p is enabled
+                } else {
+                    // wifi p2p is not enabled
+                }
             }
             WifiP2pManager.WIFI_P2P_PEERS_CHANGED_ACTION -> {
-                // get wifi p2p list of peers
-                if (Tools.isPermissionGranted(
-                        activity.requireContext(),
-                        Const.FINE_LOCATION_PERMISSION
-                    )
+                // get list of connected peers
+                if (context != null &&
+                    Tools.isPermissionGranted(context, Const.FINE_LOCATION_PERMISSION)
                 ) {
-                    manager.requestPeers(channel, activity.peerListListener)
+                    wifiP2pManager.requestPeers(channel, connectDeviceFragment.peerListListener)
                 }
             }
             WifiP2pManager.WIFI_P2P_CONNECTION_CHANGED_ACTION -> {
-                // connect to wifi connection
+                // respond to connection peer disconnection
                 if (context != null) {
                     val networkInfo = isNetworkAvailable(context)
                     if (networkInfo) {
-                        manager.requestConnectionInfo(channel, activity.connectionInfoListener)
+                        wifiP2pManager.requestConnectionInfo(channel, connectDeviceFragment.connectionInfoListener)
                     } else {
                         Tools.showToast(
-                            activity.requireContext(),
-                            activity.getString(R.string.formatted_string, "Device disconnected")
+                            connectDeviceFragment.requireContext(),
+                            connectDeviceFragment.getString(
+                                R.string.formatted_string,
+                                "Device disconnected"
+                            )
                         )
                     }
                 }
+            }
+            WifiP2pManager.WIFI_P2P_THIS_DEVICE_CHANGED_ACTION -> {
+                // respond to this device change action
             }
         }
     }
@@ -77,6 +88,71 @@ class MyBroadcastReceiver(
     }
 
 }
+
+
+//class MyBroadcastReceiver(
+//    private val manager: WifiP2pManager,
+//    private val channel: WifiP2pManager.Channel?,
+//    private val activity: ConnectDeviceFragment
+//) : BroadcastReceiver() {
+//
+//    @SuppressLint("MissingPermission")
+//    override fun onReceive(context: Context?, intent: Intent?) {
+//        when (intent?.action) {
+//            WifiP2pManager.WIFI_P2P_STATE_CHANGED_ACTION -> {
+//                // check if wifi is enabled
+//            }
+//            WifiP2pManager.WIFI_P2P_PEERS_CHANGED_ACTION -> {
+//                // get wifi p2p list of peers
+//                if (Tools.isPermissionGranted(
+//                        activity.requireContext(),
+//                        Const.FINE_LOCATION_PERMISSION
+//                    )
+//                ) {
+//                    manager.requestPeers(channel, activity.peerListListener)
+//                }
+//            }
+//            WifiP2pManager.WIFI_P2P_CONNECTION_CHANGED_ACTION -> {
+//                // connect to wifi connection
+//                if (context != null) {
+//                    val networkInfo = isNetworkAvailable(context)
+//                    if (networkInfo) {
+//                        manager.requestConnectionInfo(channel, activity.connectionInfoListener)
+//                    } else {
+//                        Tools.showToast(
+//                            activity.requireContext(),
+//                            activity.getString(R.string.formatted_string, "Device disconnected")
+//                        )
+//                    }
+//                }
+//            }
+//        }
+//    }
+//
+//    private fun isNetworkAvailable(context: Context): Boolean {
+//        val connectivityManager =
+//            context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+//            val nw = connectivityManager.activeNetwork ?: return false
+//            val actNw = connectivityManager.getNetworkCapabilities(nw) ?: return false
+//            return when {
+//                actNw.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) -> true
+//                actNw.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) -> true
+//                //for other device how are able to connect with Ethernet
+//                actNw.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET) -> true
+//                //for check internet over Bluetooth
+//                actNw.hasTransport(NetworkCapabilities.TRANSPORT_BLUETOOTH) -> true
+//                // for check for wifi p2p
+//                actNw.hasTransport(NetworkCapabilities.TRANSPORT_LOWPAN) -> true
+//                else -> false
+//            }
+//        } else {
+////            return connectivityManager.activeNetworkInfo?.isConnected ?: false
+//            return connectivityManager.isActiveNetworkMetered
+//        }
+//    }
+//
+//}
 
 //class MyBroadcastReceiver(
 //    private val mManager: WifiP2pManager,

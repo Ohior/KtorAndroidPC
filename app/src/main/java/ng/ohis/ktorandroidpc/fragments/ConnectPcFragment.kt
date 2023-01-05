@@ -298,7 +298,11 @@ class ConnectPcFragment : Fragment(), NavbarMenuInterface by NavbarMenuInterface
     }
 
     private fun inflateMenuItem() {
-        navbarMenuProvider(requireActivity(), sdDirectory, false) {
+        navbarMenuProvider(
+            requireActivity(),
+            sdDirectory,
+            ShowSdCardDataclass(Tools.isExternalStorageAvailable(requireContext()), localMemory = true, connectPc = false)
+        ) {
             when (it.itemId) {
                 R.id.id_menu_mobile -> {
                     menuItemClicked {
